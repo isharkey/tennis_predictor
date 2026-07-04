@@ -313,7 +313,7 @@ function profileTour(level, tour) {
 function historicalStatProfile(level, tour, surface) {
   const canonicalTour = profileTour(level, tour);
   const tourProfiles = historicalThreeYearStatAverages[canonicalTour] || historicalThreeYearStatAverages.ATP;
-  return tourProfiles[surface] || tourProfiles.Hard || historicalThreeYearStatAverages.ATP.Hard;
+  return tourProfiles[surface] || tourProfiles.Hard;
 }
 
 function playerName(event, side) {
