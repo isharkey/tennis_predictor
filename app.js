@@ -9,6 +9,7 @@ const METRICS = [
 
 const MODEL_KEYS = ["eloPulse", "serveHold", "surfaceFit", "formCurve", "marketBlend"];
 const STORAGE_KEY = "tennis-edge-state-v1";
+const APP_ASSET_VERSION = "20260704";
 const HISTORY_LIMIT = 140;
 const AUTO_LEARNING_RUNS = 2000;
 const AUTO_LEARNING_CHUNK_SIZE = 12;
@@ -354,7 +355,7 @@ async function refreshLiveSlate() {
 
 async function loadPreloadedMatches(forceReload = false) {
   try {
-    const response = await fetch("matches_preload.json", { cache: "no-store" });
+    const response = await fetch(`matches_preload.json?v=${APP_ASSET_VERSION}`, { cache: "no-store" });
     if (!response.ok) return;
 
     const payload = await response.json();
@@ -389,7 +390,7 @@ async function loadOddsBoard() {
   const status = document.getElementById("odds-status");
 
   try {
-    const response = await fetch("odds_preload.json", { cache: "no-store" });
+    const response = await fetch(`odds_preload.json?v=${APP_ASSET_VERSION}`, { cache: "no-store" });
     if (!response.ok) throw new Error("No local sportsbook board found.");
 
     const payload = await response.json();
