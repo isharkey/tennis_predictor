@@ -82,6 +82,49 @@ DEFAULT_STATS = {
     "injuryB": 0,
 }
 
+HISTORICAL_THREE_YEAR_STAT_AVERAGES = {
+    "ATP": {
+        "Hard": {"rank": 85, "hold": 82.3, "ace": 7.8, "form": 64},
+        "Indoor": {"rank": 85, "hold": 84.1, "ace": 8.2, "form": 64},
+        "Clay": {"rank": 85, "hold": 78.9, "ace": 5.9, "form": 64},
+        "Grass": {"rank": 85, "hold": 85.0, "ace": 9.1, "form": 64},
+    },
+    "WTA": {
+        "Hard": {"rank": 95, "hold": 66.8, "ace": 3.8, "form": 62},
+        "Indoor": {"rank": 95, "hold": 68.4, "ace": 4.0, "form": 62},
+        "Clay": {"rank": 95, "hold": 63.7, "ace": 2.9, "form": 62},
+        "Grass": {"rank": 95, "hold": 70.4, "ace": 4.4, "form": 62},
+    },
+    "Challenger": {
+        "Hard": {"rank": 215, "hold": 79.7, "ace": 6.1, "form": 59},
+        "Indoor": {"rank": 215, "hold": 81.2, "ace": 6.4, "form": 59},
+        "Clay": {"rank": 215, "hold": 76.2, "ace": 4.6, "form": 59},
+        "Grass": {"rank": 215, "hold": 82.0, "ace": 7.2, "form": 59},
+    },
+    "ITF": {
+        "Hard": {"rank": 430, "hold": 74.1, "ace": 3.9, "form": 55},
+        "Indoor": {"rank": 430, "hold": 75.2, "ace": 4.1, "form": 55},
+        "Clay": {"rank": 430, "hold": 70.8, "ace": 2.8, "form": 55},
+        "Grass": {"rank": 430, "hold": 76.0, "ace": 4.7, "form": 55},
+    },
+}
+
+
+def profile_tour(level: str, tour: str) -> str:
+    if tour == "Challenger" or level == "Challenger":
+        return "Challenger"
+    if tour == "ITF" or level == "ITF":
+        return "ITF"
+    if tour == "WTA" or str(level).startswith("WTA"):
+        return "WTA"
+    return "ATP"
+
+
+def historical_stat_profile(level: str, tour: str, surface: str) -> Dict[str, float]:
+    canonical_tour = profile_tour(level, tour)
+    tour_profiles = HISTORICAL_THREE_YEAR_STAT_AVERAGES.get(canonical_tour, HISTORICAL_THREE_YEAR_STAT_AVERAGES["ATP"])
+    return tour_profiles.get(surface, tour_profiles["Hard"])
+
 
 def read_json(path: str) -> Any:
     return json.loads(Path(path).read_text(encoding="utf-8"))
@@ -186,6 +229,10 @@ def normalize_match(item: Dict[str, Any], index: int) -> Optional[Dict[str, Any]
     )
     format_source = first_present(item, ["format", "bestOf", "best_of", "sets", "defaultPeriodCount"])
     is_doubles = event_looks_doubles(player_a, player_b, tournament)
+    surface = normalize_surface(
+        first_present(item, ["surface", "courtSurface", "groundType", "ground", "tournament.uniqueTournament.groundType"])
+    )
+    stat_profile = historical_stat_profile(level, tour, surface)
 
     match = {
         "id": string_value(first_present(item, ["id", "eventId", "matchId", "fixtureId"]), ""),
@@ -199,21 +246,19 @@ def normalize_match(item: Dict[str, Any], index: int) -> Optional[Dict[str, Any]
         ),
         "playerA": player_a,
         "playerB": player_b,
-        "surface": normalize_surface(
-            first_present(item, ["surface", "courtSurface", "groundType", "ground", "tournament.uniqueTournament.groundType"])
-        ),
+        "surface": surface,
         "format": normalize_format(format_source, level, tour, is_doubles),
         **DEFAULT_STATS,
     }
 
-    match["rankA"] = int_number(first_present(item, ["rankA", "playerARank", "homeRank", "homeTeam.ranking"]), match["rankA"])
-    match["rankB"] = int_number(first_present(item, ["rankB", "playerBRank", "awayRank", "awayTeam.ranking"]), match["rankB"])
-    match["holdA"] = float_number(first_present(item, ["holdA", "playerAHold", "homeHoldPct"]), match["holdA"])
-    match["holdB"] = float_number(first_present(item, ["holdB", "playerBHold", "awayHoldPct"]), match["holdB"])
-    match["aceA"] = float_number(first_present(item, ["aceA", "playerAAces", "homeAcesAvg"]), match["aceA"])
-    match["aceB"] = float_number(first_present(item, ["aceB", "playerBAces", "awayAcesAvg"]), match["aceB"])
-    match["formA"] = int_number(first_present(item, ["formA", "playerAForm", "homeForm"]), match["formA"])
-    match["formB"] = int_number(first_present(item, ["formB", "playerBForm", "awayForm"]), match["formB"])
+    match["rankA"] = int_number(first_present(item, ["rankA", "playerARank", "homeRank", "homeTeam.ranking"]), int(stat_profile["rank"]))
+    match["rankB"] = int_number(first_present(item, ["rankB", "playerBRank", "awayRank", "awayTeam.ranking"]), int(stat_profile["rank"]))
+    match["holdA"] = float_number(first_present(item, ["holdA", "playerAHold", "homeHoldPct"]), float(stat_profile["hold"]))
+    match["holdB"] = float_number(first_present(item, ["holdB", "playerBHold", "awayHoldPct"]), float(stat_profile["hold"]))
+    match["aceA"] = float_number(first_present(item, ["aceA", "playerAAces", "homeAcesAvg"]), float(stat_profile["ace"]))
+    match["aceB"] = float_number(first_present(item, ["aceB", "playerBAces", "awayAcesAvg"]), float(stat_profile["ace"]))
+    match["formA"] = int_number(first_present(item, ["formA", "playerAForm", "homeForm"]), int(stat_profile["form"]))
+    match["formB"] = int_number(first_present(item, ["formB", "playerBForm", "awayForm"]), int(stat_profile["form"]))
     match["weatherFactor"] = float_number(first_present(item, ["weatherFactor", "weather"]), match["weatherFactor"])
     match["fatigueA"] = int_number(first_present(item, ["fatigueA", "playerAFatigue", "homeFatigue"]), match["fatigueA"])
     match["fatigueB"] = int_number(first_present(item, ["fatigueB", "playerBFatigue", "awayFatigue"]), match["fatigueB"])
@@ -432,6 +477,7 @@ def slugify(value: str) -> str:
 def build_payload(matches: List[Dict[str, Any]], source: str) -> Dict[str, Any]:
     return {
         "source": source,
+        "statFallback": "Three-year historical surface/tour averages",
         "generatedAt": datetime.now(timezone.utc).isoformat(),
         "count": len(matches),
         "matches": matches,

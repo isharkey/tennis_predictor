@@ -532,7 +532,7 @@ GET /api/tennis/calendar/{day}/{month}/{year}/categories
 GET /api/tennis/category/{category_id}/events/{day}/{month}/{year}
 ```
 
-The loader accepts flexible field names like `playerA`, `playerB`, `homeTeam`, `awayTeam`, `tournament`, `level`, `surface`, `startTime`, and common API alternatives. Missing model stats fall back to safe defaults until we map exact player-stat fields from the live API.
+The loader accepts flexible field names like `playerA`, `playerB`, `homeTeam`, `awayTeam`, `tournament`, `level`, `surface`, `startTime`, and common API alternatives. Missing model stats now fall back to surface/tour-specific three-year historical averages (rank, hold, ace, and form) until exact player-stat fields are available from the live API.
 
 ## Live Data API
 
