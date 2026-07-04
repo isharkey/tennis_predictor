@@ -499,12 +499,33 @@ def find_first_numeric(flat_stats: Dict[str, float], candidate_names: Iterable[s
     return None
 
 
-def normalize_rate(value: Optional[float], fallback: float) -> float:
-    """Convert percentage-like values into 0-1 rates."""
+def normalize_rate(value: Optional[float], fallback: float, is_percentage: bool = True) -> float:
+    """
+    Convert raw values into 0-1 rates with explicit percentage handling.
+    
+    Args:
+        value: The raw stat value from API (can be None, 0-1, 0-100, etc.)
+        fallback: Default rate if value is missing (e.g., 0.62)
+        is_percentage: If True, values >1 are assumed to be percentages and divided by 100.
+                      If False, value is used as-is in the 0-1 range.
+    
+    Returns:
+        A float in the range [0.0, 1.0].
+    
+    Examples:
+        normalize_rate(65, 0.62, is_percentage=True)   -> 0.65
+        normalize_rate(0.65, 0.62, is_percentage=True)  -> 0.65
+        normalize_rate(65, 0.62, is_percentage=False)   -> 0.0 (clipped)
+        normalize_rate(None, 0.62)                       -> 0.62
+    """
     if value is None:
         return fallback
-    if value > 1:
-        return max(0.0, min(1.0, value / 100))
+    
+    # Handle percentage conversion if needed
+    if is_percentage and value > 1.0:
+        value = value / 100.0
+    
+    # Clamp to valid probability range
     return max(0.0, min(1.0, value))
 
 
@@ -512,13 +533,15 @@ def build_player_snapshot_from_sofascore(
     player_name: str,
     sofascore_stats: Dict[str, Any],
     surface: str = "hard",
-):
+) -> PlayerSnapshot:
     """
     Best-effort converter from raw SofaScore stats into PlayerSnapshot.
 
     API field names can vary by endpoint/season. This function starts with safe
     defaults and fills what it can find. As you inspect real responses, add exact
     field names to the candidate lists below.
+    
+    Returns a PlayerSnapshot with data quality warnings printed to stdout.
     """
     if PlayerSnapshot is None:
         raise ImportError("PlayerSnapshot could not be imported from tennis_prediction_engine_full.py.")
@@ -536,6 +559,7 @@ def build_player_snapshot_from_sofascore(
             ],
         ),
         0.62,
+        is_percentage=True,
     )
     return_points_won = normalize_rate(
         find_first_numeric(
@@ -548,14 +572,17 @@ def build_player_snapshot_from_sofascore(
             ],
         ),
         0.38,
+        is_percentage=True,
     )
     hold_pct = normalize_rate(
         find_first_numeric(flat, ["serviceGamesWonPercentage", "holdPercentage", "holdPct"]),
         0.80,
+        is_percentage=True,
     )
     break_pct = normalize_rate(
         find_first_numeric(flat, ["returnGamesWonPercentage", "breakPercentage", "breakPct"]),
         0.22,
+        is_percentage=True,
     )
 
     aces_avg = find_first_numeric(flat, ["acesPerMatch", "averageAces", "acesAvg"]) or 5.0
@@ -563,7 +590,7 @@ def build_player_snapshot_from_sofascore(
         find_first_numeric(flat, ["doubleFaultsPerMatch", "averageDoubleFaults", "doubleFaultsAvg"]) or 3.0
     )
 
-    return PlayerSnapshot(
+    snapshot = PlayerSnapshot(
         name=player_name,
         service_points_won=service_points_won,
         return_points_won=return_points_won,
@@ -575,6 +602,57 @@ def build_player_snapshot_from_sofascore(
         aces_avg=aces_avg,
         double_faults_avg=double_faults_avg,
     )
+    
+    # Print data quality warnings
+    warnings = validate_player_snapshot(snapshot)
+    if warnings:
+        print(f"\n⚠️  Data quality warnings for {player_name}:")
+        for warning in warnings:
+            print(f"   - {warning}")
+    
+    return snapshot
+
+
+def validate_player_snapshot(snapshot: PlayerSnapshot) -> List[str]:
+    """
+    Validate a PlayerSnapshot and return list of data quality warnings.
+    
+    Warnings are generated for:
+    - Out-of-range service/return stats
+    - Default values (indicating missing data)
+    - Logical inconsistencies
+    """
+    warnings = []
+    
+    # Check service points won
+    if snapshot.service_points_won < 0.45:
+        warnings.append(f"service_points_won={snapshot.service_points_won:.3f} (below 0.45, unusually weak serve)")
+    elif snapshot.service_points_won > 0.75:
+        warnings.append(f"service_points_won={snapshot.service_points_won:.3f} (above 0.75, unusually strong serve)")
+    
+    # Check return points won
+    if snapshot.return_points_won < 0.25:
+        warnings.append(f"return_points_won={snapshot.return_points_won:.3f} (below 0.25, unusually weak return)")
+    elif snapshot.return_points_won > 0.50:
+        warnings.append(f"return_points_won={snapshot.return_points_won:.3f} (above 0.50, unusually strong return)")
+    
+    # Check for default values (indicating missing data)
+    if snapshot.recent_win_pct == 0.50:
+        warnings.append("recent_win_pct=0.50 (default value, data likely missing from API)")
+    
+    if snapshot.aces_avg < 0:
+        warnings.append(f"aces_avg={snapshot.aces_avg} (negative value, API error)")
+    elif snapshot.aces_avg > 15:
+        warnings.append(f"aces_avg={snapshot.aces_avg} (extremely high, verify API field)")
+    
+    if snapshot.double_faults_avg < 0:
+        warnings.append(f"double_faults_avg={snapshot.double_faults_avg} (negative value, API error)")
+    
+    # Check hold/break consistency
+    if snapshot.hold_pct + snapshot.break_pct > 1.05:
+        warnings.append(f"hold_pct + break_pct = {snapshot.hold_pct + snapshot.break_pct:.2f} (should sum to ~1.0)")
+    
+    return warnings
 
 
 def print_top_numeric_stats(data: Dict[str, Any], limit: int = 40) -> None:
@@ -597,6 +675,17 @@ if __name__ == "__main__":
         print(f"Fetched SofaScore season statistics for player_id={player_id}")
         print("\nTop numeric fields:")
         print_top_numeric_stats(stats)
+
+        print("\nBuilding PlayerSnapshot with validation...")
+        try:
+            player = build_player_snapshot_from_sofascore(f"Player {player_id}", stats)
+            print(f"\n✅ Successfully built snapshot for {player.name}")
+            print(f"   Service points won: {player.service_points_won:.1%}")
+            print(f"   Return points won: {player.return_points_won:.1%}")
+            print(f"   Hold %: {player.hold_pct:.1%}")
+            print(f"   Aces avg: {player.aces_avg:.1f}")
+        except ImportError as import_error:
+            print(f"⚠️  Could not import PlayerSnapshot: {import_error}")
 
         print("\nRaw response preview:")
         preview = json.dumps(stats, indent=2)
