@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#10231f">
     <title>Tennis Edge</title>
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="styles.css?v=20260704">
+    <link rel="stylesheet" href="styles.css?v=20260704-slate">
   </head>
   <body>
     <div class="app-shell">
@@ -89,7 +89,7 @@
             </div>
             <div class="simulation-control">
               <label for="simulations">Runs</label>
-              <input id="simulations" type="number" min="1000" max="100000" step="1000" value="100000">
+              <input id="simulations" type="number" min="1000" max="10000000" step="1000" value="100000">
             </div>
           </div>
 
@@ -176,6 +176,7 @@
             <button class="primary-button" id="run-button" type="button">Run Ensemble</button>
             <button class="secondary-button" id="sample-button" type="button">Load Sample</button>
           </div>
+          <div id="run-status" class="status-line">Ready for 100,000 runs.</div>
         </section>
 
         <section class="scoreboard" aria-label="Final prediction">
@@ -213,6 +214,7 @@
 
         <nav class="tabs" aria-label="Prediction sections">
           <button class="tab active" type="button" data-tab="models">Models</button>
+          <button class="tab" type="button" data-tab="graphs">Graphs</button>
           <button class="tab" type="button" data-tab="live">Live</button>
           <button class="tab" type="button" data-tab="odds">Odds</button>
           <button class="tab" type="button" data-tab="parlays">Parlays</button>
@@ -237,6 +239,18 @@
             </select>
           </div>
           <div id="model-list" class="model-list"></div>
+        </section>
+
+        <section id="graphs-tab" class="tab-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Monte Carlo</p>
+              <h2>Run Landing Graphs</h2>
+            </div>
+            <span id="graph-run-count" class="pill">No run</span>
+          </div>
+          <div id="graph-summary" class="parlay-summary"></div>
+          <div id="graph-board" class="graph-board"></div>
         </section>
 
         <section id="live-tab" class="tab-panel">
@@ -454,6 +468,6 @@
       </main>
     </div>
 
-    <script src="app.js?v=20260704" defer></script>
+    <script src="app.js?v=20260704-slate" defer></script>
   </body>
 </html>

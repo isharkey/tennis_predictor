@@ -92,10 +92,22 @@ function publicFileAllowed(requestedPath) {
   return cleanPath.startsWith("icons/") && !cleanPath.includes("..");
 }
 
+function shouldServeAppShell(request, requestedPath) {
+  if (request.method !== "GET") return false;
+
+  const cleanPath = requestedPath.replace(/^[/\\]+/, "").replace(/\\/g, "/");
+  if (!cleanPath || cleanPath.endsWith("/")) return true;
+  if (cleanPath.includes("..")) return false;
+  if (cleanPath.split("/").some((segment) => segment.startsWith("."))) return false;
+
+  // Let real file requests fail closed, but allow app-style paths such as
+  // /dashboard or /match/123 to load the same single-page app shell.
+  return extname(cleanPath) === "";
+}
+
 function todayIsoDate() {
-  const now = new Date();
-  const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
-  return local.toISOString().slice(0, 10);
+  const env = readEnvFile();
+  return isoDateInTimeZone(new Date(), env.SLATE_TIME_ZONE || defaultSlateTimeZone);
 }
 
 function validIsoDate(value) {
@@ -523,7 +535,9 @@ async function fetchDailyTennisSlate(date, options = {}) {
     }
   }
 
-  const eventsForDate = events.filter((event) => eventLocalDate(event, timeZone) === date);
+  const dateMatchedEvents = events.filter((event) => eventLocalDate(event, timeZone) === date);
+  const usedDateEndpointFallback = !dateMatchedEvents.length && events.length > 0;
+  const eventsForDate = usedDateEndpointFallback ? events : dateMatchedEvents;
   const matches = eventsForDate
     .map((event, index) => normalizeEvent(event, index))
     .filter(Boolean)
@@ -535,11 +549,14 @@ async function fetchDailyTennisSlate(date, options = {}) {
 
   const payload = {
     source: `AllSportsAPI Tennis live slate (${apiSource.rapidHost})`,
+    date,
     generatedAt: new Date().toISOString(),
     timeZone,
     categoryCount: categories.length,
     loadedCategoryCount: categoriesToLoad.length,
     rawEventCount: events.length,
+    dateMatchedEventCount: dateMatchedEvents.length,
+    usedDateEndpointFallback,
     filteredOutCount: events.length - eventsForDate.length,
     count: matches.length,
     partialErrors: categoryErrors,
@@ -581,6 +598,8 @@ async function handleRefreshSlate(url, response) {
       categoryCount: payload.categoryCount ?? null,
       loadedCategoryCount: payload.loadedCategoryCount ?? null,
       rawEventCount: payload.rawEventCount ?? null,
+      dateMatchedEventCount: payload.dateMatchedEventCount ?? null,
+      usedDateEndpointFallback: payload.usedDateEndpointFallback ?? false,
       filteredOutCount: payload.filteredOutCount ?? null,
       timeZone: payload.timeZone ?? null,
       source: payload.source ?? "Live slate",
@@ -622,6 +641,15 @@ createServer(async (request, response) => {
   const filePath = join(root, normalizedPath);
 
   if (!publicFileAllowed(normalizedPath) || !filePath.startsWith(root) || !existsSync(filePath)) {
+    if (shouldServeAppShell(request, normalizedPath)) {
+      response.writeHead(200, {
+        "content-type": types[".html"],
+        "cache-control": "no-store"
+      });
+      createReadStream(join(root, "index.html")).pipe(response);
+      return;
+    }
+
     response.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
     response.end("Not found");
     return;

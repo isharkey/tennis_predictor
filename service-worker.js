@@ -1,9 +1,9 @@
-const CACHE_NAME = "tennis-edge-v10";
+const CACHE_NAME = "tennis-edge-v13";
 const STATIC_ASSETS = [
   ".",
   "index.html",
-  "styles.css?v=20260704",
-  "app.js?v=20260704",
+  "styles.css?v=20260704-slate",
+  "app.js?v=20260704-slate",
   "manifest.webmanifest",
   "icons/icon.svg"
 ];

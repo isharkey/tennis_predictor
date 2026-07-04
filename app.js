@@ -9,15 +9,19 @@ const METRICS = [
 
 const MODEL_KEYS = ["eloPulse", "serveHold", "surfaceFit", "formCurve", "marketBlend"];
 const STORAGE_KEY = "tennis-edge-state-v1";
-const APP_ASSET_VERSION = "20260704";
+const APP_ASSET_VERSION = "20260704-slate";
 const HISTORY_LIMIT = 140;
-const AUTO_LEARNING_RUNS = 2000;
+const SLATE_REFRESH_CACHE_KEY = "tennis-edge-last-slate-refresh-v1";
+const AUTO_SLATE_REFRESH_MS = 10 * 60 * 1000;
+const DEFAULT_SIMULATION_RUNS = 100000;
+const MIN_SIMULATION_RUNS = 1000;
+const MAX_SIMULATION_RUNS = 10000000;
+const BULK_MAX_SIMULATION_RUNS = 100000;
+const RUN_CHUNK_SIZE = 50000;
 const AUTO_LEARNING_CHUNK_SIZE = 12;
 const AUTO_LEARNING_RATE = 0.08;
 const AUTO_SCORED_LIMIT = 1200;
 const LEARNING_EVENT_LIMIT = 90;
-const LIVE_MODEL_RUNS = 1200;
-const ODDS_MODEL_RUNS = 1600;
 const LIVE_REFRESH_MS = 45000;
 const MAJOR_US_BOOKS = [
   "DraftKings",
@@ -230,6 +234,8 @@ const MODEL_DEFINITIONS = [
 
 let state = loadState();
 let latestRun = null;
+let runRequestId = 0;
+let runInProgress = false;
 let preloadedMatches = [];
 let oddsMarkets = [];
 let oddsMeta = {
@@ -238,6 +244,7 @@ let oddsMeta = {
 };
 let oddsRunCache = new Map();
 let selectedMatchId = null;
+let collapsedTournamentKeys = new Set();
 let autoLearningInProgress = false;
 let autoLearningMessage = "";
 let liveRefreshTimer = null;
@@ -260,7 +267,8 @@ document.addEventListener("DOMContentLoaded", () => {
   renderPlayerData();
   renderLiveBoard();
   renderOddsBoard();
-  loadPreloadedMatches();
+  renderGraphs();
+  loadPreloadedMatches().finally(autoRefreshCurrentSlate);
   loadOddsBoard();
   registerServiceWorker();
 });
@@ -287,10 +295,7 @@ function bindControls() {
   document.getElementById("match-level-filter").addEventListener("change", renderMatchBoard);
   document.getElementById("match-search").addEventListener("input", renderMatchBoard);
   document.getElementById("reload-slate").addEventListener("click", refreshLiveSlate);
-  document.getElementById("match-board-list").addEventListener("click", (event) => {
-    const button = event.target.closest("[data-match-id]");
-    if (button) selectPreloadedMatch(button.dataset.matchId);
-  });
+  document.getElementById("match-board-list").addEventListener("click", handleMatchBoardClick);
   document.getElementById("player-data-list").addEventListener("click", (event) => {
     const button = event.target.closest("[data-player-match-id]");
     if (button) selectPreloadedMatch(button.dataset.playerMatchId);
@@ -298,10 +303,31 @@ function bindControls() {
   document.getElementById("save-result").addEventListener("click", saveActualResult);
   document.getElementById("clear-history").addEventListener("click", clearHistory);
   document.getElementById("reset-demo").addEventListener("click", resetLearning);
+  document.getElementById("simulations").addEventListener("input", handleSimulationRunsInput);
 
   document.querySelectorAll("#match-form input, #match-form select, #simulations").forEach((control) => {
-    control.addEventListener("change", runEnsemble);
+    control.addEventListener("change", runOrQueueEnsemble);
   });
+}
+
+function handleSimulationRunsInput() {
+  const rawRuns = Number(document.getElementById("simulations")?.value);
+  if (!Number.isFinite(rawRuns) || rawRuns <= BULK_MAX_SIMULATION_RUNS) return;
+
+  const roundedRuns = Math.round(rawRuns / 1000) * 1000;
+  const runs = clamp(roundedRuns || DEFAULT_SIMULATION_RUNS, MIN_SIMULATION_RUNS, MAX_SIMULATION_RUNS);
+  queueHighRun(runs);
+}
+
+function handleMatchBoardClick(event) {
+  const toggleButton = event.target.closest("[data-tournament-toggle]");
+  if (toggleButton) {
+    toggleTournamentGroup(toggleButton.dataset.tournamentToggle);
+    return;
+  }
+
+  const matchButton = event.target.closest("[data-match-id]");
+  if (matchButton) selectPreloadedMatch(matchButton.dataset.matchId);
 }
 
 function activateTab(tabName) {
@@ -317,20 +343,56 @@ function setDefaultSlateDate() {
   const input = document.getElementById("slate-date");
   if (!input || input.value) return;
 
-  const now = new Date();
-  const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
-  input.value = localDate.toISOString().slice(0, 10);
+  input.value = currentSlateDate();
 }
 
-async function refreshLiveSlate() {
+function currentSlateDate() {
+  const now = new Date();
+  const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+  return localDate.toISOString().slice(0, 10);
+}
+
+async function autoRefreshCurrentSlate() {
+  const today = currentSlateDate();
+  const input = document.getElementById("slate-date");
+  if (input) input.value = today;
+
+  const staleDate = matchSlateMeta.date !== today;
+  const generatedAtTime = new Date(matchSlateMeta.generatedAt || "").getTime();
+  const staleGeneratedAt = !Number.isFinite(generatedAtTime) || Date.now() - generatedAtTime > AUTO_SLATE_REFRESH_MS;
+  if (!staleDate && (!staleGeneratedAt || recentlyAutoRefreshedSlate(today))) return;
+
+  await refreshLiveSlate({ auto: true });
+}
+
+function recentlyAutoRefreshedSlate(date) {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SLATE_REFRESH_CACHE_KEY) || "{}");
+    return saved.date === date && Date.now() - Number(saved.refreshedAt || 0) < AUTO_SLATE_REFRESH_MS;
+  } catch {
+    return false;
+  }
+}
+
+function rememberAutoRefreshedSlate(date) {
+  localStorage.setItem(SLATE_REFRESH_CACHE_KEY, JSON.stringify({
+    date,
+    refreshedAt: Date.now()
+  }));
+}
+
+async function refreshLiveSlate(options = {}) {
   const button = document.getElementById("reload-slate");
   const meta = document.getElementById("match-board-meta");
-  const date = document.getElementById("slate-date")?.value || new Date().toISOString().slice(0, 10);
-  const originalText = button.textContent;
+  const date = document.getElementById("slate-date")?.value || currentSlateDate();
+  const originalText = button?.textContent || "Refresh Live";
+  const isAuto = Boolean(options.auto);
 
-  button.disabled = true;
-  button.textContent = "Refreshing";
-  meta.textContent = `Pulling full tennis slate for ${date}`;
+  if (button) {
+    button.disabled = true;
+    button.textContent = isAuto ? "Checking" : "Refreshing";
+  }
+  if (meta) meta.textContent = isAuto ? `Checking today's tennis slate for ${date}` : `Pulling full tennis slate for ${date}`;
 
   try {
     const response = await fetch(`/api/refresh-slate?date=${encodeURIComponent(date)}`, {
@@ -343,13 +405,16 @@ async function refreshLiveSlate() {
     }
 
     await loadPreloadedMatches(true);
-    meta.textContent = `${result.source} - ${result.count} total - updated ${formatSlateDate(result.generatedAt)}`;
+    if (isAuto) rememberAutoRefreshedSlate(date);
+    if (meta) meta.textContent = `${result.source} - ${result.count} total - updated ${formatSlateDate(result.generatedAt)}`;
   } catch (error) {
     await loadPreloadedMatches(true);
-    meta.textContent = `Live refresh failed: ${error.message}`;
+    if (meta) meta.textContent = `Live refresh failed: ${error.message}`;
   } finally {
-    button.disabled = false;
-    button.textContent = originalText;
+    if (button) {
+      button.disabled = false;
+      button.textContent = originalText;
+    }
   }
 }
 
@@ -367,11 +432,11 @@ async function loadPreloadedMatches(forceReload = false) {
     matchSlateMeta = extractMetaFromPayload(payload, loaded.length);
     if (!selectedMatchId || !preloadedMatches.some((match) => match.id === selectedMatchId)) {
       selectFirstLoadedMatch(false);
-      runEnsemble();
+      runOrQueueEnsemble();
     } else if (forceReload) {
       renderMatchBoard();
       renderPlayerData();
-      runEnsemble();
+      runOrQueueEnsemble();
     }
     renderMatchBoard();
     renderPlayerData();
@@ -437,6 +502,7 @@ function extractMetaFromPayload(payload, count) {
     return {
       source: "Local preloaded JSON",
       generatedAt: null,
+      date: null,
       count
     };
   }
@@ -444,6 +510,7 @@ function extractMetaFromPayload(payload, count) {
   return {
     source: payload?.source || "Preloaded JSON",
     generatedAt: payload?.generatedAt || payload?.generated_at || null,
+    date: payload?.date || payload?.slateDate || null,
     count: payload?.count || count
   };
 }
@@ -576,7 +643,7 @@ function selectPreloadedMatch(matchId, shouldRun = true) {
   renderPlayerData();
   renderLiveBoard();
   renderOddsBoard();
-  if (shouldRun) runEnsemble();
+  if (shouldRun) runOrQueueEnsemble();
 }
 
 function loadMatchIntoForm(match) {
@@ -615,30 +682,48 @@ function renderMatchBoard() {
   }
 
   const grouped = groupMatchesByTournament(matches);
-  list.innerHTML = grouped.map((group) => `
-    <section class="tournament-group">
-      <div class="tournament-head">
+  list.innerHTML = grouped.map((group) => {
+    const collapsed = collapsedTournamentKeys.has(group.key);
+    const panelId = `tournament-${group.key}`;
+    return `
+    <section class="tournament-group ${collapsed ? "collapsed" : ""}">
+      <button class="tournament-head" type="button" data-tournament-toggle="${escapeHtml(group.key)}" aria-expanded="${collapsed ? "false" : "true"}" aria-controls="${escapeHtml(panelId)}">
         <div>
           <div class="tournament-title">${escapeHtml(group.tournament)}</div>
           <div class="model-meta">${escapeHtml(group.level)} - ${escapeHtml(group.tour)} - ${group.matches.length} ${group.matches.length === 1 ? "match" : "matches"}</div>
         </div>
-        <span class="pill">${formatMatchTime(group.matches[0].startTime)}</span>
-      </div>
-      <div class="tournament-matches">
+        <span class="tournament-head-actions">
+          <span class="pill">${formatMatchTime(group.matches[0].startTime)}</span>
+          <span class="tournament-toggle-icon" aria-hidden="true">${collapsed ? "+" : "-"}</span>
+        </span>
+      </button>
+      <div class="tournament-matches" id="${escapeHtml(panelId)}" ${collapsed ? "hidden" : ""}>
         ${group.matches.map(renderMatchRow).join("")}
       </div>
     </section>
-  `).join("");
+  `;
+  }).join("");
+}
+
+function toggleTournamentGroup(key) {
+  if (!key) return;
+  if (collapsedTournamentKeys.has(key)) {
+    collapsedTournamentKeys.delete(key);
+  } else {
+    collapsedTournamentKeys.add(key);
+  }
+  renderMatchBoard();
 }
 
 function slateMetaText(visibleCount) {
   const source = matchSlateMeta.source || "Local slate";
   const total = matchSlateMeta.count || preloadedMatches.length;
   const finals = preloadedMatches.filter((match) => match.completed).length;
+  const slateDate = matchSlateMeta.date ? ` - slate ${matchSlateMeta.date}` : "";
   const generated = matchSlateMeta.generatedAt ? ` - updated ${formatSlateDate(matchSlateMeta.generatedAt)}` : "";
   const filtered = visibleCount === total ? "" : ` - ${visibleCount} shown`;
   const finished = finals ? ` - ${finals} finals` : "";
-  return `${source}${generated} - ${total} total${finished}${filtered}`;
+  return `${source}${slateDate}${generated} - ${total} total${finished}${filtered}`;
 }
 
 function renderPlayerData() {
@@ -909,6 +994,7 @@ function groupMatchesByTournament(matches) {
   matches.forEach((match) => {
     if (!byTournament.has(match.tournament)) {
       const group = {
+        key: slugify(`${match.tournament}-${match.level}-${match.tour}`),
         tournament: match.tournament,
         level: match.level,
         tour: match.tour,
@@ -1003,18 +1089,173 @@ function readMatchForm() {
   };
 }
 
-function runEnsemble() {
+async function runEnsemble() {
+  const requestId = ++runRequestId;
   const match = readMatchForm();
   syncActualWinnerOptions(match);
-  const runs = clamp(Number(document.getElementById("simulations").value) || 100000, 1000, 100000);
-  latestRun = buildEnsembleRun(match, runs);
+  const runs = currentSimulationRuns();
 
-  renderPrediction();
+  setRunInProgress(true, runs);
+
+  try {
+    const run = await buildEnsembleRunAsync(match, runs, (progress) => {
+      if (requestId === runRequestId) updateRunProgress(progress);
+    }, () => requestId === runRequestId);
+
+    if (requestId !== runRequestId) return;
+
+    latestRun = run;
+    renderPrediction();
+    renderModels();
+    renderGraphs();
+    renderParlays();
+    renderLearning();
+    renderLiveBoard();
+    renderOddsBoard();
+    setRunStatus(`Completed ${formatRunCount(runs)} runs.`);
+  } catch (error) {
+    if (requestId !== runRequestId || error.message === "Run canceled") return;
+    setRunStatus(`Run failed: ${error.message}`);
+  } finally {
+    if (requestId === runRequestId) setRunInProgress(false, runs);
+  }
+}
+
+function runOrQueueEnsemble() {
+  const runs = currentSimulationRuns();
+  if (runs > BULK_MAX_SIMULATION_RUNS) {
+    queueHighRun(runs);
+    return;
+  }
+
+  runEnsemble();
+}
+
+function queueHighRun(runs) {
+  cancelActiveRun();
+  latestRun = null;
+  clearPredictionCards();
   renderModels();
+  renderGraphs();
   renderParlays();
   renderLearning();
   renderLiveBoard();
   renderOddsBoard();
+  setRunStatus(`Ready for ${formatRunCount(runs)} runs. Press Run Ensemble.`);
+}
+
+function cancelActiveRun() {
+  if (!runInProgress) return;
+  runRequestId += 1;
+  setRunInProgress(false, currentSimulationRuns());
+}
+
+function clearPredictionCards() {
+  setText("winner-pick", "-");
+  setText("winner-probability", "Run the ensemble");
+  setText("games-pick", "-");
+  setText("games-range", "-");
+  setText("tiebreak-pick", "-");
+  setText("tiebreak-probability", "-");
+  setText("sets-pick", "-");
+  setText("sets-range", "-");
+  setText("breaks-pick", "-");
+  setText("breaks-range", "-");
+  setText("aces-pick", "-");
+  setText("aces-range", "-");
+}
+
+function currentSimulationRuns() {
+  const input = document.getElementById("simulations");
+  const rawRuns = Number(input?.value);
+  const roundedRuns = Math.round((Number.isFinite(rawRuns) ? rawRuns : DEFAULT_SIMULATION_RUNS) / 1000) * 1000;
+  const runs = clamp(roundedRuns || DEFAULT_SIMULATION_RUNS, MIN_SIMULATION_RUNS, MAX_SIMULATION_RUNS);
+
+  if (input && Number(input.value) !== runs) {
+    input.value = String(runs);
+  }
+
+  return runs;
+}
+
+function bulkSimulationRuns() {
+  return Math.min(currentSimulationRuns(), BULK_MAX_SIMULATION_RUNS);
+}
+
+function autoLearningChunkSize(runs) {
+  if (runs >= 75000) return 2;
+  if (runs >= 40000) return 4;
+  if (runs >= 15000) return 6;
+  return AUTO_LEARNING_CHUNK_SIZE;
+}
+
+function setRunInProgress(active, runs) {
+  runInProgress = active;
+  const button = document.getElementById("run-button");
+  if (button) {
+    button.disabled = active;
+    button.textContent = active ? "Running" : "Run Ensemble";
+  }
+  if (active) {
+    setRunStatus(`Running ${formatRunCount(runs)} simulations...`);
+  }
+}
+
+function updateRunProgress(progress) {
+  const percentComplete = progress.total
+    ? Math.floor((progress.completed / progress.total) * 100)
+    : 0;
+  const modelText = progress.modelName ? ` - ${progress.modelName}` : "";
+  setRunStatus(`Running ${formatRunCount(progress.completed)} of ${formatRunCount(progress.total)}${modelText} (${percentComplete}%).`);
+}
+
+function setRunStatus(message) {
+  const status = document.getElementById("run-status");
+  if (status) status.textContent = message;
+}
+
+async function buildEnsembleRunAsync(match, runs, onProgress = () => {}, shouldContinue = () => true) {
+  const modelMatch = modelReadyMatch(match);
+  const modelOutputs = [];
+  const totalWork = runs * MODEL_DEFINITIONS.length;
+  let completedWork = 0;
+
+  for (const model of MODEL_DEFINITIONS) {
+    const accumulator = createModelAccumulator(model, modelMatch, runs);
+
+    while (accumulator.count < runs) {
+      if (!shouldContinue()) throw new Error("Run canceled");
+
+      const batchSize = Math.min(RUN_CHUNK_SIZE, runs - accumulator.count);
+      runModelSamples(accumulator, batchSize);
+      completedWork += batchSize;
+
+      onProgress({
+        completed: completedWork,
+        total: totalWork,
+        modelName: model.name
+      });
+
+      if (runs > RUN_CHUNK_SIZE) {
+        await yieldToBrowser();
+      }
+    }
+
+    modelOutputs.push(finalizeModelAccumulator(accumulator));
+  }
+
+  const weights = buildWeights();
+  const ensemble = combineOutputs(modelMatch, modelOutputs, weights);
+
+  return {
+    id: makeId(),
+    createdAt: new Date().toISOString(),
+    match: modelMatch,
+    runs,
+    modelOutputs,
+    weights,
+    ensemble
+  };
 }
 
 function buildEnsembleRun(match, runs) {
@@ -1055,45 +1296,99 @@ function modelReadyMatch(match) {
 }
 
 function runModel(model, match, runs) {
-  const seedText = `${model.key}:${match.playerA}:${match.playerB}:${match.surface}:${match.format}:${runs}:${JSON.stringify(state.performance[model.key])}`;
-  const random = mulberry32(hashString(seedText));
-  const totals = {
-    probA: 0,
-    totalGames: 0,
-    tieBreakerProb: 0,
-    sets: 0,
-    breaks: 0,
-    aces: 0
-  };
+  const accumulator = createModelAccumulator(model, match, runs);
+  runModelSamples(accumulator, runs);
+  return finalizeModelAccumulator(accumulator);
+}
 
-  const samples = [];
-  for (let i = 0; i < runs; i += 1) {
+function createModelAccumulator(model, match, runs) {
+  const seedText = `${model.key}:${match.playerA}:${match.playerB}:${match.surface}:${match.format}:${runs}:${JSON.stringify(state.performance[model.key])}`;
+  return {
+    model,
+    match,
+    runs,
+    random: mulberry32(hashString(seedText)),
+    count: 0,
+    totals: {
+      probA: 0,
+      totalGames: 0,
+      tieBreakerProb: 0,
+      sets: 0,
+      breaks: 0,
+      aces: 0
+    },
+    meanGames: 0,
+    gamesM2: 0,
+    histograms: createRunHistograms()
+  };
+}
+
+function runModelSamples(accumulator, sampleCount) {
+  const { model, match, random, totals, histograms } = accumulator;
+
+  for (let i = 0; i < sampleCount; i += 1) {
     const sample = model.project(match, random);
+    accumulator.count += 1;
+
     totals.probA += sample.probA;
     totals.totalGames += sample.totalGames;
     totals.tieBreakerProb += sample.tieBreakerProb;
     totals.sets += sample.sets;
     totals.breaks += sample.breaks;
     totals.aces += sample.aces;
-    samples.push(sample.totalGames);
-  }
 
-  const meanGames = totals.totalGames / runs;
-  const spread = standardDeviation(samples, meanGames);
+    const delta = sample.totalGames - accumulator.meanGames;
+    accumulator.meanGames += delta / accumulator.count;
+    accumulator.gamesM2 += delta * (sample.totalGames - accumulator.meanGames);
+
+    recordRunLanding(histograms, sample, random);
+  }
+}
+
+function finalizeModelAccumulator(accumulator) {
+  const { model, totals, count, meanGames, gamesM2, histograms } = accumulator;
+  const safeCount = Math.max(count, 1);
+  const spread = Math.sqrt(gamesM2 / safeCount);
 
   return {
     key: model.key,
     name: model.name,
     style: model.style,
-    probA: totals.probA / runs,
-    totalGames: meanGames,
+    probA: totals.probA / safeCount,
+    totalGames: totals.totalGames / safeCount,
     gamesLow: Math.max(12, meanGames - spread),
     gamesHigh: meanGames + spread,
-    tieBreakerProb: totals.tieBreakerProb / runs,
-    sets: totals.sets / runs,
-    breaks: totals.breaks / runs,
-    aces: totals.aces / runs
+    tieBreakerProb: totals.tieBreakerProb / safeCount,
+    sets: totals.sets / safeCount,
+    breaks: totals.breaks / safeCount,
+    aces: totals.aces / safeCount,
+    histograms
   };
+}
+
+function createRunHistograms() {
+  return {
+    winner: { A: 0, B: 0 },
+    totalGames: {},
+    tieBreaker: { Yes: 0, No: 0 },
+    sets: {},
+    breaks: {},
+    aces: {}
+  };
+}
+
+function recordRunLanding(histograms, sample, random) {
+  addHistogramCount(histograms.winner, random() < sample.probA ? "A" : "B");
+  addHistogramCount(histograms.totalGames, Math.round(sample.totalGames));
+  addHistogramCount(histograms.tieBreaker, random() < sample.tieBreakerProb ? "Yes" : "No");
+  addHistogramCount(histograms.sets, Math.round(sample.sets));
+  addHistogramCount(histograms.breaks, Math.round(sample.breaks));
+  addHistogramCount(histograms.aces, Math.round(sample.aces));
+}
+
+function addHistogramCount(histogram, bucket, amount = 1) {
+  const key = String(bucket);
+  histogram[key] = (histogram[key] || 0) + amount;
 }
 
 function projectFromEdges(match, random, edges) {
@@ -1232,6 +1527,125 @@ function renderModels() {
     .join("");
 }
 
+function renderGraphs() {
+  const runCount = document.getElementById("graph-run-count");
+  const summary = document.getElementById("graph-summary");
+  const board = document.getElementById("graph-board");
+  if (!runCount || !summary || !board) return;
+
+  if (!latestRun) {
+    runCount.textContent = "No run";
+    summary.innerHTML = `<div class="empty-state">Run the ensemble to build the landing graphs.</div>`;
+    board.innerHTML = "";
+    return;
+  }
+
+  const { match, ensemble, runs } = latestRun;
+  runCount.textContent = `${formatRunCount(runs)} runs`;
+  summary.innerHTML = `
+    <div>
+      <span>Match</span>
+      <strong>${escapeHtml(match.playerA)} vs ${escapeHtml(match.playerB)}</strong>
+      <small>${escapeHtml(match.surface)} - ${match.format === 5 ? "Best of 5" : "Best of 3"}</small>
+    </div>
+    <div>
+      <span>Winner lean</span>
+      <strong>${escapeHtml(ensemble.winner)}</strong>
+      <small>${percent(ensemble.winnerProbability)} model probability</small>
+    </div>
+    <div>
+      <span>Stored landings</span>
+      <strong>${formatRunCount(runs)}</strong>
+      <small>Binned by outcome, not raw rows</small>
+    </div>
+  `;
+
+  board.innerHTML = graphDefinitions().map((definition) => {
+    const rows = weightedHistogramRows(latestRun, definition.key);
+    return renderGraphCard(definition, rows, latestRun);
+  }).join("");
+}
+
+function graphDefinitions() {
+  return [
+    { key: "winner", label: "Winner", unit: "" },
+    { key: "totalGames", label: "Total Games", unit: "games" },
+    { key: "tieBreaker", label: "Tiebreak", unit: "" },
+    { key: "sets", label: "Sets", unit: "sets" },
+    { key: "breaks", label: "Breaks", unit: "breaks" },
+    { key: "aces", label: "Aces", unit: "aces" }
+  ];
+}
+
+function weightedHistogramRows(run, metricKey) {
+  const weights = run.weights[metricKey] ?? {};
+  const combined = {};
+
+  run.modelOutputs.forEach((output) => {
+    const weight = weights[output.key] ?? 0;
+    const histogram = output.histograms?.[metricKey] ?? {};
+    Object.entries(histogram).forEach(([bucket, count]) => {
+      combined[bucket] = (combined[bucket] || 0) + count * weight;
+    });
+  });
+
+  const total = Object.values(combined).reduce((sum, count) => sum + count, 0) || 1;
+  return Object.entries(combined)
+    .map(([bucket, count]) => ({
+      bucket,
+      count,
+      probability: count / total
+    }))
+    .filter((row) => row.count > 0)
+    .sort((a, b) => graphBucketSort(metricKey, a.bucket, b.bucket));
+}
+
+function graphBucketSort(metricKey, a, b) {
+  if (metricKey === "winner") return ["A", "B"].indexOf(a) - ["A", "B"].indexOf(b);
+  if (metricKey === "tieBreaker") return ["Yes", "No"].indexOf(a) - ["Yes", "No"].indexOf(b);
+  return Number(a) - Number(b);
+}
+
+function renderGraphCard(definition, rows, run) {
+  const maxProbability = Math.max(...rows.map((row) => row.probability), 0.01);
+  const rowMarkup = rows.map((row) => {
+    const width = Math.max(1, (row.probability / maxProbability) * 100);
+    return `
+      <div class="graph-row">
+        <div class="graph-label">${escapeHtml(graphBucketLabel(definition, row.bucket, run.match))}</div>
+        <div class="graph-track" aria-label="${escapeHtml(definition.label)} ${escapeHtml(row.bucket)} ${percent(row.probability)}">
+          <span class="graph-fill" style="--value: ${width}%"></span>
+        </div>
+        <div class="graph-value">
+          <strong>${percent(row.probability)}</strong>
+          <span>${formatRunCount(row.count)}</span>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <article class="graph-card">
+      <div class="graph-card-head">
+        <div>
+          <h3>${escapeHtml(definition.label)}</h3>
+          <span class="model-meta">Where the simulated runs landed</span>
+        </div>
+        <span class="pill">${rows.length} spots</span>
+      </div>
+      <div class="graph-rows">${rowMarkup}</div>
+    </article>
+  `;
+}
+
+function graphBucketLabel(definition, bucket, match) {
+  if (definition.key === "winner") {
+    return bucket === "A" ? match.playerA : match.playerB;
+  }
+  if (definition.unit) return `${bucket} ${definition.unit}`;
+  return bucket;
+}
+
 function renderLiveBoard() {
   const summary = document.getElementById("live-summary");
   const list = document.getElementById("live-match-list");
@@ -1241,7 +1655,9 @@ function renderLiveBoard() {
     .filter((match) => match.live && !match.completed)
     .sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
   const finishedCount = preloadedMatches.filter((match) => match.completed).length;
-  const projections = liveMatches.slice(0, 24).map(buildLiveProjection);
+  const runs = bulkSimulationRuns();
+  const selectedRuns = currentSimulationRuns();
+  const projections = liveMatches.slice(0, 24).map((match) => buildLiveProjection(match, runs));
   const bestProjection = projections
     .filter(Boolean)
     .sort((a, b) => b.confidence - a.confidence)[0];
@@ -1260,8 +1676,8 @@ function renderLiveBoard() {
       <strong>${bestProjection ? escapeHtml(bestProjection.pick) : "-"}</strong>
     </article>
     <article class="live-tile">
-      <span>Fair odds</span>
-      <strong>${bestProjection ? formatAmericanOdds(bestProjection.fairAmericanOdds) : "-"}</strong>
+      <span>${selectedRuns > runs ? "Bulk runs" : "Runs used"}</span>
+      <strong>${formatRunCount(runs)}</strong>
     </article>
   `;
 
@@ -1276,8 +1692,8 @@ function renderLiveBoard() {
     .join("");
 }
 
-function buildLiveProjection(match) {
-  const run = getModelRunForMatch(match, LIVE_MODEL_RUNS);
+function buildLiveProjection(match, runs) {
+  const run = getModelRunForMatch(match, runs);
   const liveProbA = liveAdjustedProbability(match, run.ensemble.probA);
   const pickSide = liveProbA >= 0.5 ? "A" : "B";
   const probability = pickSide === "A" ? liveProbA : 1 - liveProbA;
@@ -1380,16 +1796,21 @@ function renderOddsBoard() {
 
   const bookFilter = document.getElementById("odds-book-filter")?.value ?? "all";
   const minEdge = (Number(document.getElementById("odds-min-edge")?.value) || 0) / 100;
-  const rows = buildOddsRows()
+  const runs = bulkSimulationRuns();
+  const selectedRuns = currentSimulationRuns();
+  const runLabel = selectedRuns > runs
+    ? `${formatRunCount(runs)} bulk runs; main graph run set to ${formatRunCount(selectedRuns)}`
+    : `${formatRunCount(runs)} runs`;
+  const rows = buildOddsRows(runs)
     .filter((row) => bookFilter === "all" || row.book === bookFilter)
     .sort((a, b) => b.ev - a.ev || b.edge - a.edge);
   const plusEvRows = rows.filter((row) => row.ev > 0 && row.edge >= minEdge);
-  const visibleRows = plusEvRows.length ? plusEvRows : buildOddsWatchlist();
+  const visibleRows = plusEvRows.length ? plusEvRows : buildOddsWatchlist(runs);
   const best = plusEvRows[0];
 
   status.textContent = oddsMarkets.length
-    ? `${oddsMeta.source} - ${oddsMarkets.length} sportsbook outcomes${oddsMeta.generatedAt ? ` - updated ${formatSlateDate(oddsMeta.generatedAt)}` : ""}`
-    : "No sportsbook odds feed loaded.";
+    ? `${oddsMeta.source} - ${oddsMarkets.length} sportsbook outcomes - ${runLabel}${oddsMeta.generatedAt ? ` - updated ${formatSlateDate(oddsMeta.generatedAt)}` : ""}`
+    : `No sportsbook odds feed loaded. Model watchlist is using ${runLabel}.`;
 
   summary.innerHTML = `
     <div>
@@ -1414,14 +1835,14 @@ function renderOddsBoard() {
     : `<div class="empty-state">No +EV prices cleared the current filter.</div>`;
 }
 
-function buildOddsRows() {
+function buildOddsRows(runs) {
   return oddsMarkets
     .map((outcome) => {
       const match = findMatchForOdds(outcome);
       if (!match) return null;
       if (match.completed) return null;
 
-      const run = getModelRunForMatch(match, ODDS_MODEL_RUNS);
+      const run = getModelRunForMatch(match, runs);
       const modelProbability = modelProbabilityForOutcome(match, run, outcome);
       if (!Number.isFinite(modelProbability)) return null;
 
@@ -1443,12 +1864,12 @@ function buildOddsRows() {
     .filter(Boolean);
 }
 
-function buildOddsWatchlist() {
+function buildOddsWatchlist(runs) {
   return preloadedMatches
     .filter((match) => !match.completed)
     .slice(0, 18)
     .map((match) => {
-      const run = getModelRunForMatch(match, ODDS_MODEL_RUNS);
+      const run = getModelRunForMatch(match, runs);
       const side = run.ensemble.probA >= 0.5 ? "A" : "B";
       const probability = side === "A" ? run.ensemble.probA : 1 - run.ensemble.probA;
       return {
@@ -2268,8 +2689,27 @@ function renderLearningChangeCards() {
   }).join("");
 }
 
-function saveActualResult() {
-  if (!latestRun) runEnsemble();
+async function saveActualResult() {
+  if (runInProgress) {
+    setRunStatus("Wait for the current run to finish before saving a result.");
+    return;
+  }
+
+  if (!latestRun && currentSimulationRuns() > BULK_MAX_SIMULATION_RUNS) {
+    setRunStatus(`Run the ${formatRunCount(currentSimulationRuns())}-simulation ensemble before saving a result.`);
+    return;
+  }
+
+  if (!latestRun) {
+    await runEnsemble();
+  }
+
+  if (!latestRun) {
+    setRunStatus("Run the ensemble before saving a result.");
+    return;
+  }
+
+  const runToScore = latestRun;
 
   const actual = {
     winner: document.getElementById("actual-winner").value,
@@ -2280,11 +2720,11 @@ function saveActualResult() {
     aces: numberValue("actual-aces", 0)
   };
 
-  const scorecard = scoreModels(latestRun.modelOutputs, actual);
+  const scorecard = scoreModels(runToScore.modelOutputs, actual);
   const learningAudit = applyLearning(scorecard);
   const learningEvent = buildLearningEvent({
     source: "manual",
-    run: latestRun,
+    run: runToScore,
     actual,
     scorecard,
     learningAudit
@@ -2292,12 +2732,12 @@ function saveActualResult() {
   recordLearningEvent(learningEvent);
 
   state.history.unshift({
-    id: latestRun.id,
-    createdAt: latestRun.createdAt,
+    id: runToScore.id,
+    createdAt: runToScore.createdAt,
     scoredAt: new Date().toISOString(),
     source: "manual",
-    match: latestRun.match,
-    ensemble: latestRun.ensemble,
+    match: runToScore.match,
+    ensemble: runToScore.ensemble,
     actual,
     scorecard,
     learningEventId: learningEvent.id
@@ -2305,7 +2745,7 @@ function saveActualResult() {
   state.history = state.history.slice(0, HISTORY_LIMIT);
   persistState();
 
-  runEnsemble();
+  runOrQueueEnsemble();
   renderHistory();
   activateTab("learning");
 }
@@ -2445,21 +2885,22 @@ function scheduleAutoLearning() {
   }
 
   autoLearningInProgress = true;
-  autoLearningMessage = `Auto-learning from ${eligible.length} finished ${eligible.length === 1 ? "match" : "matches"}...`;
+  autoLearningMessage = `Auto-learning from ${eligible.length} finished ${eligible.length === 1 ? "match" : "matches"} with ${formatRunCount(bulkSimulationRuns())} runs...`;
   renderLearning();
   window.setTimeout(processAutoLearningChunk, 40);
 }
 
 function processAutoLearningChunk() {
   const eligible = unlearnedFinishedMatches();
-  const batch = eligible.slice(0, AUTO_LEARNING_CHUNK_SIZE);
+  const runs = bulkSimulationRuns();
+  const batch = eligible.slice(0, autoLearningChunkSize(runs));
   let learned = 0;
 
   batch.forEach((match) => {
     const actual = actualFromFinishedMatch(match);
     if (!actual) return;
 
-    const run = buildEnsembleRun(match, AUTO_LEARNING_RUNS);
+    const run = buildEnsembleRun(match, runs);
     const scorecard = scoreModels(run.modelOutputs, actual);
     const learningAudit = applyLearning(scorecard, AUTO_LEARNING_RATE);
     const learningEvent = buildLearningEvent({
@@ -2493,8 +2934,8 @@ function processAutoLearningChunk() {
 
   const remaining = unlearnedFinishedMatches().length;
   autoLearningMessage = remaining
-    ? `Auto-learned ${learned} more. ${remaining} finished ${remaining === 1 ? "match" : "matches"} left in this slate.`
-    : `Auto-learning complete. ${state.autoScoredMatchIds.length} finished ${state.autoScoredMatchIds.length === 1 ? "match" : "matches"} learned.`;
+    ? `Auto-learned ${learned} more using ${formatRunCount(runs)} runs. ${remaining} finished ${remaining === 1 ? "match" : "matches"} left in this slate.`
+    : `Auto-learning complete using ${formatRunCount(runs)} runs. ${state.autoScoredMatchIds.length} finished ${state.autoScoredMatchIds.length === 1 ? "match" : "matches"} learned.`;
   renderLearning();
   renderHistory();
 
@@ -2504,7 +2945,7 @@ function processAutoLearningChunk() {
   }
 
   autoLearningInProgress = false;
-  runEnsemble();
+  runOrQueueEnsemble();
   window.setTimeout(() => {
     autoLearningMessage = "";
     renderLearning();
@@ -2587,7 +3028,7 @@ function resetLearning() {
   state = { performance: cloneDefaultPerformance(), history: [], autoScoredMatchIds: [], learningEvents: [] };
   autoLearningMessage = "";
   persistState();
-  runEnsemble();
+  runOrQueueEnsemble();
   renderLearning();
   renderHistory();
 }
@@ -2601,7 +3042,7 @@ function loadSampleMatch() {
   loadMatchIntoForm(sample);
   renderMatchBoard();
   renderPlayerData();
-  runEnsemble();
+  runOrQueueEnsemble();
 }
 
 function halfLineBelow(mean, cushion) {
@@ -2662,6 +3103,10 @@ function formatAmericanOdds(odds) {
 function formatSignedPercent(value) {
   const percentValue = round(value * 100, 1);
   return `${value >= 0 ? "+" : ""}${percentValue}%`;
+}
+
+function formatRunCount(value) {
+  return Math.round(Number(value) || 0).toLocaleString();
 }
 
 function formatLine(value) {
@@ -2733,9 +3178,8 @@ function normalizeRankEdge(rankA, rankB) {
   return clamp((Math.log(safeB + 1) - Math.log(safeA + 1)) / 4.8, -0.7, 0.7);
 }
 
-function standardDeviation(values, mean) {
-  const variance = values.reduce((sum, value) => sum + Math.pow(value - mean, 2), 0) / Math.max(values.length, 1);
-  return Math.sqrt(variance);
+function yieldToBrowser() {
+  return new Promise((resolve) => window.setTimeout(resolve, 0));
 }
 
 function logistic(value) {
