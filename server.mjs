@@ -50,6 +50,8 @@ const historicalThreeYearStatAverages = {
     Grass: { rank: 430, hold: 76.0, ace: 4.7, form: 55 }
   }
 };
+const defaultPlayerStatsPathTemplate = "";
+const defaultPlayerStatsMaxPulls = 40;
 
 const types = {
   ".html": "text/html; charset=utf-8",
@@ -316,6 +318,144 @@ function historicalStatProfile(level, tour, surface) {
   return tourProfiles[surface] || tourProfiles.Hard;
 }
 
+function playerId(event, side) {
+  const keys = side === "A"
+    ? ["playerAId", "homePlayerId", "homeTeam.id", "home.id", "participant1.id", "competitor1.id"]
+    : ["playerBId", "awayPlayerId", "awayTeam.id", "away.id", "participant2.id", "competitor2.id"];
+  const direct = firstValue(event, keys);
+  if (direct !== undefined && direct !== null && direct !== "") return String(direct);
+
+  const participants = firstValue(event, ["participants", "competitors", "players"]);
+  if (Array.isArray(participants)) {
+    const participant = participants[side === "A" ? 0 : 1];
+    if (participant && participant.id !== undefined && participant.id !== null && participant.id !== "") {
+      return String(participant.id);
+    }
+  }
+
+  return "";
+}
+
+function flattenNumericStats(value, prefix = "", output = {}) {
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => flattenNumericStats(item, `${prefix}[${index}]`, output));
+    return output;
+  }
+
+  if (value && typeof value === "object") {
+    Object.entries(value).forEach(([key, nested]) => {
+      const nextPrefix = prefix ? `${prefix}.${key}` : key;
+      flattenNumericStats(nested, nextPrefix, output);
+    });
+    return output;
+  }
+
+  if (typeof value === "number" && Number.isFinite(value)) {
+    output[prefix] = value;
+  }
+
+  return output;
+}
+
+function normalizedStatKey(value) {
+  return String(value).toLowerCase().replace(/[_\-\s]/g, "");
+}
+
+function firstMatchingNumeric(flat, candidates) {
+  const lookup = candidates.map((candidate) => normalizedStatKey(candidate));
+  for (const [key, value] of Object.entries(flat)) {
+    const normalized = normalizedStatKey(key);
+    if (lookup.some((candidate) => normalized.includes(candidate))) return Number(value);
+  }
+  return null;
+}
+
+function normalizeRate(value) {
+  if (!Number.isFinite(value)) return null;
+  const rate = value > 1 ? value / 100 : value;
+  return Math.max(0, Math.min(1, rate));
+}
+
+function extractLivePlayerProfile(payload) {
+  const flat = flattenNumericStats(payload);
+  const rank = firstMatchingNumeric(flat, ["rank", "position"]);
+  const holdRate = normalizeRate(firstMatchingNumeric(flat, [
+    "serviceGamesWonPercentage",
+    "holdPercentage",
+    "holdPct"
+  ]));
+  const ace = firstMatchingNumeric(flat, ["acesPerMatch", "averageAces", "acesAvg", "aces"]);
+  const formRate = normalizeRate(firstMatchingNumeric(flat, ["recentWinPercentage", "recentWinPct", "form", "winRate"]));
+
+  return {
+    rank: Number.isFinite(rank) ? rank : null,
+    hold: Number.isFinite(holdRate) ? holdRate * 100 : null,
+    ace: Number.isFinite(ace) ? ace : null,
+    form: Number.isFinite(formRate) ? formRate * 100 : null
+  };
+}
+
+function formatPlayerStatsPath(pathTemplate, currentPlayerId) {
+  const encoded = encodeURIComponent(currentPlayerId);
+  const hasPlaceholder = /\{playerId\}|\{player_id\}/.test(pathTemplate);
+  if (hasPlaceholder) return pathTemplate.replace(/\{playerId\}|\{player_id\}/g, encoded);
+  return `${pathTemplate}${pathTemplate.includes("?") ? "&" : "?"}player_id=${encoded}`;
+}
+
+async function fetchPlayerStatProfiles(events, env, apiSource) {
+  const pathTemplate = (
+    env.ALLSPORTS_TENNIS_PLAYER_STATS_PATH_TEMPLATE
+    || env.ALLSPORTS_TENNIS_PLAYER_STATS_PATH
+    || defaultPlayerStatsPathTemplate
+  ).trim();
+  if (!pathTemplate) {
+    return { profiles: new Map(), configured: false, errors: [], requestedCount: 0, loadedCount: 0 };
+  }
+
+  const maxPullsRaw = Number.parseInt(env.ALLSPORTS_TENNIS_PLAYER_STATS_MAX_PULLS || "", 10);
+  const maxPulls = Number.isFinite(maxPullsRaw) && maxPullsRaw > 0 ? maxPullsRaw : defaultPlayerStatsMaxPulls;
+  const ids = [];
+  const seenIds = new Set();
+
+  events.forEach((event) => {
+    [playerId(event, "A"), playerId(event, "B")].forEach((id) => {
+      if (!id || seenIds.has(id)) return;
+      seenIds.add(id);
+      ids.push(id);
+    });
+  });
+
+  const errors = [];
+  const profiles = new Map();
+  const idsToLoad = ids.slice(0, maxPulls);
+  for (const id of idsToLoad) {
+    try {
+      const payload = await fetchAllSportsJson(formatPlayerStatsPath(pathTemplate, id), apiSource);
+      const profile = extractLivePlayerProfile(payload);
+      if ([profile.rank, profile.hold, profile.ace, profile.form].some((value) => Number.isFinite(value))) {
+        profiles.set(id, profile);
+      }
+    } catch (error) {
+      errors.push({ playerId: id, error: error.message });
+    }
+  }
+
+  return {
+    profiles,
+    configured: true,
+    errors,
+    requestedCount: idsToLoad.length,
+    loadedCount: profiles.size
+  };
+}
+
+function resolveStatValue(event, keys, liveValue, fallback) {
+  const rawValue = firstValue(event, keys);
+  if (rawValue !== undefined && rawValue !== null && rawValue !== "") return numeric(rawValue, fallback);
+  if (Number.isFinite(liveValue)) return liveValue;
+  return fallback;
+}
+
 function playerName(event, side) {
   const keys = side === "A"
     ? ["playerA", "player_a", "homePlayer", "homeTeam", "home", "team1", "competitor1", "participant1"]
@@ -476,7 +616,7 @@ function buildLiveState(event, status) {
   };
 }
 
-function normalizeEvent(event, index) {
+function normalizeEvent(event, index, liveProfiles) {
   const playerA = playerName(event, "A");
   const playerB = playerName(event, "B");
   if (!playerA || !playerB) return null;
@@ -503,6 +643,8 @@ function normalizeEvent(event, index) {
   const live = buildLiveState(event, status);
   const surface = normalizeSurface(firstValue(event, ["surface", "courtSurface", "groundType", "ground", "tournament.uniqueTournament.groundType"]));
   const statProfile = historicalStatProfile(level, tour, surface);
+  const liveProfileA = liveProfiles.get(playerId(event, "A")) || {};
+  const liveProfileB = liveProfiles.get(playerId(event, "B")) || {};
 
   return {
     id: String(firstValue(event, ["id", "eventId", "matchId", "fixtureId"]) || slugify(`${tournament}-${playerA}-${playerB}-${index}`)),
@@ -525,14 +667,14 @@ function normalizeEvent(event, index) {
     playerB,
     surface,
     format: String(inferredFormat),
-    rankA: numeric(firstValue(event, ["rankA", "playerARank", "homeRank", "homeTeam.ranking"]), statProfile.rank),
-    rankB: numeric(firstValue(event, ["rankB", "playerBRank", "awayRank", "awayTeam.ranking"]), statProfile.rank),
-    holdA: numeric(firstValue(event, ["holdA", "playerAHold", "homeHoldPct"]), statProfile.hold),
-    holdB: numeric(firstValue(event, ["holdB", "playerBHold", "awayHoldPct"]), statProfile.hold),
-    aceA: numeric(firstValue(event, ["aceA", "playerAAces", "homeAcesAvg"]), statProfile.ace),
-    aceB: numeric(firstValue(event, ["aceB", "playerBAces", "awayAcesAvg"]), statProfile.ace),
-    formA: numeric(firstValue(event, ["formA", "playerAForm", "homeForm"]), statProfile.form),
-    formB: numeric(firstValue(event, ["formB", "playerBForm", "awayForm"]), statProfile.form),
+    rankA: resolveStatValue(event, ["rankA", "playerARank", "homeRank", "homeTeam.ranking"], liveProfileA.rank, statProfile.rank),
+    rankB: resolveStatValue(event, ["rankB", "playerBRank", "awayRank", "awayTeam.ranking"], liveProfileB.rank, statProfile.rank),
+    holdA: resolveStatValue(event, ["holdA", "playerAHold", "homeHoldPct"], liveProfileA.hold, statProfile.hold),
+    holdB: resolveStatValue(event, ["holdB", "playerBHold", "awayHoldPct"], liveProfileB.hold, statProfile.hold),
+    aceA: resolveStatValue(event, ["aceA", "playerAAces", "homeAcesAvg"], liveProfileA.ace, statProfile.ace),
+    aceB: resolveStatValue(event, ["aceB", "playerBAces", "awayAcesAvg"], liveProfileB.ace, statProfile.ace),
+    formA: resolveStatValue(event, ["formA", "playerAForm", "homeForm"], liveProfileA.form, statProfile.form),
+    formB: resolveStatValue(event, ["formB", "playerBForm", "awayForm"], liveProfileB.form, statProfile.form),
     weatherFactor: numeric(firstValue(event, ["weatherFactor", "weather"]), 0),
     fatigueA: numeric(firstValue(event, ["fatigueA", "playerAFatigue", "homeFatigue"]), 0),
     fatigueB: numeric(firstValue(event, ["fatigueB", "playerBFatigue", "awayFatigue"]), 0),
@@ -579,8 +721,10 @@ async function fetchDailyTennisSlate(date, options = {}) {
   const dateMatchedEvents = events.filter((event) => eventLocalDate(event, timeZone) === date);
   const usedDateEndpointFallback = !dateMatchedEvents.length && events.length > 0;
   const eventsForDate = usedDateEndpointFallback ? events : dateMatchedEvents;
+  const playerStatProfiles = await fetchPlayerStatProfiles(eventsForDate, env, apiSource);
+  const partialErrors = [...categoryErrors, ...playerStatProfiles.errors];
   const matches = eventsForDate
-    .map((event, index) => normalizeEvent(event, index))
+    .map((event, index) => normalizeEvent(event, index, playerStatProfiles.profiles))
     .filter(Boolean)
     .sort((a, b) => (
       (levelPriority[a.level] ?? 99) - (levelPriority[b.level] ?? 99)
@@ -590,7 +734,7 @@ async function fetchDailyTennisSlate(date, options = {}) {
 
   const payload = {
     source: `AllSportsAPI Tennis live slate (${apiSource.rapidHost})`,
-    statFallback: "Three-year historical surface/tour averages",
+    statFallback: "Per-player live historical pulls when configured, then three-year historical surface/tour averages",
     date,
     generatedAt: new Date().toISOString(),
     timeZone,
@@ -601,12 +745,19 @@ async function fetchDailyTennisSlate(date, options = {}) {
     usedDateEndpointFallback,
     filteredOutCount: events.length - eventsForDate.length,
     count: matches.length,
-    partialErrors: categoryErrors,
+    playerStatPullsConfigured: playerStatProfiles.configured,
+    playerStatPullsRequested: playerStatProfiles.requestedCount,
+    playerStatProfilesLoaded: playerStatProfiles.loadedCount,
+    partialErrors,
     matches
   };
 
   mkdirSync(join(root, "api_cache"), { recursive: true });
-  writeFileSync(join(root, "api_cache", `raw_allsports_tennis_${date}.json`), JSON.stringify({ categories, events, eventsForDate, categoryErrors }, null, 2), "utf-8");
+  writeFileSync(
+    join(root, "api_cache", `raw_allsports_tennis_${date}.json`),
+    JSON.stringify({ categories, events, eventsForDate, categoryErrors, playerStatErrors: playerStatProfiles.errors }, null, 2),
+    "utf-8"
+  );
   writeFileSync(join(root, "matches_preload.json"), JSON.stringify(payload, null, 2), "utf-8");
   return payload;
 }
