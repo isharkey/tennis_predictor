@@ -378,20 +378,54 @@ function normalizeRate(value) {
 
 function extractLivePlayerProfile(payload) {
   const flat = flattenNumericStats(payload);
-  const rank = firstMatchingNumeric(flat, ["rank", "position"]);
+  const rank = firstMatchingNumeric(flat, [
+    "rank",
+    "ranking",
+    "position",
+    "worldRank",
+    "currentRank"
+  ]);
   const holdRate = normalizeRate(firstMatchingNumeric(flat, [
     "serviceGamesWonPercentage",
     "holdPercentage",
-    "holdPct"
+    "holdPct",
+    "serviceGamesWonPct",
+    "serviceWinPercentage",
+    "serviceWinPct",
+    "servicePointsWonPercentage"
   ]));
-  const ace = firstMatchingNumeric(flat, ["acesPerMatch", "averageAces", "acesAvg", "aces"]);
-  const formRate = normalizeRate(firstMatchingNumeric(flat, ["recentWinPercentage", "recentWinPct", "form", "winRate"]));
+  const ace = firstMatchingNumeric(flat, [
+    "acesPerMatch",
+    "averageAces",
+    "acesAvg",
+    "acePercentage",
+    "acesPerSet",
+    "aces"
+  ]);
+  const formRate = normalizeRate(firstMatchingNumeric(flat, [
+    "recentWinPercentage",
+    "recentWinPct",
+    "last5WinPercentage",
+    "last10WinPercentage",
+    "winPercentage",
+    "winPct",
+    "winRate",
+    "form"
+  ]));
+  const fatigue = firstMatchingNumeric(flat, [
+    "fatigue",
+    "fatigueIndex",
+    "loadIndex",
+    "recoveryIndex",
+    "restDisadvantage"
+  ]);
 
   return {
     rank: Number.isFinite(rank) ? rank : null,
     hold: Number.isFinite(holdRate) ? holdRate * 100 : null,
     ace: Number.isFinite(ace) ? ace : null,
-    form: Number.isFinite(formRate) ? formRate * 100 : null
+    form: Number.isFinite(formRate) ? formRate * 100 : null,
+    fatigue: Number.isFinite(fatigue) ? fatigue : null
   };
 }
 
@@ -669,15 +703,90 @@ function normalizeEvent(event, index, liveProfiles) {
     format: String(inferredFormat),
     rankA: resolveStatValue(event, ["rankA", "playerARank", "homeRank", "homeTeam.ranking"], liveProfileA.rank, statProfile.rank),
     rankB: resolveStatValue(event, ["rankB", "playerBRank", "awayRank", "awayTeam.ranking"], liveProfileB.rank, statProfile.rank),
-    holdA: resolveStatValue(event, ["holdA", "playerAHold", "homeHoldPct"], liveProfileA.hold, statProfile.hold),
-    holdB: resolveStatValue(event, ["holdB", "playerBHold", "awayHoldPct"], liveProfileB.hold, statProfile.hold),
-    aceA: resolveStatValue(event, ["aceA", "playerAAces", "homeAcesAvg"], liveProfileA.ace, statProfile.ace),
-    aceB: resolveStatValue(event, ["aceB", "playerBAces", "awayAcesAvg"], liveProfileB.ace, statProfile.ace),
-    formA: resolveStatValue(event, ["formA", "playerAForm", "homeForm"], liveProfileA.form, statProfile.form),
-    formB: resolveStatValue(event, ["formB", "playerBForm", "awayForm"], liveProfileB.form, statProfile.form),
-    weatherFactor: numeric(firstValue(event, ["weatherFactor", "weather"]), 0),
-    fatigueA: numeric(firstValue(event, ["fatigueA", "playerAFatigue", "homeFatigue"]), 0),
-    fatigueB: numeric(firstValue(event, ["fatigueB", "playerBFatigue", "awayFatigue"]), 0),
+    holdA: resolveStatValue(event, [
+      "holdA",
+      "playerAHold",
+      "homeHoldPct",
+      "homeTeam.holdPct",
+      "homeTeam.statistics.holdPct",
+      "homeTeam.statistics.serviceGamesWonPercentage",
+      "home.stats.serviceGamesWonPercentage",
+      "statistics.home.serviceGamesWonPercentage"
+    ], liveProfileA.hold, statProfile.hold),
+    holdB: resolveStatValue(event, [
+      "holdB",
+      "playerBHold",
+      "awayHoldPct",
+      "awayTeam.holdPct",
+      "awayTeam.statistics.holdPct",
+      "awayTeam.statistics.serviceGamesWonPercentage",
+      "away.stats.serviceGamesWonPercentage",
+      "statistics.away.serviceGamesWonPercentage"
+    ], liveProfileB.hold, statProfile.hold),
+    aceA: resolveStatValue(event, [
+      "aceA",
+      "playerAAces",
+      "homeAcesAvg",
+      "homeAces",
+      "homeTeam.statistics.acesPerMatch",
+      "home.stats.acesPerMatch",
+      "statistics.home.acesPerMatch"
+    ], liveProfileA.ace, statProfile.ace),
+    aceB: resolveStatValue(event, [
+      "aceB",
+      "playerBAces",
+      "awayAcesAvg",
+      "awayAces",
+      "awayTeam.statistics.acesPerMatch",
+      "away.stats.acesPerMatch",
+      "statistics.away.acesPerMatch"
+    ], liveProfileB.ace, statProfile.ace),
+    formA: resolveStatValue(event, [
+      "formA",
+      "playerAForm",
+      "homeForm",
+      "homeTeam.form",
+      "homeTeam.statistics.form",
+      "homeTeam.statistics.recentWinPercentage",
+      "home.stats.recentWinPercentage",
+      "statistics.home.recentWinPercentage"
+    ], liveProfileA.form, statProfile.form),
+    formB: resolveStatValue(event, [
+      "formB",
+      "playerBForm",
+      "awayForm",
+      "awayTeam.form",
+      "awayTeam.statistics.form",
+      "awayTeam.statistics.recentWinPercentage",
+      "away.stats.recentWinPercentage",
+      "statistics.away.recentWinPercentage"
+    ], liveProfileB.form, statProfile.form),
+    weatherFactor: numeric(firstValue(event, [
+      "weatherFactor",
+      "weather",
+      "weather.factor",
+      "conditions.weatherFactor",
+      "venue.weatherFactor",
+      "environment.weatherFactor"
+    ]), 0),
+    fatigueA: resolveStatValue(event, [
+      "fatigueA",
+      "playerAFatigue",
+      "homeFatigue",
+      "homeTeam.fatigue",
+      "homeTeam.statistics.fatigue",
+      "home.stats.fatigue",
+      "statistics.home.fatigue"
+    ], liveProfileA.fatigue, 0),
+    fatigueB: resolveStatValue(event, [
+      "fatigueB",
+      "playerBFatigue",
+      "awayFatigue",
+      "awayTeam.fatigue",
+      "awayTeam.statistics.fatigue",
+      "away.stats.fatigue",
+      "statistics.away.fatigue"
+    ], liveProfileB.fatigue, 0),
     injuryA: numeric(firstValue(event, ["injuryA", "playerAInjury", "homeInjury"]), 0),
     injuryB: numeric(firstValue(event, ["injuryB", "playerBInjury", "awayInjury"]), 0)
   };

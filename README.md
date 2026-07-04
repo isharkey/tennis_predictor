@@ -641,6 +641,7 @@ python tennis_match_slate_loader.py --allsports-date 2026-07-03 --raw-output raw
 
 The loader follows the documented daily tennis recipe: find the categories with play that day, then fetch each category's events and merge/dedupe them into `matches_preload.json`.
 If `ALLSPORTS_TENNIS_PLAYER_STATS_PATH_TEMPLATE` is configured, `/api/refresh-slate` also requests each player's historical profile and uses those values before falling back to the three-year baseline averages.
+The live mapper now also checks broader nested aliases (for example `statistics.home.*`, `homeTeam.statistics.*`, `statistics.away.*`) for hold, aces, form, weather, and fatigue so fewer matches stay on generic defaults.
 
 ### LiveScore6
 
