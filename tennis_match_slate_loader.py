@@ -251,14 +251,14 @@ def normalize_match(item: Dict[str, Any], index: int) -> Optional[Dict[str, Any]
         **DEFAULT_STATS,
     }
 
-    match["rankA"] = int_number(first_present(item, ["rankA", "playerARank", "homeRank", "homeTeam.ranking"]), int(stat_profile["rank"]))
-    match["rankB"] = int_number(first_present(item, ["rankB", "playerBRank", "awayRank", "awayTeam.ranking"]), int(stat_profile["rank"]))
-    match["holdA"] = float_number(first_present(item, ["holdA", "playerAHold", "homeHoldPct"]), float(stat_profile["hold"]))
-    match["holdB"] = float_number(first_present(item, ["holdB", "playerBHold", "awayHoldPct"]), float(stat_profile["hold"]))
-    match["aceA"] = float_number(first_present(item, ["aceA", "playerAAces", "homeAcesAvg"]), float(stat_profile["ace"]))
-    match["aceB"] = float_number(first_present(item, ["aceB", "playerBAces", "awayAcesAvg"]), float(stat_profile["ace"]))
-    match["formA"] = int_number(first_present(item, ["formA", "playerAForm", "homeForm"]), int(stat_profile["form"]))
-    match["formB"] = int_number(first_present(item, ["formB", "playerBForm", "awayForm"]), int(stat_profile["form"]))
+    match["rankA"] = int_number(first_present(item, ["rankA", "playerARank", "homeRank", "homeTeam.ranking"]), stat_profile["rank"])
+    match["rankB"] = int_number(first_present(item, ["rankB", "playerBRank", "awayRank", "awayTeam.ranking"]), stat_profile["rank"])
+    match["holdA"] = float_number(first_present(item, ["holdA", "playerAHold", "homeHoldPct"]), stat_profile["hold"])
+    match["holdB"] = float_number(first_present(item, ["holdB", "playerBHold", "awayHoldPct"]), stat_profile["hold"])
+    match["aceA"] = float_number(first_present(item, ["aceA", "playerAAces", "homeAcesAvg"]), stat_profile["ace"])
+    match["aceB"] = float_number(first_present(item, ["aceB", "playerBAces", "awayAcesAvg"]), stat_profile["ace"])
+    match["formA"] = int_number(first_present(item, ["formA", "playerAForm", "homeForm"]), stat_profile["form"])
+    match["formB"] = int_number(first_present(item, ["formB", "playerBForm", "awayForm"]), stat_profile["form"])
     match["weatherFactor"] = float_number(first_present(item, ["weatherFactor", "weather"]), match["weatherFactor"])
     match["fatigueA"] = int_number(first_present(item, ["fatigueA", "playerAFatigue", "homeFatigue"]), match["fatigueA"])
     match["fatigueB"] = int_number(first_present(item, ["fatigueB", "playerBFatigue", "awayFatigue"]), match["fatigueB"])
