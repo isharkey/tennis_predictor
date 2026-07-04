@@ -372,7 +372,7 @@ function firstMatchingNumeric(flat, candidates) {
 
 function normalizeRate(value) {
   if (!Number.isFinite(value)) return null;
-  const rate = value > 1 ? value / 100 : value;
+  const rate = value > 1 && value <= 100 ? value / 100 : value;
   return Math.max(0, Math.min(1, rate));
 }
 
@@ -389,10 +389,7 @@ function extractLivePlayerProfile(payload) {
     "serviceGamesWonPercentage",
     "holdPercentage",
     "holdPct",
-    "serviceGamesWonPct",
-    "serviceWinPercentage",
-    "serviceWinPct",
-    "servicePointsWonPercentage"
+    "serviceGamesWonPct"
   ]));
   const ace = firstMatchingNumeric(flat, [
     "acesPerMatch",
@@ -430,6 +427,9 @@ function extractLivePlayerProfile(payload) {
 }
 
 function formatPlayerStatsPath(pathTemplate, currentPlayerId) {
+  if (!String(currentPlayerId || "").trim()) {
+    throw new Error("Missing player id for player stats request.");
+  }
   const encoded = encodeURIComponent(currentPlayerId);
   const hasPlaceholder = /\{playerId\}|\{player_id\}/.test(pathTemplate);
   if (hasPlaceholder) return pathTemplate.replace(/\{playerId\}|\{player_id\}/g, encoded);
@@ -466,7 +466,7 @@ async function fetchPlayerStatProfiles(events, env, apiSource) {
     try {
       const payload = await fetchAllSportsJson(formatPlayerStatsPath(pathTemplate, id), apiSource);
       const profile = extractLivePlayerProfile(payload);
-      if ([profile.rank, profile.hold, profile.ace, profile.form].some((value) => Number.isFinite(value))) {
+      if ([profile.rank, profile.hold, profile.ace, profile.form, profile.fatigue].some((value) => Number.isFinite(value))) {
         profiles.set(id, profile);
       }
     } catch (error) {
