@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#10231f">
+    <title>Tennis Edge</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Tennis Edge</p>
+          <h1>Prediction Console</h1>
+        </div>
+        <button class="icon-button" id="reset-demo" type="button" aria-label="Reset learning data" title="Reset learning data">
+          <span aria-hidden="true">R</span>
+        </button>
+      </header>
+
+      <main>
+        <section class="panel match-board-panel" aria-labelledby="slate-title">
+          <div class="section-heading slate-heading">
+            <div>
+              <p class="eyebrow">Slate</p>
+              <h2 id="slate-title">Preloaded Matches</h2>
+              <div id="match-board-meta" class="slate-meta">Loading local slate</div>
+            </div>
+            <div class="slate-actions">
+              <span id="match-board-count" class="pill">0 loaded</span>
+              <button class="secondary-button compact" id="reload-slate" type="button">Refresh Live</button>
+            </div>
+          </div>
+
+          <div class="match-board-controls">
+            <label>
+              <span>Date</span>
+              <input id="slate-date" type="date">
+            </label>
+            <label>
+              <span>Sort</span>
+              <select id="match-sort">
+                <option value="level">Level</option>
+                <option value="time">Time</option>
+                <option value="tournament">Tournament</option>
+              </select>
+            </label>
+            <label>
+              <span>Tour</span>
+              <select id="match-tour-filter">
+                <option value="all">All</option>
+                <option value="ATP">ATP</option>
+                <option value="WTA">WTA</option>
+                <option value="ITF">ITF</option>
+                <option value="Challenger">Challenger</option>
+              </select>
+            </label>
+            <label>
+              <span>Level</span>
+              <select id="match-level-filter">
+                <option value="all">All</option>
+                <option value="Grand Slam">Grand Slam</option>
+                <option value="ATP 1000">ATP 1000</option>
+                <option value="WTA 1000">WTA 1000</option>
+                <option value="ATP 500">ATP 500</option>
+                <option value="WTA 500">WTA 500</option>
+                <option value="ATP 250">ATP 250</option>
+                <option value="WTA 250">WTA 250</option>
+                <option value="Challenger">Challenger</option>
+                <option value="ITF">ITF</option>
+              </select>
+            </label>
+            <label>
+              <span>Search</span>
+              <input id="match-search" type="search" autocomplete="off" placeholder="Player or tournament">
+            </label>
+          </div>
+
+          <div id="match-board-list" class="match-board-list"></div>
+        </section>
+
+        <section class="panel prediction-panel" aria-labelledby="match-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Match</p>
+              <h2 id="match-title">Simulation Inputs</h2>
+            </div>
+            <div class="simulation-control">
+              <label for="simulations">Runs</label>
+              <input id="simulations" type="number" min="1000" max="100000" step="1000" value="100000">
+            </div>
+          </div>
+
+          <form id="match-form" class="match-grid">
+            <label>
+              <span>Player A</span>
+              <input id="player-a" name="playerA" type="text" value="Jannik Sinner" autocomplete="off">
+            </label>
+            <label>
+              <span>Player B</span>
+              <input id="player-b" name="playerB" type="text" value="Carlos Alcaraz" autocomplete="off">
+            </label>
+            <label>
+              <span>Surface</span>
+              <select id="surface" name="surface">
+                <option>Hard</option>
+                <option>Clay</option>
+                <option>Grass</option>
+                <option>Indoor</option>
+              </select>
+            </label>
+            <label>
+              <span>Format</span>
+              <select id="format" name="format">
+                <option value="3">Best of 3</option>
+                <option value="5">Best of 5</option>
+              </select>
+            </label>
+            <label>
+              <span>A rank</span>
+              <input id="rank-a" name="rankA" type="number" min="1" max="2000" value="1">
+            </label>
+            <label>
+              <span>B rank</span>
+              <input id="rank-b" name="rankB" type="number" min="1" max="2000" value="2">
+            </label>
+            <label>
+              <span>A hold %</span>
+              <input id="hold-a" name="holdA" type="number" min="45" max="100" step="0.1" value="88.4">
+            </label>
+            <label>
+              <span>B hold %</span>
+              <input id="hold-b" name="holdB" type="number" min="45" max="100" step="0.1" value="86.9">
+            </label>
+            <label>
+              <span>A ace %</span>
+              <input id="ace-a" name="aceA" type="number" min="0" max="35" step="0.1" value="9.8">
+            </label>
+            <label>
+              <span>B ace %</span>
+              <input id="ace-b" name="aceB" type="number" min="0" max="35" step="0.1" value="7.2">
+            </label>
+            <label>
+              <span>A form</span>
+              <input id="form-a" name="formA" type="number" min="0" max="100" value="82">
+            </label>
+            <label>
+              <span>B form</span>
+              <input id="form-b" name="formB" type="number" min="0" max="100" value="79">
+            </label>
+            <label>
+              <span>Weather</span>
+              <input id="weather-factor" name="weatherFactor" type="number" min="-10" max="10" step="0.5" value="0">
+            </label>
+            <label>
+              <span>A fatigue</span>
+              <input id="fatigue-a" name="fatigueA" type="number" min="0" max="100" value="12">
+            </label>
+            <label>
+              <span>B fatigue</span>
+              <input id="fatigue-b" name="fatigueB" type="number" min="0" max="100" value="18">
+            </label>
+            <label>
+              <span>A injury</span>
+              <input id="injury-a" name="injuryA" type="number" min="0" max="100" value="0">
+            </label>
+            <label>
+              <span>B injury</span>
+              <input id="injury-b" name="injuryB" type="number" min="0" max="100" value="6">
+            </label>
+          </form>
+
+          <div class="action-row">
+            <button class="primary-button" id="run-button" type="button">Run Ensemble</button>
+            <button class="secondary-button" id="sample-button" type="button">Load Sample</button>
+          </div>
+        </section>
+
+        <section class="scoreboard" aria-label="Final prediction">
+          <article class="metric-card winner-card">
+            <span>Winner</span>
+            <strong id="winner-pick">-</strong>
+            <small id="winner-probability">Run the ensemble</small>
+          </article>
+          <article class="metric-card">
+            <span>Total Games</span>
+            <strong id="games-pick">-</strong>
+            <small id="games-range">-</small>
+          </article>
+          <article class="metric-card">
+            <span>Tiebreak</span>
+            <strong id="tiebreak-pick">-</strong>
+            <small id="tiebreak-probability">-</small>
+          </article>
+          <article class="metric-card">
+            <span>Sets</span>
+            <strong id="sets-pick">-</strong>
+            <small id="sets-range">-</small>
+          </article>
+          <article class="metric-card">
+            <span>Breaks</span>
+            <strong id="breaks-pick">-</strong>
+            <small id="breaks-range">-</small>
+          </article>
+          <article class="metric-card">
+            <span>Aces</span>
+            <strong id="aces-pick">-</strong>
+            <small id="aces-range">-</small>
+          </article>
+        </section>
+
+        <nav class="tabs" aria-label="Prediction sections">
+          <button class="tab active" type="button" data-tab="models">Models</button>
+          <button class="tab" type="button" data-tab="live">Live</button>
+          <button class="tab" type="button" data-tab="odds">Odds</button>
+          <button class="tab" type="button" data-tab="parlays">Parlays</button>
+          <button class="tab" type="button" data-tab="players">Players</button>
+          <button class="tab" type="button" data-tab="learning">Learning</button>
+          <button class="tab" type="button" data-tab="history">History</button>
+        </nav>
+
+        <section id="models-tab" class="tab-panel active">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Ensemble</p>
+              <h2>Model Contributions</h2>
+            </div>
+            <select id="metric-view" aria-label="Metric weight view">
+              <option value="winner">Winner</option>
+              <option value="totalGames">Total games</option>
+              <option value="tieBreaker">Tiebreak</option>
+              <option value="sets">Sets</option>
+              <option value="breaks">Breaks</option>
+              <option value="aces">Aces</option>
+            </select>
+          </div>
+          <div id="model-list" class="model-list"></div>
+        </section>
+
+        <section id="live-tab" class="tab-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">In-Play</p>
+              <h2>Live Odds Predictions</h2>
+            </div>
+            <div class="live-controls">
+              <label class="toggle-control">
+                <input id="live-auto-refresh" type="checkbox">
+                <span>Auto</span>
+              </label>
+              <button class="secondary-button compact" id="live-refresh" type="button">Refresh</button>
+            </div>
+          </div>
+
+          <div id="live-summary" class="live-summary"></div>
+          <div id="live-match-list" class="live-match-list"></div>
+        </section>
+
+        <section id="odds-tab" class="tab-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Market</p>
+              <h2>+EV Sportsbook Board</h2>
+            </div>
+            <div class="odds-controls">
+              <label>
+                <span>Book</span>
+                <select id="odds-book-filter">
+                  <option value="all">All</option>
+                  <option value="DraftKings">DraftKings</option>
+                  <option value="FanDuel">FanDuel</option>
+                  <option value="BetMGM">BetMGM</option>
+                  <option value="Caesars">Caesars</option>
+                  <option value="ESPN BET">ESPN BET</option>
+                  <option value="Fanatics">Fanatics</option>
+                  <option value="BetRivers">BetRivers</option>
+                  <option value="Hard Rock">Hard Rock</option>
+                </select>
+              </label>
+              <label>
+                <span>Min edge</span>
+                <input id="odds-min-edge" type="number" min="0" max="25" step="0.5" value="2">
+              </label>
+              <button class="secondary-button compact" id="odds-refresh" type="button">Reload</button>
+            </div>
+          </div>
+
+          <div id="odds-status" class="status-line">Loading market board</div>
+          <div id="odds-summary" class="parlay-summary"></div>
+          <div id="odds-board" class="odds-board"></div>
+        </section>
+
+        <section id="parlays-tab" class="tab-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Builder</p>
+              <h2>Best Parlay Legs</h2>
+            </div>
+            <div class="parlay-controls">
+              <label>
+                <span>Style</span>
+                <select id="parlay-profile">
+                  <option value="conservative">Conservative</option>
+                  <option value="balanced" selected>Balanced</option>
+                  <option value="aggressive">Aggressive</option>
+                </select>
+              </label>
+              <label>
+                <span>Legs</span>
+                <input id="parlay-leg-count" type="number" min="2" max="6" step="1" value="3">
+              </label>
+            </div>
+          </div>
+
+          <div id="parlay-summary" class="parlay-summary"></div>
+
+          <div class="parlay-section">
+            <div class="parlay-section-head">
+              <h3>Recommended Slip</h3>
+              <span id="parlay-risk" class="pill">-</span>
+            </div>
+            <div id="parlay-leg-list" class="parlay-leg-list"></div>
+          </div>
+
+          <div class="parlay-section">
+            <div class="parlay-section-head">
+              <h3>Ranked Leg Pool</h3>
+              <span class="model-meta">Winners, match props, and player props</span>
+            </div>
+            <div id="parlay-candidates" class="parlay-candidates"></div>
+          </div>
+        </section>
+
+        <section id="players-tab" class="tab-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Data</p>
+              <h2>Player Profiles</h2>
+            </div>
+            <div class="player-controls">
+              <label>
+                <span>Search</span>
+                <input id="player-search" type="search" autocomplete="off" placeholder="Player, tour, surface">
+              </label>
+              <label>
+                <span>Sort</span>
+                <select id="player-sort">
+                  <option value="rank">Rank</option>
+                  <option value="name">Name</option>
+                  <option value="form">Form</option>
+                  <option value="hold">Hold</option>
+                  <option value="next">Next match</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <div class="player-section">
+            <div class="parlay-section-head">
+              <h3>Selected Match</h3>
+              <span id="selected-player-meta" class="model-meta">-</span>
+            </div>
+            <div id="selected-player-cards" class="player-card-grid"></div>
+          </div>
+
+          <div class="player-section">
+            <div class="parlay-section-head">
+              <h3>All Loaded Players</h3>
+              <span id="player-count" class="pill">0 players</span>
+            </div>
+            <div id="player-data-list" class="player-data-list"></div>
+          </div>
+        </section>
+
+        <section id="learning-tab" class="tab-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Learning</p>
+              <h2>Actual Result</h2>
+            </div>
+            <button class="secondary-button compact" id="save-result" type="button">Save Result</button>
+          </div>
+          <form id="actual-form" class="actual-grid">
+            <label>
+              <span>Winner</span>
+              <select id="actual-winner">
+                <option value="A">Player A</option>
+                <option value="B">Player B</option>
+              </select>
+            </label>
+            <label>
+              <span>Total games</span>
+              <input id="actual-games" type="number" min="0" max="90" step="1" value="23">
+            </label>
+            <label>
+              <span>Tiebreak</span>
+              <select id="actual-tiebreak">
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+              </select>
+            </label>
+            <label>
+              <span>Sets</span>
+              <input id="actual-sets" type="number" min="2" max="5" step="1" value="3">
+            </label>
+            <label>
+              <span>Breaks</span>
+              <input id="actual-breaks" type="number" min="0" max="30" step="1" value="6">
+            </label>
+            <label>
+              <span>Aces</span>
+              <input id="actual-aces" type="number" min="0" max="80" step="1" value="18">
+            </label>
+          </form>
+          <div id="learning-status" class="status-line">No scored matches yet.</div>
+
+          <div class="learning-section">
+            <div class="parlay-section-head">
+              <h3>Current Weight Percentages</h3>
+              <span class="model-meta">How much each algorithm counts for each prediction</span>
+            </div>
+            <div id="current-weights-grid" class="metric-weight-grid"></div>
+          </div>
+
+          <div class="learning-section">
+            <div class="parlay-section-head">
+              <h3>Model Reliability Scores</h3>
+              <span class="model-meta">Recent accuracy by metric</span>
+            </div>
+            <div id="weights-grid" class="weights-grid"></div>
+          </div>
+
+          <div class="learning-section">
+            <div class="parlay-section-head">
+              <h3>Recent Weight Changes</h3>
+              <span class="model-meta">What changed and why</span>
+            </div>
+            <div id="learning-change-list" class="learning-change-list"></div>
+          </div>
+        </section>
+
+        <section id="history-tab" class="tab-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Log</p>
+              <h2>Scored Matches</h2>
+            </div>
+            <button class="secondary-button compact" id="clear-history" type="button">Clear</button>
+          </div>
+          <div id="history-list" class="history-list"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>

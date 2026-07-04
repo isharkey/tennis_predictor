@@ -1,0 +1,41 @@
+services:
+  - type: web
+    name: tennis-edge
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /healthz
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: APP_BASIC_AUTH_USER
+        sync: false
+      - key: APP_BASIC_AUTH_PASSWORD
+        sync: false
+      - key: RAPIDAPI_KEY
+        sync: false
+      - key: ALLSPORTS_TENNIS_RAPIDAPI_KEY
+        sync: false
+      - key: ALLSPORTS_TENNIS_RAPIDAPI_HOST
+        value: tennisapi1.p.rapidapi.com
+      - key: ALLSPORTS_TENNIS_RAPIDAPI_BASE_URL
+        value: https://tennisapi1.p.rapidapi.com
+      - key: SOFASCORE_RAPIDAPI_KEY
+        sync: false
+      - key: SOFASCORE_RAPIDAPI_HOST
+        value: sofascore6.p.rapidapi.com
+      - key: JJRM365_TENNIS_RAPIDAPI_KEY
+        sync: false
+      - key: JJRM365_TENNIS_RAPIDAPI_HOST
+        value: tennis-api-atp-wta-itf.p.rapidapi.com
+      - key: JJRM365_TENNIS_RAPIDAPI_BASE_URL
+        value: https://tennis-api-atp-wta-itf.p.rapidapi.com
+      - key: LIVESCORE6_RAPIDAPI_KEY
+        sync: false
+      - key: LIVESCORE6_RAPIDAPI_HOST
+        value: livescore6.p.rapidapi.com
+      - key: LIVESCORE6_RAPIDAPI_BASE_URL
+        value: https://livescore6.p.rapidapi.com

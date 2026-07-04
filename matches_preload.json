@@ -1,0 +1,7246 @@
+{
+  "source": "AllSportsAPI Tennis live slate (tennisapi1.p.rapidapi.com)",
+  "generatedAt": "2026-07-03T22:54:30.388Z",
+  "timeZone": "America/New_York",
+  "categoryCount": 7,
+  "loadedCategoryCount": 7,
+  "rawEventCount": 200,
+  "filteredOutCount": 118,
+  "count": 82,
+  "partialErrors": [
+    {
+      "categoryId": 213,
+      "category": "ITF Women",
+      "error": "AllSportsAPI 429: {\"message\":\"You have exceeded the DAILY quota for Requests on your current plan, BASIC. Upgrade your plan at https:\\/\\/rapidapi.com\\/fluis.lacasse\\/api\\/tennisapi1\"}"
+    },
+    {
+      "categoryId": 785,
+      "category": "ITF Men",
+      "error": "AllSportsAPI 429: {\"message\":\"You have exceeded the DAILY quota for Requests on your current plan, BASIC. Upgrade your plan at https:\\/\\/rapidapi.com\\/fluis.lacasse\\/api\\/tennisapi1\"}"
+    },
+    {
+      "categoryId": 1843,
+      "category": "UTR Men",
+      "error": "AllSportsAPI 429: {\"message\":\"You have exceeded the rate limit per second for your plan, BASIC, by the API provider\"}"
+    },
+    {
+      "categoryId": 1844,
+      "category": "UTR Women",
+      "error": "AllSportsAPI 429: {\"message\":\"You have exceeded the rate limit per second for your plan, BASIC, by the API provider\"}"
+    }
+  ],
+  "matches": [
+    {
+      "id": "16385356",
+      "tournament": "Wimbledon, London, Great Britain",
+      "level": "Grand Slam",
+      "tour": "ATP",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T10:00:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "40",
+        "pointB": "0",
+        "setsA": 3,
+        "setsB": 0,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783078516,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "6-3 6-3 6-3"
+      },
+      "winnerSide": "A",
+      "scoreline": "6-3 6-3 6-3",
+      "actual": {
+        "winner": "A",
+        "aSets": 3,
+        "bSets": 0,
+        "totalGames": 27,
+        "tieBreaker": false,
+        "setsPlayed": 3,
+        "scoreline": "6-3 6-3 6-3",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Roman Safiullin",
+      "playerB": "Joao Fonseca",
+      "surface": "Grass",
+      "format": "5",
+      "rankA": 132,
+      "rankB": 27,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16390381",
+      "tournament": "Wimbledon, London, Great Britain",
+      "level": "Grand Slam",
+      "tour": "WTA",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T10:00:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "9",
+        "pointB": "6",
+        "setsA": 2,
+        "setsB": 1,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783079400,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 10,
+            "tieBreakB": 6
+          }
+        ],
+        "scoreline": "6-4 4-6 7-6"
+      },
+      "winnerSide": "A",
+      "scoreline": "6-4 4-6 7-6(10-6)",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 1,
+        "totalGames": 33,
+        "tieBreaker": true,
+        "setsPlayed": 3,
+        "scoreline": "6-4 4-6 7-6(10-6)",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 10,
+            "tieBreakB": 6
+          }
+        ]
+      },
+      "playerA": "Belinda Bencic",
+      "playerB": "Anna Kalinskaya",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 11,
+      "rankB": 20,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16385646",
+      "tournament": "Wimbledon, London, Great Britain, Doubles",
+      "level": "Grand Slam",
+      "tour": "ATP",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T10:00:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "A",
+        "pointB": "40",
+        "setsA": 2,
+        "setsB": 1,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783078142,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 1,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 4,
+            "tieBreakB": 7
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "6-1 6-7 6-4"
+      },
+      "winnerSide": "A",
+      "scoreline": "6-1 6-7(4-7) 6-4",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 1,
+        "totalGames": 30,
+        "tieBreaker": true,
+        "setsPlayed": 3,
+        "scoreline": "6-1 6-7(4-7) 6-4",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 1,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 4,
+            "tieBreakB": 7
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Arevalo M / Pavic M",
+      "playerB": "Stevenson D / Willis M",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16385656",
+      "tournament": "Wimbledon, London, Great Britain, Doubles",
+      "level": "Grand Slam",
+      "tour": "ATP",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T10:00:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "15",
+        "pointB": "40",
+        "setsA": 1,
+        "setsB": 2,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783077483,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 1,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "6-4 4-6 1-6"
+      },
+      "winnerSide": "B",
+      "scoreline": "6-4 4-6 1-6",
+      "actual": {
+        "winner": "B",
+        "aSets": 1,
+        "bSets": 2,
+        "totalGames": 27,
+        "tieBreaker": false,
+        "setsPlayed": 3,
+        "scoreline": "6-4 4-6 1-6",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 1,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Buse I / Trungelliti M",
+      "playerB": "Cabral F / Miedler L",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16385654",
+      "tournament": "Wimbledon, London, Great Britain, Doubles",
+      "level": "Grand Slam",
+      "tour": "ATP",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T10:00:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "9",
+        "pointB": "7",
+        "setsA": 2,
+        "setsB": 1,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783078919,
+        "sets": [
+          {
+            "set": 1,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 5
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 3,
+            "tieBreakB": 7
+          },
+          {
+            "set": 3,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 10,
+            "tieBreakB": 7
+          }
+        ],
+        "scoreline": "7-6 6-7 7-6"
+      },
+      "winnerSide": "A",
+      "scoreline": "7-6(7-5) 6-7(3-7) 7-6(10-7)",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 1,
+        "totalGames": 39,
+        "tieBreaker": true,
+        "setsPlayed": 3,
+        "scoreline": "7-6(7-5) 6-7(3-7) 7-6(10-7)",
+        "sets": [
+          {
+            "set": 1,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 5
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 3,
+            "tieBreakB": 7
+          },
+          {
+            "set": 3,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 10,
+            "tieBreakB": 7
+          }
+        ]
+      },
+      "playerA": "Heliovaara H / Patten H",
+      "playerB": "Kiger M / Trhac P",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16385664",
+      "tournament": "Wimbledon, London, Great Britain, Doubles",
+      "level": "Grand Slam",
+      "tour": "ATP",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T10:00:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "40",
+        "pointB": "0",
+        "setsA": 2,
+        "setsB": 1,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783079724,
+        "sets": [
+          {
+            "set": 1,
+            "a": 5,
+            "b": 7,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 5
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "5-7 7-6 6-3"
+      },
+      "winnerSide": "A",
+      "scoreline": "5-7 7-6(7-5) 6-3",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 1,
+        "totalGames": 34,
+        "tieBreaker": true,
+        "setsPlayed": 3,
+        "scoreline": "5-7 7-6(7-5) 6-3",
+        "sets": [
+          {
+            "set": 1,
+            "a": 5,
+            "b": 7,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 5
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Krawietz K / Puetz T",
+      "playerB": "R. A. Burruchaga / T. A. Tirante",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16385649",
+      "tournament": "Wimbledon, London, Great Britain, Doubles",
+      "level": "Grand Slam",
+      "tour": "ATP",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T10:00:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "10",
+        "pointB": "11",
+        "setsA": 1,
+        "setsB": 2,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783079496,
+        "sets": [
+          {
+            "set": 1,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 5
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 4,
+            "tieBreakB": 7
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 10,
+            "tieBreakB": 12
+          }
+        ],
+        "scoreline": "7-6 6-7 6-7"
+      },
+      "winnerSide": "B",
+      "scoreline": "7-6(7-5) 6-7(4-7) 6-7(10-12)",
+      "actual": {
+        "winner": "B",
+        "aSets": 1,
+        "bSets": 2,
+        "totalGames": 39,
+        "tieBreaker": true,
+        "setsPlayed": 3,
+        "scoreline": "7-6(7-5) 6-7(4-7) 6-7(10-12)",
+        "sets": [
+          {
+            "set": 1,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 5
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 4,
+            "tieBreakB": 7
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 10,
+            "tieBreakB": 12
+          }
+        ]
+      },
+      "playerA": "Liutarevich I / Reyes-Varela M A",
+      "playerB": "Krajicek A / Mektic N",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16385639",
+      "tournament": "Wimbledon, London, Great Britain, Doubles",
+      "level": "Grand Slam",
+      "tour": "ATP",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T10:00:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "0",
+        "pointB": "40",
+        "setsA": 1,
+        "setsB": 2,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783077691,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "6-4 4-6 4-6"
+      },
+      "winnerSide": "B",
+      "scoreline": "6-4 4-6 4-6",
+      "actual": {
+        "winner": "B",
+        "aSets": 1,
+        "bSets": 2,
+        "totalGames": 30,
+        "tieBreaker": false,
+        "setsPlayed": 3,
+        "scoreline": "6-4 4-6 4-6",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Moutet C / Reymond A",
+      "playerB": "Cash J / Glasspool L",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16385636",
+      "tournament": "Wimbledon, London, Great Britain, Doubles",
+      "level": "Grand Slam",
+      "tour": "ATP",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T10:00:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "5",
+        "pointB": "6",
+        "setsA": 0,
+        "setsB": 2,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783075969,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 4,
+            "tieBreakB": 7
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 5,
+            "tieBreakB": 7
+          }
+        ],
+        "scoreline": "6-7 6-7"
+      },
+      "winnerSide": "B",
+      "scoreline": "6-7(4-7) 6-7(5-7)",
+      "actual": {
+        "winner": "B",
+        "aSets": 0,
+        "bSets": 2,
+        "totalGames": 26,
+        "tieBreaker": true,
+        "setsPlayed": 2,
+        "scoreline": "6-7(4-7) 6-7(5-7)",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 4,
+            "tieBreakB": 7
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 5,
+            "tieBreakB": 7
+          }
+        ]
+      },
+      "playerA": "Paul J / Seggerman R",
+      "playerB": "Harrison C / Skupski N",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16398408",
+      "tournament": "Wimbledon, London, Great Britain, Doubles",
+      "level": "Grand Slam",
+      "tour": "WTA",
+      "round": "Round of 64",
+      "court": "",
+      "startTime": "2026-07-03T10:00:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "15",
+        "pointB": "40",
+        "setsA": 0,
+        "setsB": 2,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783075233,
+        "sets": [
+          {
+            "set": 1,
+            "a": 2,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 2,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "2-6 2-6"
+      },
+      "winnerSide": "B",
+      "scoreline": "2-6 2-6",
+      "actual": {
+        "winner": "B",
+        "aSets": 0,
+        "bSets": 2,
+        "totalGames": 16,
+        "tieBreaker": false,
+        "setsPlayed": 2,
+        "scoreline": "2-6 2-6",
+        "sets": [
+          {
+            "set": 1,
+            "a": 2,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 2,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Guarachi A / Rosolska A",
+      "playerB": "Dabrowski G / Stefani L",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16398433",
+      "tournament": "Wimbledon, London, Great Britain, Doubles",
+      "level": "Grand Slam",
+      "tour": "WTA",
+      "round": "Round of 64",
+      "court": "",
+      "startTime": "2026-07-03T10:00:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "40",
+        "pointB": "A",
+        "setsA": 1,
+        "setsB": 2,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783079161,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 2,
+            "tieBreakB": 7
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 2,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "6-7 6-4 2-6"
+      },
+      "winnerSide": "B",
+      "scoreline": "6-7(2-7) 6-4 2-6",
+      "actual": {
+        "winner": "B",
+        "aSets": 1,
+        "bSets": 2,
+        "totalGames": 31,
+        "tieBreaker": true,
+        "setsPlayed": 3,
+        "scoreline": "6-7(2-7) 6-4 2-6",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 2,
+            "tieBreakB": 7
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 2,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Kessler M / Shnaider D",
+      "playerB": "Detiuc A / Khromacheva I",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16398436",
+      "tournament": "Wimbledon, London, Great Britain, Doubles",
+      "level": "Grand Slam",
+      "tour": "WTA",
+      "round": "Round of 64",
+      "court": "",
+      "startTime": "2026-07-03T10:00:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "30",
+        "pointB": "40",
+        "setsA": 0,
+        "setsB": 2,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783075878,
+        "sets": [
+          {
+            "set": 1,
+            "a": 5,
+            "b": 7,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 2,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "5-7 2-6"
+      },
+      "winnerSide": "B",
+      "scoreline": "5-7 2-6",
+      "actual": {
+        "winner": "B",
+        "aSets": 0,
+        "bSets": 2,
+        "totalGames": 20,
+        "tieBreaker": false,
+        "setsPlayed": 2,
+        "scoreline": "5-7 2-6",
+        "sets": [
+          {
+            "set": 1,
+            "a": 5,
+            "b": 7,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 2,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Kichenok N / Ninomiya M",
+      "playerB": "Muhammad A / Stollar F",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16385652",
+      "tournament": "Wimbledon, London, Great Britain, Doubles",
+      "level": "Grand Slam",
+      "tour": "ATP",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T11:15:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "40",
+        "pointB": "15",
+        "setsA": 2,
+        "setsB": 0,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783079746,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "6-3 6-4"
+      },
+      "winnerSide": "A",
+      "scoreline": "6-3 6-4",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 0,
+        "totalGames": 19,
+        "tieBreaker": false,
+        "setsPlayed": 2,
+        "scoreline": "6-3 6-4",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Pavlasek A / Rikl P",
+      "playerB": "Hijikata R / Polmans M",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16398423",
+      "tournament": "Wimbledon, London, Great Britain, Doubles",
+      "level": "Grand Slam",
+      "tour": "WTA",
+      "round": "Round of 64",
+      "court": "",
+      "startTime": "2026-07-03T11:30:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "30",
+        "pointB": "40",
+        "setsA": 0,
+        "setsB": 2,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783081260,
+        "sets": [
+          {
+            "set": 1,
+            "a": 3,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "3-6 4-6"
+      },
+      "winnerSide": "B",
+      "scoreline": "3-6 4-6",
+      "actual": {
+        "winner": "B",
+        "aSets": 0,
+        "bSets": 2,
+        "totalGames": 19,
+        "tieBreaker": false,
+        "setsPlayed": 2,
+        "scoreline": "3-6 4-6",
+        "sets": [
+          {
+            "set": 1,
+            "a": 3,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Melichar-Martinez N / Routliffe E",
+      "playerB": "Kostyuk M / Ruse E",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16398398",
+      "tournament": "Wimbledon, London, Great Britain, Doubles",
+      "level": "Grand Slam",
+      "tour": "ATP",
+      "round": "Round of 64",
+      "court": "",
+      "startTime": "2026-07-03T11:35:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "40",
+        "pointB": "15",
+        "setsA": 2,
+        "setsB": 0,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783080471,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "6-3 6-4"
+      },
+      "winnerSide": "A",
+      "scoreline": "6-3 6-4",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 0,
+        "totalGames": 19,
+        "tieBreaker": false,
+        "setsPlayed": 2,
+        "scoreline": "6-3 6-4",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "de Jong J / Royer V",
+      "playerB": "Golubev A / Nedovyesov O",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16423906",
+      "tournament": "Wimbledon, London, Great Britain, Mixed",
+      "level": "Grand Slam",
+      "tour": "ATP",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T11:50:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "0",
+        "pointB": "0",
+        "setsA": 1,
+        "setsB": 2,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783095658,
+        "sets": [
+          {
+            "set": 1,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 4
+          },
+          {
+            "set": 2,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 6,
+            "tieBreakB": 0
+          }
+        ],
+        "scoreline": "7-6 4-6 6-7"
+      },
+      "winnerSide": "B",
+      "scoreline": "7-6(7-4) 4-6 6-7(6-0)",
+      "actual": {
+        "winner": "B",
+        "aSets": 1,
+        "bSets": 2,
+        "totalGames": 36,
+        "tieBreaker": true,
+        "setsPlayed": 3,
+        "scoreline": "7-6(7-4) 4-6 6-7(6-0)",
+        "sets": [
+          {
+            "set": 1,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 4
+          },
+          {
+            "set": 2,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 6,
+            "tieBreakB": 0
+          }
+        ]
+      },
+      "playerA": "Peers J / Swan K",
+      "playerB": "Roger-Vasselin É / Siegemund L",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16385439",
+      "tournament": "Wimbledon, London, Great Britain",
+      "level": "Grand Slam",
+      "tour": "WTA",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T12:00:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "30",
+        "pointB": "40",
+        "setsA": 0,
+        "setsB": 2,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783082133,
+        "sets": [
+          {
+            "set": 1,
+            "a": 1,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 3,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "1-6 3-6"
+      },
+      "winnerSide": "B",
+      "scoreline": "1-6 3-6",
+      "actual": {
+        "winner": "B",
+        "aSets": 0,
+        "bSets": 2,
+        "totalGames": 16,
+        "tieBreaker": false,
+        "setsPlayed": 2,
+        "scoreline": "1-6 3-6",
+        "sets": [
+          {
+            "set": 1,
+            "a": 1,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 3,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Daria Kasatkina",
+      "playerB": "Naomi Osaka",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 65,
+      "rankB": 14,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16423916",
+      "tournament": "Wimbledon, London, Great Britain, Mixed",
+      "level": "Grand Slam",
+      "tour": "ATP",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T12:00:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "40",
+        "pointB": "A",
+        "setsA": 0,
+        "setsB": 2,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783082534,
+        "sets": [
+          {
+            "set": 1,
+            "a": 5,
+            "b": 7,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "5-7 4-6"
+      },
+      "winnerSide": "B",
+      "scoreline": "5-7 4-6",
+      "actual": {
+        "winner": "B",
+        "aSets": 0,
+        "bSets": 2,
+        "totalGames": 22,
+        "tieBreaker": false,
+        "setsPlayed": 2,
+        "scoreline": "5-7 4-6",
+        "sets": [
+          {
+            "set": 1,
+            "a": 5,
+            "b": 7,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Johnson L / Appleton E",
+      "playerB": "Tracy J / Danilina A",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16385436",
+      "tournament": "Wimbledon, London, Great Britain",
+      "level": "Grand Slam",
+      "tour": "WTA",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T12:10:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "15",
+        "pointB": "40",
+        "setsA": 1,
+        "setsB": 2,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783086322,
+        "sets": [
+          {
+            "set": 1,
+            "a": 3,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "3-6 6-3 4-6"
+      },
+      "winnerSide": "B",
+      "scoreline": "3-6 6-3 4-6",
+      "actual": {
+        "winner": "B",
+        "aSets": 1,
+        "bSets": 2,
+        "totalGames": 28,
+        "tieBreaker": false,
+        "setsPlayed": 3,
+        "scoreline": "3-6 6-3 4-6",
+        "sets": [
+          {
+            "set": 1,
+            "a": 3,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Ekaterina Alexandrova",
+      "playerB": "Iva Jović",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 19,
+      "rankB": 16,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16398409",
+      "tournament": "Wimbledon, London, Great Britain, Doubles",
+      "level": "Grand Slam",
+      "tour": "WTA",
+      "round": "Round of 64",
+      "court": "",
+      "startTime": "2026-07-03T12:20:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "40",
+        "pointB": "30",
+        "setsA": 2,
+        "setsB": 1,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783088015,
+        "sets": [
+          {
+            "set": 1,
+            "a": 5,
+            "b": 7,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 2,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 2,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "5-7 6-2 6-2"
+      },
+      "winnerSide": "A",
+      "scoreline": "5-7 6-2 6-2",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 1,
+        "totalGames": 28,
+        "tieBreaker": false,
+        "setsPlayed": 3,
+        "scoreline": "5-7 6-2 6-2",
+        "sets": [
+          {
+            "set": 1,
+            "a": 5,
+            "b": 7,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 2,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 2,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Dolehide C / Parks A",
+      "playerB": "Pridankina E / Tang Q",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16385355",
+      "tournament": "Wimbledon, London, Great Britain",
+      "level": "Grand Slam",
+      "tour": "ATP",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T12:30:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "4",
+        "pointB": "6",
+        "setsA": 1,
+        "setsB": 3,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783090235,
+        "sets": [
+          {
+            "set": 1,
+            "a": 5,
+            "b": 7,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 1,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 4,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 4,
+            "tieBreakB": 7
+          }
+        ],
+        "scoreline": "5-7 4-6 6-1 6-7"
+      },
+      "winnerSide": "B",
+      "scoreline": "5-7 4-6 6-1 6-7(4-7)",
+      "actual": {
+        "winner": "B",
+        "aSets": 1,
+        "bSets": 3,
+        "totalGames": 42,
+        "tieBreaker": true,
+        "setsPlayed": 4,
+        "scoreline": "5-7 4-6 6-1 6-7(4-7)",
+        "sets": [
+          {
+            "set": 1,
+            "a": 5,
+            "b": 7,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 1,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 4,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 4,
+            "tieBreakB": 7
+          }
+        ]
+      },
+      "playerA": "Arthur Rinderknech",
+      "playerB": "Novak Djokovic",
+      "surface": "Grass",
+      "format": "5",
+      "rankA": 28,
+      "rankB": 8,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16385435",
+      "tournament": "Wimbledon, London, Great Britain",
+      "level": "Grand Slam",
+      "tour": "WTA",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T12:35:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "40",
+        "pointB": "15",
+        "setsA": 2,
+        "setsB": 0,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783083688,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 1,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "6-1 6-3"
+      },
+      "winnerSide": "A",
+      "scoreline": "6-1 6-3",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 0,
+        "totalGames": 16,
+        "tieBreaker": false,
+        "setsPlayed": 2,
+        "scoreline": "6-1 6-3",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 1,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Jessica Pegula",
+      "playerB": "Jessica Bouzas Maneiro",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 4,
+      "rankB": 52,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16385303",
+      "tournament": "Wimbledon, London, Great Britain",
+      "level": "Grand Slam",
+      "tour": "ATP",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T12:40:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "15",
+        "pointB": "40",
+        "setsA": 1,
+        "setsB": 3,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783090895,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 1,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 5,
+            "tieBreakB": 7
+          },
+          {
+            "set": 3,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 4,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "6-1 6-7 4-6 4-6"
+      },
+      "winnerSide": "B",
+      "scoreline": "6-1 6-7(5-7) 4-6 4-6",
+      "actual": {
+        "winner": "B",
+        "aSets": 1,
+        "bSets": 3,
+        "totalGames": 40,
+        "tieBreaker": true,
+        "setsPlayed": 4,
+        "scoreline": "6-1 6-7(5-7) 4-6 4-6",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 1,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 5,
+            "tieBreakB": 7
+          },
+          {
+            "set": 3,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 4,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Rafael Jodar",
+      "playerB": "Shintaro Mochizuki",
+      "surface": "Grass",
+      "format": "5",
+      "rankA": 26,
+      "rankB": 151,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16385667",
+      "tournament": "Wimbledon, London, Great Britain, Doubles",
+      "level": "Grand Slam",
+      "tour": "ATP",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T12:40:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "30",
+        "pointB": "40",
+        "setsA": 0,
+        "setsB": 2,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783084443,
+        "sets": [
+          {
+            "set": 1,
+            "a": 1,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 2,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "1-6 2-6"
+      },
+      "winnerSide": "B",
+      "scoreline": "1-6 2-6",
+      "actual": {
+        "winner": "B",
+        "aSets": 0,
+        "bSets": 2,
+        "totalGames": 15,
+        "tieBreaker": false,
+        "setsPlayed": 2,
+        "scoreline": "1-6 2-6",
+        "sets": [
+          {
+            "set": 1,
+            "a": 1,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 2,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Griekspoor T / Van De Zandschulp B",
+      "playerB": "Nouza P / Oberleitner N",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16398420",
+      "tournament": "Wimbledon, London, Great Britain, Doubles",
+      "level": "Grand Slam",
+      "tour": "WTA",
+      "round": "Round of 64",
+      "court": "",
+      "startTime": "2026-07-03T12:45:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "40",
+        "pointB": "A",
+        "setsA": 0,
+        "setsB": 2,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783085386,
+        "sets": [
+          {
+            "set": 1,
+            "a": 5,
+            "b": 7,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 5,
+            "b": 7,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "5-7 5-7"
+      },
+      "winnerSide": "B",
+      "scoreline": "5-7 5-7",
+      "actual": {
+        "winner": "B",
+        "aSets": 0,
+        "bSets": 2,
+        "totalGames": 24,
+        "tieBreaker": false,
+        "setsPlayed": 2,
+        "scoreline": "5-7 5-7",
+        "sets": [
+          {
+            "set": 1,
+            "a": 5,
+            "b": 7,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 5,
+            "b": 7,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Kato M / Rakhimova K",
+      "playerB": "Perez E / Schuurs D",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16398415",
+      "tournament": "Wimbledon, London, Great Britain, Doubles",
+      "level": "Grand Slam",
+      "tour": "WTA",
+      "round": "Round of 64",
+      "court": "",
+      "startTime": "2026-07-03T13:10:00.000Z",
+      "statusCode": 70,
+      "statusType": "canceled",
+      "statusDescription": "Canceled",
+      "completed": false,
+      "live": true,
+      "liveState": {
+        "isLive": true,
+        "isCompleted": false,
+        "status": "Canceled",
+        "currentPeriod": "Match",
+        "pointA": "",
+        "pointB": "",
+        "setsA": null,
+        "setsB": null,
+        "firstToServe": null,
+        "currentPeriodStartTimestamp": null,
+        "sets": [],
+        "scoreline": ""
+      },
+      "winnerSide": "",
+      "scoreline": "",
+      "actual": null,
+      "playerA": "Errani S / Paolini J",
+      "playerB": "Kozyreva M / Shymanovich I",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16423917",
+      "tournament": "Wimbledon, London, Great Britain, Mixed",
+      "level": "Grand Slam",
+      "tour": "ATP",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T13:10:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "0",
+        "pointB": "1",
+        "setsA": 2,
+        "setsB": 1,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783090185,
+        "sets": [
+          {
+            "set": 1,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "4-6 6-4 6-4"
+      },
+      "winnerSide": "A",
+      "scoreline": "4-6 6-4 6-4",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 1,
+        "totalGames": 30,
+        "tieBreaker": false,
+        "setsPlayed": 3,
+        "scoreline": "4-6 6-4 6-4",
+        "sets": [
+          {
+            "set": 1,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Andreozzi G / Sutjiadi A",
+      "playerB": "Guinard M / Mladenovic K",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16385304",
+      "tournament": "Wimbledon, London, Great Britain",
+      "level": "Grand Slam",
+      "tour": "ATP",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T13:15:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "A",
+        "pointB": "40",
+        "setsA": 3,
+        "setsB": 0,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783091279,
+        "sets": [
+          {
+            "set": 1,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 4
+          },
+          {
+            "set": 2,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 5
+          },
+          {
+            "set": 3,
+            "a": 7,
+            "b": 5,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "7-6 7-6 7-5"
+      },
+      "winnerSide": "A",
+      "scoreline": "7-6(7-4) 7-6(7-5) 7-5",
+      "actual": {
+        "winner": "A",
+        "aSets": 3,
+        "bSets": 0,
+        "totalGames": 38,
+        "tieBreaker": true,
+        "setsPlayed": 3,
+        "scoreline": "7-6(7-4) 7-6(7-5) 7-5",
+        "sets": [
+          {
+            "set": 1,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 4
+          },
+          {
+            "set": 2,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 5
+          },
+          {
+            "set": 3,
+            "a": 7,
+            "b": 5,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Jan-Lennard Struff",
+      "playerB": "Daniil Medvedev",
+      "surface": "Grass",
+      "format": "5",
+      "rankA": 74,
+      "rankB": 9,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16398416",
+      "tournament": "Wimbledon, London, Great Britain, Doubles",
+      "level": "Grand Slam",
+      "tour": "WTA",
+      "round": "Round of 64",
+      "court": "",
+      "startTime": "2026-07-03T13:30:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "30",
+        "pointB": "40",
+        "setsA": 0,
+        "setsB": 2,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783086749,
+        "sets": [
+          {
+            "set": 1,
+            "a": 1,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 1,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "1-6 1-6"
+      },
+      "winnerSide": "B",
+      "scoreline": "1-6 1-6",
+      "actual": {
+        "winner": "B",
+        "aSets": 0,
+        "bSets": 2,
+        "totalGames": 14,
+        "tieBreaker": false,
+        "setsPlayed": 2,
+        "scoreline": "1-6 1-6",
+        "sets": [
+          {
+            "set": 1,
+            "a": 1,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 1,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Begu I / Cristian J",
+      "playerB": "Mertens E / Zhang S",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16436526",
+      "tournament": "Wimbledon, London, Great Britain, Doubles",
+      "level": "Grand Slam",
+      "tour": "WTA",
+      "round": "Round of 64",
+      "court": "",
+      "startTime": "2026-07-03T13:35:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "40",
+        "pointB": "30",
+        "setsA": 2,
+        "setsB": 1,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783100822,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "6-3 4-6 6-3"
+      },
+      "winnerSide": "A",
+      "scoreline": "6-3 4-6 6-3",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 1,
+        "totalGames": 28,
+        "tieBreaker": false,
+        "setsPlayed": 3,
+        "scoreline": "6-3 4-6 6-3",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Fossa Huergo N / Korpatsch T",
+      "playerB": "Kozyreva M / Shymanovich I",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16385312",
+      "tournament": "Wimbledon, London, Great Britain",
+      "level": "Grand Slam",
+      "tour": "ATP",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T13:40:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "A",
+        "pointB": "40",
+        "setsA": 3,
+        "setsB": 0,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783091249,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "6-4 6-3 6-4"
+      },
+      "winnerSide": "A",
+      "scoreline": "6-4 6-3 6-4",
+      "actual": {
+        "winner": "A",
+        "aSets": 3,
+        "bSets": 0,
+        "totalGames": 29,
+        "tieBreaker": false,
+        "setsPlayed": 3,
+        "scoreline": "6-4 6-3 6-4",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Jannik Sinner",
+      "playerB": "Jenson Brooksby",
+      "surface": "Grass",
+      "format": "5",
+      "rankA": 1,
+      "rankB": 81,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16398414",
+      "tournament": "Wimbledon, London, Great Britain, Doubles",
+      "level": "Grand Slam",
+      "tour": "WTA",
+      "round": "Round of 64",
+      "court": "",
+      "startTime": "2026-07-03T13:50:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "0",
+        "pointB": "40",
+        "setsA": 0,
+        "setsB": 2,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783089113,
+        "sets": [
+          {
+            "set": 1,
+            "a": 3,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 5,
+            "b": 7,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "3-6 5-7"
+      },
+      "winnerSide": "B",
+      "scoreline": "3-6 5-7",
+      "actual": {
+        "winner": "B",
+        "aSets": 0,
+        "bSets": 2,
+        "totalGames": 21,
+        "tieBreaker": false,
+        "setsPlayed": 2,
+        "scoreline": "3-6 5-7",
+        "sets": [
+          {
+            "set": 1,
+            "a": 3,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 5,
+            "b": 7,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Jacquemot E / Parry D",
+      "playerB": "Sramkova R / Noskova L",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16385309",
+      "tournament": "Wimbledon, London, Great Britain",
+      "level": "Grand Slam",
+      "tour": "ATP",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T13:55:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "A",
+        "pointB": "40",
+        "setsA": 3,
+        "setsB": 1,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783095960,
+        "sets": [
+          {
+            "set": 1,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 5
+          },
+          {
+            "set": 3,
+            "a": 7,
+            "b": 5,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 4,
+            "a": 6,
+            "b": 2,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "4-6 7-6 7-5 6-2"
+      },
+      "winnerSide": "A",
+      "scoreline": "4-6 7-6(7-5) 7-5 6-2",
+      "actual": {
+        "winner": "A",
+        "aSets": 3,
+        "bSets": 1,
+        "totalGames": 43,
+        "tieBreaker": true,
+        "setsPlayed": 4,
+        "scoreline": "4-6 7-6(7-5) 7-5 6-2",
+        "sets": [
+          {
+            "set": 1,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 5
+          },
+          {
+            "set": 3,
+            "a": 7,
+            "b": 5,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 4,
+            "a": 6,
+            "b": 2,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Hubert Hurkacz",
+      "playerB": "Tommy Paul",
+      "surface": "Grass",
+      "format": "5",
+      "rankA": 96,
+      "rankB": 25,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16398426",
+      "tournament": "Wimbledon, London, Great Britain, Doubles",
+      "level": "Grand Slam",
+      "tour": "WTA",
+      "round": "Round of 64",
+      "court": "",
+      "startTime": "2026-07-03T14:30:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "9",
+        "pointB": "7",
+        "setsA": 2,
+        "setsB": 1,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783094053,
+        "sets": [
+          {
+            "set": 1,
+            "a": 2,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 10,
+            "tieBreakB": 7
+          }
+        ],
+        "scoreline": "2-6 6-4 7-6"
+      },
+      "winnerSide": "A",
+      "scoreline": "2-6 6-4 7-6(10-7)",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 1,
+        "totalGames": 31,
+        "tieBreaker": true,
+        "setsPlayed": 3,
+        "scoreline": "2-6 6-4 7-6(10-7)",
+        "sets": [
+          {
+            "set": 1,
+            "a": 2,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 10,
+            "tieBreakB": 7
+          }
+        ]
+      },
+      "playerA": "Jiang X / Xu Y",
+      "playerB": "Golubic V / Valentova T",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16398411",
+      "tournament": "Wimbledon, London, Great Britain, Doubles",
+      "level": "Grand Slam",
+      "tour": "WTA",
+      "round": "Round of 64",
+      "court": "",
+      "startTime": "2026-07-03T14:30:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "40",
+        "pointB": "30",
+        "setsA": 2,
+        "setsB": 1,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783095787,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 6,
+            "tieBreakB": 8
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "6-7 6-3 6-3"
+      },
+      "winnerSide": "A",
+      "scoreline": "6-7(6-8) 6-3 6-3",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 1,
+        "totalGames": 31,
+        "tieBreaker": true,
+        "setsPlayed": 3,
+        "scoreline": "6-7(6-8) 6-3 6-3",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 6,
+            "tieBreakB": 8
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "McNally C / Hunter S",
+      "playerB": "Bondar A / Frech M",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16423915",
+      "tournament": "Wimbledon, London, Great Britain, Mixed",
+      "level": "Grand Slam",
+      "tour": "ATP",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T14:40:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "15",
+        "pointB": "40",
+        "setsA": 0,
+        "setsB": 2,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783092511,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 3,
+            "tieBreakB": 7
+          },
+          {
+            "set": 2,
+            "a": 3,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "6-7 3-6"
+      },
+      "winnerSide": "B",
+      "scoreline": "6-7(3-7) 3-6",
+      "actual": {
+        "winner": "B",
+        "aSets": 0,
+        "bSets": 2,
+        "totalGames": 22,
+        "tieBreaker": true,
+        "setsPlayed": 2,
+        "scoreline": "6-7(3-7) 3-6",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 3,
+            "tieBreakB": 7
+          },
+          {
+            "set": 2,
+            "a": 3,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Patten H / Nicholls O",
+      "playerB": "King E / Dabrowski G",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16398430",
+      "tournament": "Wimbledon, London, Great Britain, Doubles",
+      "level": "Grand Slam",
+      "tour": "WTA",
+      "round": "Round of 64",
+      "court": "",
+      "startTime": "2026-07-03T14:45:00.000Z",
+      "statusCode": 70,
+      "statusType": "canceled",
+      "statusDescription": "Canceled",
+      "completed": false,
+      "live": true,
+      "liveState": {
+        "isLive": true,
+        "isCompleted": false,
+        "status": "Canceled",
+        "currentPeriod": "Match",
+        "pointA": "",
+        "pointB": "",
+        "setsA": null,
+        "setsB": null,
+        "firstToServe": null,
+        "currentPeriodStartTimestamp": null,
+        "sets": [],
+        "scoreline": ""
+      },
+      "winnerSide": "",
+      "scoreline": "",
+      "actual": null,
+      "playerA": "Cirstea S / Kalinskaya A",
+      "playerB": "Kalinina A / Yastremska D",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16385353",
+      "tournament": "Wimbledon, London, Great Britain",
+      "level": "Grand Slam",
+      "tour": "ATP",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T14:50:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "40",
+        "pointB": "15",
+        "setsA": 3,
+        "setsB": 0,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783096008,
+        "sets": [
+          {
+            "set": 1,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 3
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 2,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "7-6 6-2 6-3"
+      },
+      "winnerSide": "A",
+      "scoreline": "7-6(7-3) 6-2 6-3",
+      "actual": {
+        "winner": "A",
+        "aSets": 3,
+        "bSets": 0,
+        "totalGames": 30,
+        "tieBreaker": true,
+        "setsPlayed": 3,
+        "scoreline": "7-6(7-3) 6-2 6-3",
+        "sets": [
+          {
+            "set": 1,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 3
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 2,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Alejandro Davidovich Fokina",
+      "playerB": "Marton Fucsovics",
+      "surface": "Grass",
+      "format": "5",
+      "rankA": 23,
+      "rankB": 76,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16423907",
+      "tournament": "Wimbledon, London, Great Britain, Mixed",
+      "level": "Grand Slam",
+      "tour": "ATP",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T14:50:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "A",
+        "pointB": "40",
+        "setsA": 2,
+        "setsB": 0,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783091802,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "6-4 6-4"
+      },
+      "winnerSide": "A",
+      "scoreline": "6-4 6-4",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 0,
+        "totalGames": 20,
+        "tieBreaker": false,
+        "setsPlayed": 2,
+        "scoreline": "6-4 6-4",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Glasspool L / Mihalikova T",
+      "playerB": "Krawietz K / Williams V",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16436862",
+      "tournament": "Wimbledon, London, Great Britain, Doubles",
+      "level": "Grand Slam",
+      "tour": "WTA",
+      "round": "Round of 64",
+      "court": "",
+      "startTime": "2026-07-03T14:55:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "30",
+        "pointB": "40",
+        "setsA": 1,
+        "setsB": 2,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783095567,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 1,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 1,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "6-4 1-6 1-6"
+      },
+      "winnerSide": "B",
+      "scoreline": "6-4 1-6 1-6",
+      "actual": {
+        "winner": "B",
+        "aSets": 1,
+        "bSets": 2,
+        "totalGames": 24,
+        "tieBreaker": false,
+        "setsPlayed": 3,
+        "scoreline": "6-4 1-6 1-6",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 1,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 1,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Pigossi L / Waltert S",
+      "playerB": "Kalinina A / Yastremska D",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16423909",
+      "tournament": "Wimbledon, London, Great Britain, Mixed",
+      "level": "Grand Slam",
+      "tour": "ATP",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T15:05:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "15",
+        "pointB": "40",
+        "setsA": 1,
+        "setsB": 2,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783095677,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 3,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "6-3 3-6 4-6"
+      },
+      "winnerSide": "B",
+      "scoreline": "6-3 3-6 4-6",
+      "actual": {
+        "winner": "B",
+        "aSets": 1,
+        "bSets": 2,
+        "totalGames": 28,
+        "tieBreaker": false,
+        "setsPlayed": 3,
+        "scoreline": "6-3 3-6 4-6",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 3,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Zielinski J / Hsieh S-W",
+      "playerB": "Willis M / Watson H",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16423905",
+      "tournament": "Wimbledon, London, Great Britain, Mixed",
+      "level": "Grand Slam",
+      "tour": "ATP",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T15:35:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "40",
+        "pointB": "A",
+        "setsA": 1,
+        "setsB": 2,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783098439,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 3,
+            "tieBreakB": 7
+          },
+          {
+            "set": 3,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "6-3 6-7 4-6"
+      },
+      "winnerSide": "B",
+      "scoreline": "6-3 6-7(3-7) 4-6",
+      "actual": {
+        "winner": "B",
+        "aSets": 1,
+        "bSets": 2,
+        "totalGames": 32,
+        "tieBreaker": true,
+        "setsPlayed": 3,
+        "scoreline": "6-3 6-7(3-7) 4-6",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 3,
+            "tieBreakB": 7
+          },
+          {
+            "set": 3,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Miedler L / Guo H",
+      "playerB": "Molteni A / Jurak Schreiber D",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16423913",
+      "tournament": "Wimbledon, London, Great Britain, Mixed",
+      "level": "Grand Slam",
+      "tour": "ATP",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T15:45:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "40",
+        "pointB": "30",
+        "setsA": 2,
+        "setsB": 1,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783099251,
+        "sets": [
+          {
+            "set": 1,
+            "a": 5,
+            "b": 7,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 7,
+            "b": 5,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 2,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "5-7 7-5 6-2"
+      },
+      "winnerSide": "A",
+      "scoreline": "5-7 7-5 6-2",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 1,
+        "totalGames": 32,
+        "tieBreaker": false,
+        "setsPlayed": 3,
+        "scoreline": "5-7 7-5 6-2",
+        "sets": [
+          {
+            "set": 1,
+            "a": 5,
+            "b": 7,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 7,
+            "b": 5,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 2,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Cabral F / Perez E",
+      "playerB": "Pel D / Kichenok L",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16385420",
+      "tournament": "Wimbledon, London, Great Britain",
+      "level": "Grand Slam",
+      "tour": "WTA",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T15:50:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "30",
+        "pointB": "40",
+        "setsA": 0,
+        "setsB": 2,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783097125,
+        "sets": [
+          {
+            "set": 1,
+            "a": 3,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 5,
+            "b": 7,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "3-6 5-7"
+      },
+      "winnerSide": "B",
+      "scoreline": "3-6 5-7",
+      "actual": {
+        "winner": "B",
+        "aSets": 0,
+        "bSets": 2,
+        "totalGames": 21,
+        "tieBreaker": false,
+        "setsPlayed": 2,
+        "scoreline": "3-6 5-7",
+        "sets": [
+          {
+            "set": 1,
+            "a": 3,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 5,
+            "b": 7,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Nikola Bartunkova",
+      "playerB": "Barbora Krejčiková",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 48,
+      "rankB": 38,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16385438",
+      "tournament": "Wimbledon, London, Great Britain",
+      "level": "Grand Slam",
+      "tour": "WTA",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T16:15:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "40",
+        "pointB": "30",
+        "setsA": 2,
+        "setsB": 0,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783098051,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "6-4 6-4"
+      },
+      "winnerSide": "A",
+      "scoreline": "6-4 6-4",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 0,
+        "totalGames": 20,
+        "tieBreaker": false,
+        "setsPlayed": 2,
+        "scoreline": "6-4 6-4",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Aryna Sabalenka",
+      "playerB": "Jelena Ostapenko",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 1,
+      "rankB": 31,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16390379",
+      "tournament": "Wimbledon, London, Great Britain",
+      "level": "Grand Slam",
+      "tour": "WTA",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T16:20:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "30",
+        "pointB": "40",
+        "setsA": 1,
+        "setsB": 2,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783102485,
+        "sets": [
+          {
+            "set": 1,
+            "a": 3,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 5
+          },
+          {
+            "set": 3,
+            "a": 2,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "3-6 7-6 2-6"
+      },
+      "winnerSide": "B",
+      "scoreline": "3-6 7-6(7-5) 2-6",
+      "actual": {
+        "winner": "B",
+        "aSets": 1,
+        "bSets": 2,
+        "totalGames": 30,
+        "tieBreaker": true,
+        "setsPlayed": 3,
+        "scoreline": "3-6 7-6(7-5) 2-6",
+        "sets": [
+          {
+            "set": 1,
+            "a": 3,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 5
+          },
+          {
+            "set": 3,
+            "a": 2,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Claire Liu",
+      "playerB": "Coco Gauff",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 146,
+      "rankB": 7,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16385425",
+      "tournament": "Wimbledon, London, Great Britain",
+      "level": "Grand Slam",
+      "tour": "WTA",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T16:25:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "6",
+        "pointB": "1",
+        "setsA": 2,
+        "setsB": 0,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783098265,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 2,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 1
+          }
+        ],
+        "scoreline": "6-2 7-6"
+      },
+      "winnerSide": "A",
+      "scoreline": "6-2 7-6(7-1)",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 0,
+        "totalGames": 21,
+        "tieBreaker": true,
+        "setsPlayed": 2,
+        "scoreline": "6-2 7-6(7-1)",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 2,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 1
+          }
+        ]
+      },
+      "playerA": "Karolina Muchova",
+      "playerB": "Mananchaya Sawangkaew",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 9,
+      "rankB": 164,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16398378",
+      "tournament": "Wimbledon, London, Great Britain, Doubles",
+      "level": "Grand Slam",
+      "tour": "ATP",
+      "round": "Round of 64",
+      "court": "",
+      "startTime": "2026-07-03T17:20:00.000Z",
+      "statusCode": 91,
+      "statusType": "finished",
+      "statusDescription": "Walkover",
+      "completed": true,
+      "live": true,
+      "liveState": {
+        "isLive": true,
+        "isCompleted": true,
+        "status": "Walkover",
+        "currentPeriod": "Match",
+        "pointA": "",
+        "pointB": "",
+        "setsA": null,
+        "setsB": null,
+        "firstToServe": null,
+        "currentPeriodStartTimestamp": 1783098094,
+        "sets": [],
+        "scoreline": ""
+      },
+      "winnerSide": "B",
+      "scoreline": "",
+      "actual": {
+        "winner": "B",
+        "aSets": null,
+        "bSets": null,
+        "totalGames": null,
+        "tieBreaker": false,
+        "setsPlayed": null,
+        "scoreline": "",
+        "sets": []
+      },
+      "playerA": "Hanfmann Y / Struff J",
+      "playerB": "Kopriva V / Pieczonka F",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16398418",
+      "tournament": "Wimbledon, London, Great Britain, Doubles",
+      "level": "Grand Slam",
+      "tour": "WTA",
+      "round": "Round of 64",
+      "court": "",
+      "startTime": "2026-07-03T17:25:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "15",
+        "pointB": "40",
+        "setsA": 0,
+        "setsB": 2,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783103178,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 2,
+            "tieBreakB": 7
+          },
+          {
+            "set": 2,
+            "a": 3,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "6-7 3-6"
+      },
+      "winnerSide": "B",
+      "scoreline": "6-7(2-7) 3-6",
+      "actual": {
+        "winner": "B",
+        "aSets": 0,
+        "bSets": 2,
+        "totalGames": 22,
+        "tieBreaker": true,
+        "setsPlayed": 2,
+        "scoreline": "6-7(2-7) 3-6",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 2,
+            "tieBreakB": 7
+          },
+          {
+            "set": 2,
+            "a": 3,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Christie F / Silva E",
+      "playerB": "Birrell K / Gibson T",
+      "surface": "Grass",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16385310",
+      "tournament": "Wimbledon, London, Great Britain",
+      "level": "Grand Slam",
+      "tour": "ATP",
+      "round": "Round of 32",
+      "court": "",
+      "startTime": "2026-07-03T18:05:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "40",
+        "pointB": "15",
+        "setsA": 3,
+        "setsB": 0,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783108356,
+        "sets": [
+          {
+            "set": 1,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 1
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 2,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 1,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "7-6 6-2 6-1"
+      },
+      "winnerSide": "A",
+      "scoreline": "7-6(7-1) 6-2 6-1",
+      "actual": {
+        "winner": "A",
+        "aSets": 3,
+        "bSets": 0,
+        "totalGames": 28,
+        "tieBreaker": true,
+        "setsPlayed": 3,
+        "scoreline": "7-6(7-1) 6-2 6-1",
+        "sets": [
+          {
+            "set": 1,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 1
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 2,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 1,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Felix Auger-Aliassime",
+      "playerB": "Michael Zheng",
+      "surface": "Grass",
+      "format": "5",
+      "rankA": 4,
+      "rankB": 144,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383641",
+      "tournament": "Brasov, Romania",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Quarterfinals",
+      "court": "",
+      "startTime": "2026-07-03T08:00:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "3",
+        "pointB": "6",
+        "setsA": 0,
+        "setsB": 2,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783067080,
+        "sets": [
+          {
+            "set": 1,
+            "a": 1,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 3,
+            "tieBreakB": 7
+          }
+        ],
+        "scoreline": "1-6 6-7"
+      },
+      "winnerSide": "B",
+      "scoreline": "1-6 6-7(3-7)",
+      "actual": {
+        "winner": "B",
+        "aSets": 0,
+        "bSets": 2,
+        "totalGames": 20,
+        "tieBreaker": true,
+        "setsPlayed": 2,
+        "scoreline": "1-6 6-7(3-7)",
+        "sets": [
+          {
+            "set": 1,
+            "a": 1,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 3,
+            "tieBreakB": 7
+          }
+        ]
+      },
+      "playerA": "Andrej Nedić",
+      "playerB": "Keegan Smith",
+      "surface": "Clay",
+      "format": "3",
+      "rankA": 250,
+      "rankB": 247,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383642",
+      "tournament": "Brasov, Romania",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Quarterfinals",
+      "court": "",
+      "startTime": "2026-07-03T08:00:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "40",
+        "pointB": "30",
+        "setsA": 2,
+        "setsB": 0,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783067942,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 1,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "6-1 6-4"
+      },
+      "winnerSide": "A",
+      "scoreline": "6-1 6-4",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 0,
+        "totalGames": 17,
+        "tieBreaker": false,
+        "setsPlayed": 2,
+        "scoreline": "6-1 6-4",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 1,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Guido Ivan Justo",
+      "playerB": "Olle Wallin",
+      "surface": "Clay",
+      "format": "3",
+      "rankA": 238,
+      "rankB": 447,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383678",
+      "tournament": "Milan, Italy",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Quarterfinals",
+      "court": "",
+      "startTime": "2026-07-03T08:00:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "6",
+        "pointB": "5",
+        "setsA": 2,
+        "setsB": 0,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783070995,
+        "sets": [
+          {
+            "set": 1,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 4
+          },
+          {
+            "set": 2,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 5
+          }
+        ],
+        "scoreline": "7-6 7-6"
+      },
+      "winnerSide": "A",
+      "scoreline": "7-6(7-4) 7-6(7-5)",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 0,
+        "totalGames": 26,
+        "tieBreaker": true,
+        "setsPlayed": 2,
+        "scoreline": "7-6(7-4) 7-6(7-5)",
+        "sets": [
+          {
+            "set": 1,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 4
+          },
+          {
+            "set": 2,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 5
+          }
+        ]
+      },
+      "playerA": "Gustavo Heide",
+      "playerB": "Enrico Dalla Valle",
+      "surface": "Clay",
+      "format": "3",
+      "rankA": 141,
+      "rankB": 359,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383767",
+      "tournament": "Troyes, France",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Quarterfinals",
+      "court": "",
+      "startTime": "2026-07-03T08:00:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "40",
+        "pointB": "30",
+        "setsA": 2,
+        "setsB": 1,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783073596,
+        "sets": [
+          {
+            "set": 1,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 4
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 1,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "4-6 7-6 6-1"
+      },
+      "winnerSide": "A",
+      "scoreline": "4-6 7-6(7-4) 6-1",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 1,
+        "totalGames": 30,
+        "tieBreaker": true,
+        "setsPlayed": 3,
+        "scoreline": "4-6 7-6(7-4) 6-1",
+        "sets": [
+          {
+            "set": 1,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 4
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 1,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Lorenzo Giustino",
+      "playerB": "Igor Marcondes",
+      "surface": "Clay",
+      "format": "3",
+      "rankA": 226,
+      "rankB": 328,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383637",
+      "tournament": "Brasov, Romania",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Quarterfinals",
+      "court": "",
+      "startTime": "2026-07-03T09:30:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "40",
+        "pointB": "A",
+        "setsA": 0,
+        "setsB": 2,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783073186,
+        "sets": [
+          {
+            "set": 1,
+            "a": 2,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 3,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "2-6 3-6"
+      },
+      "winnerSide": "B",
+      "scoreline": "2-6 3-6",
+      "actual": {
+        "winner": "B",
+        "aSets": 0,
+        "bSets": 2,
+        "totalGames": 17,
+        "tieBreaker": false,
+        "setsPlayed": 2,
+        "scoreline": "2-6 3-6",
+        "sets": [
+          {
+            "set": 1,
+            "a": 2,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 3,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Dimitar Kuzmanov",
+      "playerB": "Zsombor Piros",
+      "surface": "Clay",
+      "format": "3",
+      "rankA": 427,
+      "rankB": 169,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383644",
+      "tournament": "Brasov, Romania",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Quarterfinals",
+      "court": "",
+      "startTime": "2026-07-03T09:30:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "30",
+        "pointB": "40",
+        "setsA": 0,
+        "setsB": 2,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783073661,
+        "sets": [
+          {
+            "set": 1,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 2,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "4-6 2-6"
+      },
+      "winnerSide": "B",
+      "scoreline": "4-6 2-6",
+      "actual": {
+        "winner": "B",
+        "aSets": 0,
+        "bSets": 2,
+        "totalGames": 18,
+        "tieBreaker": false,
+        "setsPlayed": 2,
+        "scoreline": "4-6 2-6",
+        "sets": [
+          {
+            "set": 1,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 2,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Sascha Gueymard Wayenburg",
+      "playerB": "Maks Kasnikowski",
+      "surface": "Clay",
+      "format": "3",
+      "rankA": 283,
+      "rankB": 284,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383686",
+      "tournament": "Milan, Italy",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Quarterfinals",
+      "court": "",
+      "startTime": "2026-07-03T09:30:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "40",
+        "pointB": "0",
+        "setsA": 2,
+        "setsB": 0,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783073034,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 0,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 2,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "6-0 6-2"
+      },
+      "winnerSide": "A",
+      "scoreline": "6-0 6-2",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 0,
+        "totalGames": 14,
+        "tieBreaker": false,
+        "setsPlayed": 2,
+        "scoreline": "6-0 6-2",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 0,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 2,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Facundo Diaz Acosta",
+      "playerB": "Juan Cruz Martin Manzano",
+      "surface": "Clay",
+      "format": "3",
+      "rankA": 120,
+      "rankB": 494,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383773",
+      "tournament": "Troyes, France, Doubles",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Semifinals",
+      "court": "",
+      "startTime": "2026-07-03T09:30:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "9",
+        "pointB": "8",
+        "setsA": 2,
+        "setsB": 1,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783077779,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 5,
+            "tieBreakB": 7
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 10,
+            "b": 8,
+            "tieBreakA": 9,
+            "tieBreakB": 8
+          }
+        ],
+        "scoreline": "6-7 6-4 10-8"
+      },
+      "winnerSide": "A",
+      "scoreline": "6-7(5-7) 6-4 10-8(9-8)",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 1,
+        "totalGames": 41,
+        "tieBreaker": true,
+        "setsPlayed": 3,
+        "scoreline": "6-7(5-7) 6-4 10-8(9-8)",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 5,
+            "tieBreakB": 7
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 10,
+            "b": 8,
+            "tieBreakA": 9,
+            "tieBreakB": 8
+          }
+        ]
+      },
+      "playerA": "Genov A / Wehnelt K",
+      "playerB": "Merino A / Ribero F",
+      "surface": "Clay",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383650",
+      "tournament": "Brasov, Romania, Doubles",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Semifinals",
+      "court": "",
+      "startTime": "2026-07-03T11:00:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "40",
+        "pointB": "0",
+        "setsA": 2,
+        "setsB": 0,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783078765,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "6-4 6-4"
+      },
+      "winnerSide": "A",
+      "scoreline": "6-4 6-4",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 0,
+        "totalGames": 20,
+        "tieBreaker": false,
+        "setsPlayed": 2,
+        "scoreline": "6-4 6-4",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Cervantes I / Molchanov D",
+      "playerB": "Grevelius E / Poljak D",
+      "surface": "Clay",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383655",
+      "tournament": "Brasov, Romania, Doubles",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Semifinals",
+      "court": "",
+      "startTime": "2026-07-03T11:00:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "40",
+        "pointB": "40",
+        "setsA": 2,
+        "setsB": 0,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783079672,
+        "sets": [
+          {
+            "set": 1,
+            "a": 7,
+            "b": 5,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "7-5 6-4"
+      },
+      "winnerSide": "A",
+      "scoreline": "7-5 6-4",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 0,
+        "totalGames": 22,
+        "tieBreaker": false,
+        "setsPlayed": 2,
+        "scoreline": "7-5 6-4",
+        "sets": [
+          {
+            "set": 1,
+            "a": 7,
+            "b": 5,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 4,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Neuchrist M / Vrbensky M",
+      "playerB": "Ramanathan R / Prashanth N",
+      "surface": "Clay",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383693",
+      "tournament": "Milan, Italy, Doubles",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Semifinals",
+      "court": "",
+      "startTime": "2026-07-03T11:00:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "40",
+        "pointB": "15",
+        "setsA": 2,
+        "setsB": 0,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783079383,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 1,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "6-3 6-1"
+      },
+      "winnerSide": "A",
+      "scoreline": "6-3 6-1",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 0,
+        "totalGames": 16,
+        "tieBreaker": false,
+        "setsPlayed": 2,
+        "scoreline": "6-3 6-1",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 1,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Forti F / Romano F",
+      "playerB": "Kravchenko G / Sanchez Quilez A",
+      "surface": "Clay",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383766",
+      "tournament": "Troyes, France",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Quarterfinals",
+      "court": "",
+      "startTime": "2026-07-03T11:05:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "40",
+        "pointB": "30",
+        "setsA": 2,
+        "setsB": 0,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783079880,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 1,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "6-1 6-3"
+      },
+      "winnerSide": "A",
+      "scoreline": "6-1 6-3",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 0,
+        "totalGames": 16,
+        "tieBreaker": false,
+        "setsPlayed": 2,
+        "scoreline": "6-1 6-3",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 1,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Kilian Feldbausch",
+      "playerB": "Inaki Montes-de la Torre",
+      "surface": "Clay",
+      "format": "3",
+      "rankA": 288,
+      "rankB": 269,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383692",
+      "tournament": "Milan, Italy",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Quarterfinals",
+      "court": "",
+      "startTime": "2026-07-03T11:25:00.000Z",
+      "statusCode": 92,
+      "statusType": "finished",
+      "statusDescription": "Retired",
+      "completed": true,
+      "live": true,
+      "liveState": {
+        "isLive": true,
+        "isCompleted": true,
+        "status": "Retired",
+        "currentPeriod": "Match",
+        "pointA": "0",
+        "pointB": "0",
+        "setsA": 0,
+        "setsB": 1,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783079767,
+        "sets": [
+          {
+            "set": 1,
+            "a": 1,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 0,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "1-6 0-3"
+      },
+      "winnerSide": "B",
+      "scoreline": "1-6 0-3",
+      "actual": {
+        "winner": "B",
+        "aSets": 0,
+        "bSets": 1,
+        "totalGames": 10,
+        "tieBreaker": false,
+        "setsPlayed": 2,
+        "scoreline": "1-6 0-3",
+        "sets": [
+          {
+            "set": 1,
+            "a": 1,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 0,
+            "b": 3,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Pierluigi Basile",
+      "playerB": "Marco Cecchinato",
+      "surface": "Clay",
+      "format": "3",
+      "rankA": 839,
+      "rankB": 195,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383683",
+      "tournament": "Milan, Italy",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Quarterfinals",
+      "court": "",
+      "startTime": "2026-07-03T12:15:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "5",
+        "pointB": "6",
+        "setsA": 1,
+        "setsB": 2,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783091064,
+        "sets": [
+          {
+            "set": 1,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 7,
+            "b": 5,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 5,
+            "tieBreakB": 7
+          }
+        ],
+        "scoreline": "4-6 7-5 6-7"
+      },
+      "winnerSide": "B",
+      "scoreline": "4-6 7-5 6-7(5-7)",
+      "actual": {
+        "winner": "B",
+        "aSets": 1,
+        "bSets": 2,
+        "totalGames": 35,
+        "tieBreaker": true,
+        "setsPlayed": 3,
+        "scoreline": "4-6 7-5 6-7(5-7)",
+        "sets": [
+          {
+            "set": 1,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 7,
+            "b": 5,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 5,
+            "tieBreakB": 7
+          }
+        ]
+      },
+      "playerA": "Francisco Comesaña",
+      "playerB": "Daniel Rincon",
+      "surface": "Clay",
+      "format": "3",
+      "rankA": 91,
+      "rankB": 261,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383774",
+      "tournament": "Troyes, France, Doubles",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Semifinals",
+      "court": "",
+      "startTime": "2026-07-03T12:30:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "15",
+        "pointB": "40",
+        "setsA": 0,
+        "setsB": 2,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783084313,
+        "sets": [
+          {
+            "set": 1,
+            "a": 3,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 2,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "3-6 2-6"
+      },
+      "winnerSide": "B",
+      "scoreline": "3-6 2-6",
+      "actual": {
+        "winner": "B",
+        "aSets": 0,
+        "bSets": 2,
+        "totalGames": 17,
+        "tieBreaker": false,
+        "setsPlayed": 2,
+        "scoreline": "3-6 2-6",
+        "sets": [
+          {
+            "set": 1,
+            "a": 3,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 2,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Hsu J C E / Zhu M",
+      "playerB": "Hermans M / Marcondes I",
+      "surface": "Clay",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383757",
+      "tournament": "Troyes, France",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Quarterfinals",
+      "court": "",
+      "startTime": "2026-07-03T12:55:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "6",
+        "pointB": "1",
+        "setsA": 2,
+        "setsB": 1,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783088504,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 2,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 3,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 1
+          }
+        ],
+        "scoreline": "6-2 3-6 7-6"
+      },
+      "winnerSide": "A",
+      "scoreline": "6-2 3-6 7-6(7-1)",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 1,
+        "totalGames": 30,
+        "tieBreaker": true,
+        "setsPlayed": 3,
+        "scoreline": "6-2 3-6 7-6(7-1)",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 2,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 3,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 3,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 1
+          }
+        ]
+      },
+      "playerA": "Marvin Möller",
+      "playerB": "Marat Sharipov",
+      "surface": "Clay",
+      "format": "3",
+      "rankA": 372,
+      "rankB": 381,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383669",
+      "tournament": "Cary, USA",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Quarterfinals",
+      "court": "",
+      "startTime": "2026-07-03T13:05:00.000Z",
+      "statusCode": 80,
+      "statusType": "interrupted",
+      "statusDescription": "Interrupted",
+      "completed": false,
+      "live": true,
+      "liveState": {
+        "isLive": true,
+        "isCompleted": false,
+        "status": "Interrupted",
+        "currentPeriod": "Match",
+        "pointA": "0",
+        "pointB": "0",
+        "setsA": 0,
+        "setsB": 1,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783088356,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 7,
+            "tieBreakA": 6,
+            "tieBreakB": 8
+          },
+          {
+            "set": 2,
+            "a": 1,
+            "b": 2,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "6-7 1-2"
+      },
+      "winnerSide": "",
+      "scoreline": "",
+      "actual": null,
+      "playerA": "Jay Friend",
+      "playerB": "Braden Shick",
+      "surface": "Hard",
+      "format": "3",
+      "rankA": 407,
+      "rankB": 325,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383659",
+      "tournament": "Cary, USA",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Quarterfinals",
+      "court": "",
+      "startTime": "2026-07-03T13:10:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "40",
+        "pointB": "A",
+        "setsA": 0,
+        "setsB": 2,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783086274,
+        "sets": [
+          {
+            "set": 1,
+            "a": 1,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "1-6 4-6"
+      },
+      "winnerSide": "B",
+      "scoreline": "1-6 4-6",
+      "actual": {
+        "winner": "B",
+        "aSets": 0,
+        "bSets": 2,
+        "totalGames": 17,
+        "tieBreaker": false,
+        "setsPlayed": 2,
+        "scoreline": "1-6 4-6",
+        "sets": [
+          {
+            "set": 1,
+            "a": 1,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Jack Kennedy",
+      "playerB": "Yosuke Watanuki",
+      "surface": "Hard",
+      "format": "3",
+      "rankA": 414,
+      "rankB": 294,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383670",
+      "tournament": "Cary, USA",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Quarterfinals",
+      "court": "",
+      "startTime": "2026-07-03T13:30:00.000Z",
+      "statusCode": 0,
+      "statusType": "notstarted",
+      "statusDescription": "Not started",
+      "completed": false,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": false,
+        "status": "Not started",
+        "currentPeriod": "Match",
+        "pointA": "",
+        "pointB": "",
+        "setsA": null,
+        "setsB": null,
+        "firstToServe": null,
+        "currentPeriodStartTimestamp": null,
+        "sets": [],
+        "scoreline": ""
+      },
+      "winnerSide": "",
+      "scoreline": "",
+      "actual": null,
+      "playerA": "Edward Winter",
+      "playerB": "William Manning",
+      "surface": "Hard",
+      "format": "3",
+      "rankA": 434,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383694",
+      "tournament": "Milan, Italy, Doubles",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Semifinals",
+      "court": "",
+      "startTime": "2026-07-03T13:40:00.000Z",
+      "statusCode": 91,
+      "statusType": "finished",
+      "statusDescription": "Walkover",
+      "completed": true,
+      "live": true,
+      "liveState": {
+        "isLive": true,
+        "isCompleted": true,
+        "status": "Walkover",
+        "currentPeriod": "Match",
+        "pointA": "",
+        "pointB": "",
+        "setsA": null,
+        "setsB": null,
+        "firstToServe": null,
+        "currentPeriodStartTimestamp": 1783085149,
+        "sets": [],
+        "scoreline": ""
+      },
+      "winnerSide": "B",
+      "scoreline": "",
+      "actual": {
+        "winner": "B",
+        "aSets": null,
+        "bSets": null,
+        "totalGames": null,
+        "tieBreaker": false,
+        "setsPlayed": null,
+        "scoreline": "",
+        "sets": []
+      },
+      "playerA": "Basile P / Martin Manzano J C",
+      "playerB": "Banthia S / Kadhe A",
+      "surface": "Clay",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383745",
+      "tournament": "Quito, Ecuador",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Quarterfinals",
+      "court": "",
+      "startTime": "2026-07-03T15:05:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "6",
+        "pointB": "5",
+        "setsA": 2,
+        "setsB": 1,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783097109,
+        "sets": [
+          {
+            "set": 1,
+            "a": 2,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 8,
+            "tieBreakB": 6
+          },
+          {
+            "set": 3,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 5
+          }
+        ],
+        "scoreline": "2-6 7-6 7-6"
+      },
+      "winnerSide": "A",
+      "scoreline": "2-6 7-6(8-6) 7-6(7-5)",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 1,
+        "totalGames": 34,
+        "tieBreaker": true,
+        "setsPlayed": 3,
+        "scoreline": "2-6 7-6(8-6) 7-6(7-5)",
+        "sets": [
+          {
+            "set": 1,
+            "a": 2,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 8,
+            "tieBreakB": 6
+          },
+          {
+            "set": 3,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 5
+          }
+        ]
+      },
+      "playerA": "Felipe Meligeni Alves",
+      "playerB": "Rodrigo Pacheco Mendez",
+      "surface": "Clay",
+      "format": "3",
+      "rankA": 807,
+      "rankB": 338,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383740",
+      "tournament": "Quito, Ecuador",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Quarterfinals",
+      "court": "",
+      "startTime": "2026-07-03T15:05:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "6",
+        "pointB": "3",
+        "setsA": 2,
+        "setsB": 0,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783093062,
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 2,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 3
+          }
+        ],
+        "scoreline": "6-2 7-6"
+      },
+      "winnerSide": "A",
+      "scoreline": "6-2 7-6(7-3)",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 0,
+        "totalGames": 21,
+        "tieBreaker": true,
+        "setsPlayed": 2,
+        "scoreline": "6-2 7-6(7-3)",
+        "sets": [
+          {
+            "set": 1,
+            "a": 6,
+            "b": 2,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 3
+          }
+        ]
+      },
+      "playerA": "Hernan Casanova",
+      "playerB": "Juan Sebastian Osorio",
+      "surface": "Clay",
+      "format": "3",
+      "rankA": 409,
+      "rankB": 840,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383763",
+      "tournament": "Troyes, France",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Quarterfinals",
+      "court": "",
+      "startTime": "2026-07-03T15:40:00.000Z",
+      "statusCode": 92,
+      "statusType": "finished",
+      "statusDescription": "Retired",
+      "completed": true,
+      "live": true,
+      "liveState": {
+        "isLive": true,
+        "isCompleted": true,
+        "status": "Retired",
+        "currentPeriod": "Match",
+        "pointA": "15",
+        "pointB": "15",
+        "setsA": 0,
+        "setsB": 0,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783093957,
+        "sets": [
+          {
+            "set": 1,
+            "a": 2,
+            "b": 1,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "2-1"
+      },
+      "winnerSide": "B",
+      "scoreline": "2-1",
+      "actual": {
+        "winner": "B",
+        "aSets": 0,
+        "bSets": 0,
+        "totalGames": 3,
+        "tieBreaker": false,
+        "setsPlayed": 1,
+        "scoreline": "2-1",
+        "sets": [
+          {
+            "set": 1,
+            "a": 2,
+            "b": 1,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Eliakim Coulibaly",
+      "playerB": "Calvin Hemery",
+      "surface": "Clay",
+      "format": "3",
+      "rankA": 314,
+      "rankB": 291,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383742",
+      "tournament": "Quito, Ecuador",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Quarterfinals",
+      "court": "",
+      "startTime": "2026-07-03T16:55:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "15",
+        "pointB": "40",
+        "setsA": 1,
+        "setsB": 2,
+        "firstToServe": 1,
+        "currentPeriodStartTimestamp": 1783105025,
+        "sets": [
+          {
+            "set": 1,
+            "a": 1,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 4
+          },
+          {
+            "set": 3,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "1-6 7-6 4-6"
+      },
+      "winnerSide": "B",
+      "scoreline": "1-6 7-6(7-4) 4-6",
+      "actual": {
+        "winner": "B",
+        "aSets": 1,
+        "bSets": 2,
+        "totalGames": 30,
+        "tieBreaker": true,
+        "setsPlayed": 3,
+        "scoreline": "1-6 7-6(7-4) 4-6",
+        "sets": [
+          {
+            "set": 1,
+            "a": 1,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 4
+          },
+          {
+            "set": 3,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Alan Magadan",
+      "playerB": "Matheus Pucinelli de Almeida",
+      "surface": "Clay",
+      "format": "3",
+      "rankA": 632,
+      "rankB": 397,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383738",
+      "tournament": "Quito, Ecuador",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Quarterfinals",
+      "court": "",
+      "startTime": "2026-07-03T17:45:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "30",
+        "pointB": "40",
+        "setsA": 0,
+        "setsB": 2,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783103947,
+        "sets": [
+          {
+            "set": 1,
+            "a": 2,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "2-6 4-6"
+      },
+      "winnerSide": "B",
+      "scoreline": "2-6 4-6",
+      "actual": {
+        "winner": "B",
+        "aSets": 0,
+        "bSets": 2,
+        "totalGames": 18,
+        "tieBreaker": false,
+        "setsPlayed": 2,
+        "scoreline": "2-6 4-6",
+        "sets": [
+          {
+            "set": 1,
+            "a": 2,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          },
+          {
+            "set": 2,
+            "a": 4,
+            "b": 6,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Ignacio Monzon",
+      "playerB": "Samuel Heredia",
+      "surface": "Clay",
+      "format": "3",
+      "rankA": 693,
+      "rankB": 727,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383748",
+      "tournament": "Quito, Ecuador, Doubles",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Semifinals",
+      "court": "",
+      "startTime": "2026-07-03T19:40:00.000Z",
+      "statusCode": 100,
+      "statusType": "finished",
+      "statusDescription": "Ended",
+      "completed": true,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": true,
+        "status": "Ended",
+        "currentPeriod": "Match",
+        "pointA": "40",
+        "pointB": "40",
+        "setsA": 2,
+        "setsB": 0,
+        "firstToServe": 2,
+        "currentPeriodStartTimestamp": 1783111027,
+        "sets": [
+          {
+            "set": 1,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 2
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 1,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ],
+        "scoreline": "7-6 6-1"
+      },
+      "winnerSide": "A",
+      "scoreline": "7-6(7-2) 6-1",
+      "actual": {
+        "winner": "A",
+        "aSets": 2,
+        "bSets": 0,
+        "totalGames": 20,
+        "tieBreaker": true,
+        "setsPlayed": 2,
+        "scoreline": "7-6(7-2) 6-1",
+        "sets": [
+          {
+            "set": 1,
+            "a": 7,
+            "b": 6,
+            "tieBreakA": 7,
+            "tieBreakB": 2
+          },
+          {
+            "set": 2,
+            "a": 6,
+            "b": 1,
+            "tieBreakA": null,
+            "tieBreakB": null
+          }
+        ]
+      },
+      "playerA": "Soto M / Zeballos F",
+      "playerB": "Aboian V / Fernandez B",
+      "surface": "Clay",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383753",
+      "tournament": "Quito, Ecuador, Doubles",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Semifinals",
+      "court": "",
+      "startTime": "2026-07-03T20:00:00.000Z",
+      "statusCode": 91,
+      "statusType": "finished",
+      "statusDescription": "Walkover",
+      "completed": true,
+      "live": true,
+      "liveState": {
+        "isLive": true,
+        "isCompleted": true,
+        "status": "Walkover",
+        "currentPeriod": "Match",
+        "pointA": "",
+        "pointB": "",
+        "setsA": null,
+        "setsB": null,
+        "firstToServe": null,
+        "currentPeriodStartTimestamp": 1783112371,
+        "sets": [],
+        "scoreline": ""
+      },
+      "winnerSide": "A",
+      "scoreline": "",
+      "actual": {
+        "winner": "A",
+        "aSets": null,
+        "bSets": null,
+        "totalGames": null,
+        "tieBreaker": false,
+        "setsPlayed": null,
+        "scoreline": "",
+        "sets": []
+      },
+      "playerA": "Casanova H / Sakamoto P",
+      "playerB": "La Serna J M / Ribeiro E",
+      "surface": "Clay",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383666",
+      "tournament": "Cary, USA",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Quarterfinals",
+      "court": "",
+      "startTime": "2026-07-03T23:00:00.000Z",
+      "statusCode": 0,
+      "statusType": "notstarted",
+      "statusDescription": "Not started",
+      "completed": false,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": false,
+        "status": "Not started",
+        "currentPeriod": "Match",
+        "pointA": "",
+        "pointB": "",
+        "setsA": null,
+        "setsB": null,
+        "firstToServe": null,
+        "currentPeriodStartTimestamp": null,
+        "sets": [],
+        "scoreline": ""
+      },
+      "winnerSide": "",
+      "scoreline": "",
+      "actual": null,
+      "playerA": "Timo Legout",
+      "playerB": "Ozan Baris",
+      "surface": "Hard",
+      "format": "3",
+      "rankA": 961,
+      "rankB": 696,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383676",
+      "tournament": "Cary, USA, Doubles",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Quarterfinals",
+      "court": "",
+      "startTime": "2026-07-04T00:10:00.000Z",
+      "statusCode": 0,
+      "statusType": "notstarted",
+      "statusDescription": "Not started",
+      "completed": false,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": false,
+        "status": "Not started",
+        "currentPeriod": "Match",
+        "pointA": "",
+        "pointB": "",
+        "setsA": null,
+        "setsB": null,
+        "firstToServe": null,
+        "currentPeriodStartTimestamp": null,
+        "sets": [],
+        "scoreline": ""
+      },
+      "winnerSide": "",
+      "scoreline": "",
+      "actual": null,
+      "playerA": "Harper P / Hilderbrand T",
+      "playerB": "Boulais J / Maginley J",
+      "surface": "Hard",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383673",
+      "tournament": "Cary, USA, Doubles",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Quarterfinals",
+      "court": "",
+      "startTime": "2026-07-04T00:10:00.000Z",
+      "statusCode": 0,
+      "statusType": "notstarted",
+      "statusDescription": "Not started",
+      "completed": false,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": false,
+        "status": "Not started",
+        "currentPeriod": "Match",
+        "pointA": "",
+        "pointB": "",
+        "setsA": null,
+        "setsB": null,
+        "firstToServe": null,
+        "currentPeriodStartTimestamp": null,
+        "sets": [],
+        "scoreline": ""
+      },
+      "winnerSide": "",
+      "scoreline": "",
+      "actual": null,
+      "playerA": "Nam J / Niklas-Salminen P",
+      "playerB": "Lammons N / Withrow J",
+      "surface": "Hard",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383672",
+      "tournament": "Cary, USA, Doubles",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Quarterfinals",
+      "court": "",
+      "startTime": "2026-07-04T00:10:00.000Z",
+      "statusCode": 0,
+      "statusType": "notstarted",
+      "statusDescription": "Not started",
+      "completed": false,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": false,
+        "status": "Not started",
+        "currentPeriod": "Match",
+        "pointA": "",
+        "pointB": "",
+        "setsA": null,
+        "setsB": null,
+        "firstToServe": null,
+        "currentPeriodStartTimestamp": null,
+        "sets": [],
+        "scoreline": ""
+      },
+      "winnerSide": "",
+      "scoreline": "",
+      "actual": null,
+      "playerA": "Reynolds F / Watt J",
+      "playerB": "Camus C / Sabaliauskas A",
+      "surface": "Hard",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    },
+    {
+      "id": "16383675",
+      "tournament": "Cary, USA, Doubles",
+      "level": "Challenger",
+      "tour": "Challenger",
+      "round": "Quarterfinals",
+      "court": "",
+      "startTime": "2026-07-04T01:20:00.000Z",
+      "statusCode": 0,
+      "statusType": "notstarted",
+      "statusDescription": "Not started",
+      "completed": false,
+      "live": false,
+      "liveState": {
+        "isLive": false,
+        "isCompleted": false,
+        "status": "Not started",
+        "currentPeriod": "Match",
+        "pointA": "",
+        "pointB": "",
+        "setsA": null,
+        "setsB": null,
+        "firstToServe": null,
+        "currentPeriodStartTimestamp": null,
+        "sets": [],
+        "scoreline": ""
+      },
+      "winnerSide": "",
+      "scoreline": "",
+      "actual": null,
+      "playerA": "Bianchi J J / Harper C",
+      "playerB": "Isaro PR / Kaliyanda Poonacha N",
+      "surface": "Hard",
+      "format": "3",
+      "rankA": 50,
+      "rankB": 50,
+      "holdA": 80,
+      "holdB": 80,
+      "aceA": 6,
+      "aceB": 6,
+      "formA": 70,
+      "formB": 70,
+      "weatherFactor": 0,
+      "fatigueA": 0,
+      "fatigueB": 0,
+      "injuryA": 0,
+      "injuryB": 0
+    }
+  ]
+}

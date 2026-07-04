@@ -1,0 +1,11 @@
+.agents/
+.codex/
+.gitdata/
+.chrome-smoke-profile/
+tennis-edge-mobile-smoke.png
+__pycache__/
+.env
+api_cache/
+node_modules/
+npm-debug.log
+*.log

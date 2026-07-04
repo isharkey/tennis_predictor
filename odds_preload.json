@@ -1,0 +1,141 @@
+{
+  "source": "Example local sportsbook odds - replace with live US sportsbook feed",
+  "generatedAt": "2026-07-03T22:45:00.000Z",
+  "markets": [
+    {
+      "matchId": "16383669",
+      "playerA": "Jay Friend",
+      "playerB": "Braden Shick",
+      "books": [
+        {
+          "name": "DraftKings",
+          "markets": [
+            {
+              "marketType": "moneyline",
+              "outcomes": [
+                { "selection": "Jay Friend", "side": "A", "odds": -118 },
+                { "selection": "Braden Shick", "side": "B", "odds": -102 }
+              ]
+            },
+            {
+              "marketType": "total_games",
+              "line": 22.5,
+              "outcomes": [
+                { "selection": "Over 22.5", "side": "over", "odds": -108 },
+                { "selection": "Under 22.5", "side": "under", "odds": -112 }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "FanDuel",
+          "markets": [
+            {
+              "marketType": "moneyline",
+              "outcomes": [
+                { "selection": "Jay Friend", "side": "A", "odds": -110 },
+                { "selection": "Braden Shick", "side": "B", "odds": -110 }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "BetMGM",
+          "markets": [
+            {
+              "marketType": "tiebreak",
+              "outcomes": [
+                { "selection": "Yes", "side": "yes", "odds": 210 },
+                { "selection": "No", "side": "no", "odds": -280 }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "matchId": "16383670",
+      "playerA": "Edward Winter",
+      "playerB": "William Manning",
+      "books": [
+        {
+          "name": "Caesars",
+          "markets": [
+            {
+              "marketType": "moneyline",
+              "outcomes": [
+                { "selection": "Edward Winter", "side": "A", "odds": 104 },
+                { "selection": "William Manning", "side": "B", "odds": -126 }
+              ]
+            },
+            {
+              "marketType": "total_games",
+              "line": 21.5,
+              "outcomes": [
+                { "selection": "Over 21.5", "side": "over", "odds": -105 },
+                { "selection": "Under 21.5", "side": "under", "odds": -115 }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "ESPN BET",
+          "markets": [
+            {
+              "marketType": "moneyline",
+              "outcomes": [
+                { "selection": "Edward Winter", "side": "A", "odds": 112 },
+                { "selection": "William Manning", "side": "B", "odds": -138 }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Fanatics",
+          "markets": [
+            {
+              "marketType": "sets",
+              "line": 2.5,
+              "outcomes": [
+                { "selection": "Over 2.5", "side": "over", "odds": 142 },
+                { "selection": "Under 2.5", "side": "under", "odds": -170 }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "matchId": "16383666",
+      "playerA": "Timo Legout",
+      "playerB": "Ozan Baris",
+      "books": [
+        {
+          "name": "BetRivers",
+          "markets": [
+            {
+              "marketType": "moneyline",
+              "outcomes": [
+                { "selection": "Timo Legout", "side": "A", "odds": -132 },
+                { "selection": "Ozan Baris", "side": "B", "odds": 108 }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Hard Rock",
+          "markets": [
+            {
+              "marketType": "total_games",
+              "line": 20.5,
+              "outcomes": [
+                { "selection": "Over 20.5", "side": "over", "odds": -118 },
+                { "selection": "Under 20.5", "side": "under", "odds": -102 }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
