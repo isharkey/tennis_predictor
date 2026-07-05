@@ -9,7 +9,7 @@ const METRICS = [
 
 const MODEL_KEYS = ["eloPulse", "serveHold", "surfaceFit", "formCurve", "marketBlend"];
 const STORAGE_KEY = "tennis-edge-state-v1";
-const APP_ASSET_VERSION = "20260704-slate";
+const APP_ASSET_VERSION = "20260704-trace4";
 const HISTORY_LIMIT = 140;
 const SLATE_REFRESH_CACHE_KEY = "tennis-edge-last-slate-refresh-v1";
 const AUTO_SLATE_REFRESH_MS = 10 * 60 * 1000;
@@ -63,6 +63,34 @@ const LEVEL_PRIORITY = {
   Challenger: 5,
   ITF: 6
 };
+
+const PREDICTION_DATA_FIELDS = [
+  { key: "playerA", label: "Player A", inputId: "player-a", type: "text" },
+  { key: "playerB", label: "Player B", inputId: "player-b", type: "text" },
+  { key: "surface", label: "Surface", inputId: "surface", type: "text", fallback: "Hard" },
+  { key: "format", label: "Format", inputId: "format", type: "number", fallback: 3 },
+  { key: "rankA", label: "A rank", inputId: "rank-a", type: "number", fallback: 50 },
+  { key: "rankB", label: "B rank", inputId: "rank-b", type: "number", fallback: 50 },
+  { key: "holdA", label: "A hold %", inputId: "hold-a", type: "number", fallback: 80 },
+  { key: "holdB", label: "B hold %", inputId: "hold-b", type: "number", fallback: 80 },
+  { key: "aceA", label: "A ace %", inputId: "ace-a", type: "number", fallback: 6 },
+  { key: "aceB", label: "B ace %", inputId: "ace-b", type: "number", fallback: 6 },
+  { key: "formA", label: "A form", inputId: "form-a", type: "number", fallback: 70 },
+  { key: "formB", label: "B form", inputId: "form-b", type: "number", fallback: 70 },
+  { key: "weatherFactor", label: "Weather", inputId: "weather-factor", type: "number", fallback: 0 },
+  { key: "fatigueA", label: "A fatigue", inputId: "fatigue-a", type: "number", fallback: 0 },
+  { key: "fatigueB", label: "B fatigue", inputId: "fatigue-b", type: "number", fallback: 0 },
+  { key: "injuryA", label: "A injury", inputId: "injury-a", type: "number", fallback: 0 },
+  { key: "injuryB", label: "B injury", inputId: "injury-b", type: "number", fallback: 0 }
+];
+
+const TRUE_DATA_STATUSES = new Set(["verified", "manual", "inferred", "derived"]);
+const FALLBACK_DATA_STATUSES = new Set(["fallback", "missing", "example"]);
+const GENERIC_FALLBACK_KEYS = new Set(
+  PREDICTION_DATA_FIELDS
+    .filter((field) => field.fallback !== undefined)
+    .map((field) => field.key)
+);
 
 const DEFAULT_PERFORMANCE = Object.fromEntries(
   MODEL_KEYS.map((modelKey) => [
@@ -244,6 +272,8 @@ let oddsMeta = {
 };
 let oddsRunCache = new Map();
 let selectedMatchId = null;
+let activeFormTrace = {};
+let activeFormSnapshot = {};
 let collapsedTournamentKeys = new Set();
 let autoLearningInProgress = false;
 let autoLearningMessage = "";
@@ -257,9 +287,10 @@ let matchSlateMeta = {
 document.addEventListener("DOMContentLoaded", () => {
   bindControls();
   setDefaultSlateDate();
-  preloadedMatches = normalizePreloadedMatches(SAMPLE_MATCHES);
+  preloadedMatches = normalizePreloadedMatches(SAMPLE_MATCHES, { source: "example" });
   selectFirstLoadedMatch(false);
   renderMatchBoard();
+  renderDataTrace(readMatchForm());
   runEnsemble();
   renderLearning();
   renderHistory();
@@ -296,6 +327,7 @@ function bindControls() {
   document.getElementById("match-search").addEventListener("input", renderMatchBoard);
   document.getElementById("reload-slate").addEventListener("click", refreshLiveSlate);
   document.getElementById("match-board-list").addEventListener("click", handleMatchBoardClick);
+  document.getElementById("match-board-list").addEventListener("toggle", handleTournamentDetailsToggle, true);
   document.getElementById("player-data-list").addEventListener("click", (event) => {
     const button = event.target.closest("[data-player-match-id]");
     if (button) selectPreloadedMatch(button.dataset.playerMatchId);
@@ -305,8 +337,16 @@ function bindControls() {
   document.getElementById("reset-demo").addEventListener("click", resetLearning);
   document.getElementById("simulations").addEventListener("input", handleSimulationRunsInput);
 
-  document.querySelectorAll("#match-form input, #match-form select, #simulations").forEach((control) => {
-    control.addEventListener("change", runOrQueueEnsemble);
+  document.querySelectorAll("#match-form input, #match-form select").forEach((control) => {
+    control.addEventListener("input", () => renderDataTrace(readMatchForm()));
+    control.addEventListener("change", () => {
+      renderDataTrace(readMatchForm());
+      runOrQueueEnsemble();
+    });
+  });
+
+  document.getElementById("simulations").addEventListener("change", () => {
+    runOrQueueEnsemble();
   });
 }
 
@@ -320,14 +360,19 @@ function handleSimulationRunsInput() {
 }
 
 function handleMatchBoardClick(event) {
-  const toggleButton = event.target.closest("[data-tournament-toggle]");
-  if (toggleButton) {
-    toggleTournamentGroup(toggleButton.dataset.tournamentToggle);
-    return;
-  }
-
   const matchButton = event.target.closest("[data-match-id]");
   if (matchButton) selectPreloadedMatch(matchButton.dataset.matchId);
+}
+
+function handleTournamentDetailsToggle(event) {
+  const tournament = event.target.closest?.("[data-tournament-key]");
+  if (!tournament) return;
+
+  if (tournament.open) {
+    collapsedTournamentKeys.delete(tournament.dataset.tournamentKey);
+  } else {
+    collapsedTournamentKeys.add(tournament.dataset.tournamentKey);
+  }
 }
 
 function activateTab(tabName) {
@@ -515,7 +560,7 @@ function extractMetaFromPayload(payload, count) {
   };
 }
 
-function normalizePreloadedMatches(matches) {
+function normalizePreloadedMatches(matches, options = {}) {
   return (Array.isArray(matches) ? matches : []).map((match, index) => {
     const playerA = String(match.playerA || `Player A ${index + 1}`);
     const playerB = String(match.playerB || `Player B ${index + 1}`);
@@ -526,8 +571,7 @@ function normalizePreloadedMatches(matches) {
     const winnerSide = normalizeWinnerSide(match.winnerSide || match.actual?.winner || match.winner);
     const actual = normalizeActualResult(match.actual || match.result || {}, winnerSide);
     const liveState = normalizeLiveState(match.liveState || match.live || {}, live, completed);
-
-    return {
+    const normalized = {
       id: match.id || `${slugify(playerA)}-${slugify(playerB)}-${index}`,
       tournament: match.tournament || "Loaded Matches",
       level: match.level || "ATP 250",
@@ -547,21 +591,115 @@ function normalizePreloadedMatches(matches) {
       playerB,
       surface: match.surface || "Hard",
       format: String(match.format || 3),
-      rankA: Number(match.rankA ?? 50),
-      rankB: Number(match.rankB ?? 50),
-      holdA: Number(match.holdA ?? 80),
-      holdB: Number(match.holdB ?? 80),
-      aceA: Number(match.aceA ?? 6),
-      aceB: Number(match.aceB ?? 6),
-      formA: Number(match.formA ?? 70),
-      formB: Number(match.formB ?? 70),
-      weatherFactor: Number(match.weatherFactor ?? 0),
-      fatigueA: Number(match.fatigueA ?? 0),
-      fatigueB: Number(match.fatigueB ?? 0),
-      injuryA: Number(match.injuryA ?? 0),
-      injuryB: Number(match.injuryB ?? 0)
+      rankA: normalizeIncomingNumber(match.rankA, 50),
+      rankB: normalizeIncomingNumber(match.rankB, 50),
+      holdA: normalizeIncomingNumber(match.holdA, 80),
+      holdB: normalizeIncomingNumber(match.holdB, 80),
+      aceA: normalizeIncomingNumber(match.aceA, 6),
+      aceB: normalizeIncomingNumber(match.aceB, 6),
+      formA: normalizeIncomingNumber(match.formA, 70),
+      formB: normalizeIncomingNumber(match.formB, 70),
+      weatherFactor: normalizeIncomingNumber(match.weatherFactor, 0),
+      fatigueA: normalizeIncomingNumber(match.fatigueA, 0),
+      fatigueB: normalizeIncomingNumber(match.fatigueB, 0),
+      injuryA: normalizeIncomingNumber(match.injuryA, 0),
+      injuryB: normalizeIncomingNumber(match.injuryB, 0)
     };
+
+    normalized.dataTrace = buildPredictionDataTrace(match, normalized, options);
+    normalized.dataQuality = buildDataQuality(normalized.dataTrace);
+    return normalized;
   });
+}
+
+function normalizeIncomingNumber(value, fallback) {
+  const number = finiteNumber(value);
+  return number === null ? fallback : number;
+}
+
+function buildPredictionDataTrace(rawMatch, normalizedMatch, options = {}) {
+  return Object.fromEntries(PREDICTION_DATA_FIELDS.map((field) => {
+    const existingTrace = rawMatch?.dataTrace?.[field.key] || rawMatch?.predictionDataTrace?.[field.key];
+    const value = normalizedMatch[field.key];
+    if (existingTrace) {
+      return [field.key, normalizeTraceEntry(field, value, existingTrace)];
+    }
+
+    return [field.key, inferTraceEntry(rawMatch, field, value, options)];
+  }));
+}
+
+function completePredictionDataTrace(match) {
+  const existingTrace = match?.dataTrace || {};
+  return Object.fromEntries(PREDICTION_DATA_FIELDS.map((field) => {
+    const value = match?.[field.key];
+    const trace = existingTrace[field.key]
+      ? normalizeTraceEntry(field, value, existingTrace[field.key])
+      : inferTraceEntry(match, field, value);
+    return [field.key, trace];
+  }));
+}
+
+function normalizeTraceEntry(field, value, trace) {
+  const status = String(trace.status || trace.kind || "verified").toLowerCase();
+  return {
+    label: trace.label || field.label,
+    value,
+    status,
+    source: trace.source || trace.provider || "Loaded data",
+    note: trace.note || ""
+  };
+}
+
+function inferTraceEntry(rawMatch, field, value, options = {}) {
+  const hasRawValue = rawMatch && rawMatch[field.key] !== undefined && rawMatch[field.key] !== null && rawMatch[field.key] !== "";
+  const fallbackLookalike = field.fallback !== undefined && String(value).toLowerCase() === String(field.fallback).toLowerCase();
+  const example = options.source === "example";
+
+  if (example) {
+    return traceEntry(field, value, "example", "Built-in sample", "Example input only; replace with live or manual data before betting.");
+  }
+
+  if (!hasRawValue) {
+    return traceEntry(field, value, "missing", "No feed value", "The app needs a real stat feed or manual entry for this field.");
+  }
+
+  if (GENERIC_FALLBACK_KEYS.has(field.key) && fallbackLookalike) {
+    return traceEntry(field, value, "fallback", "Neutral model fallback", "This value matches the app fallback and is not verified player data.");
+  }
+
+  return traceEntry(field, value, "verified", "Loaded slate field", "Value was present in the loaded match record.");
+}
+
+function traceEntry(field, value, status, source, note = "") {
+  return {
+    label: field.label,
+    value,
+    status,
+    source,
+    note
+  };
+}
+
+function buildDataQuality(trace) {
+  const entries = PREDICTION_DATA_FIELDS.map((field) => trace?.[field.key]).filter(Boolean);
+  const verified = entries.filter((entry) => isTrueDataTrace(entry)).length;
+  const fallback = entries.filter((entry) => isFallbackTrace(entry)).length;
+  const total = entries.length || PREDICTION_DATA_FIELDS.length;
+  return {
+    verified,
+    fallback,
+    total,
+    score: total ? verified / total : 0
+  };
+}
+
+function isTrueDataTrace(trace) {
+  return TRUE_DATA_STATUSES.has(String(trace?.status || "").toLowerCase());
+}
+
+function isFallbackTrace(trace) {
+  return FALLBACK_DATA_STATUSES.has(String(trace?.status || "").toLowerCase());
 }
 
 function normalizeWinnerSide(value) {
@@ -647,6 +785,7 @@ function selectPreloadedMatch(matchId, shouldRun = true) {
 }
 
 function loadMatchIntoForm(match) {
+  activeFormTrace = match.dataTrace || buildPredictionDataTrace(match, match);
   setFormValue("player-a", match.playerA);
   setFormValue("player-b", match.playerB);
   setFormValue("surface", match.surface);
@@ -664,6 +803,8 @@ function loadMatchIntoForm(match) {
   setFormValue("fatigue-b", match.fatigueB);
   setFormValue("injury-a", match.injuryA);
   setFormValue("injury-b", match.injuryB);
+  activeFormSnapshot = snapshotMatchFormValues(match);
+  renderDataTrace(readMatchForm());
 }
 
 function renderMatchBoard() {
@@ -686,33 +827,23 @@ function renderMatchBoard() {
     const collapsed = collapsedTournamentKeys.has(group.key);
     const panelId = `tournament-${group.key}`;
     return `
-    <section class="tournament-group ${collapsed ? "collapsed" : ""}">
-      <button class="tournament-head" type="button" data-tournament-toggle="${escapeHtml(group.key)}" aria-expanded="${collapsed ? "false" : "true"}" aria-controls="${escapeHtml(panelId)}">
-        <div>
-          <div class="tournament-title">${escapeHtml(group.tournament)}</div>
-          <div class="model-meta">${escapeHtml(group.level)} - ${escapeHtml(group.tour)} - ${group.matches.length} ${group.matches.length === 1 ? "match" : "matches"}</div>
-        </div>
+    <details class="tournament-group" data-tournament-key="${escapeHtml(group.key)}" ${collapsed ? "" : "open"}>
+      <summary class="tournament-head" aria-controls="${escapeHtml(panelId)}">
+        <span class="tournament-head-main">
+          <span class="tournament-title">${escapeHtml(group.tournament)}</span>
+          <span class="model-meta">${escapeHtml(group.level)} - ${escapeHtml(group.tour)} - ${group.matches.length} ${group.matches.length === 1 ? "match" : "matches"}</span>
+        </span>
         <span class="tournament-head-actions">
           <span class="pill">${formatMatchTime(group.matches[0].startTime)}</span>
-          <span class="tournament-toggle-icon" aria-hidden="true">${collapsed ? "+" : "-"}</span>
+          <span class="tournament-toggle-icon" aria-hidden="true"></span>
         </span>
-      </button>
-      <div class="tournament-matches" id="${escapeHtml(panelId)}" ${collapsed ? "hidden" : ""}>
+      </summary>
+      <div class="tournament-matches" id="${escapeHtml(panelId)}">
         ${group.matches.map(renderMatchRow).join("")}
       </div>
-    </section>
+    </details>
   `;
   }).join("");
-}
-
-function toggleTournamentGroup(key) {
-  if (!key) return;
-  if (collapsedTournamentKeys.has(key)) {
-    collapsedTournamentKeys.delete(key);
-  } else {
-    collapsedTournamentKeys.add(key);
-  }
-  renderMatchBoard();
 }
 
 function slateMetaText(visibleCount) {
@@ -783,6 +914,22 @@ function buildPlayerCatalog() {
 
 function playerAppearance(match, side) {
   const isA = side === "A";
+  const trace = {
+    rank: match.dataTrace?.[isA ? "rankA" : "rankB"],
+    opponentRank: match.dataTrace?.[isA ? "rankB" : "rankA"],
+    hold: match.dataTrace?.[isA ? "holdA" : "holdB"],
+    opponentHold: match.dataTrace?.[isA ? "holdB" : "holdA"],
+    ace: match.dataTrace?.[isA ? "aceA" : "aceB"],
+    opponentAce: match.dataTrace?.[isA ? "aceB" : "aceA"],
+    form: match.dataTrace?.[isA ? "formA" : "formB"],
+    opponentForm: match.dataTrace?.[isA ? "formB" : "formA"],
+    fatigue: match.dataTrace?.[isA ? "fatigueA" : "fatigueB"],
+    opponentFatigue: match.dataTrace?.[isA ? "fatigueB" : "fatigueA"],
+    injury: match.dataTrace?.[isA ? "injuryA" : "injuryB"],
+    opponentInjury: match.dataTrace?.[isA ? "injuryB" : "injuryA"],
+    weatherFactor: match.dataTrace?.weatherFactor
+  };
+
   return {
     name: isA ? match.playerA : match.playerB,
     opponent: isA ? match.playerB : match.playerA,
@@ -808,7 +955,8 @@ function playerAppearance(match, side) {
     opponentFatigue: isA ? match.fatigueB : match.fatigueA,
     injury: isA ? match.injuryA : match.injuryB,
     opponentInjury: isA ? match.injuryB : match.injuryA,
-    weatherFactor: match.weatherFactor
+    weatherFactor: match.weatherFactor,
+    trace
   };
 }
 
@@ -831,7 +979,9 @@ function addAppearanceToPlayerRecord(record, appearance) {
   record.levels.add(appearance.level);
   record.tours.add(appearance.tour);
   record.surfaces.add(appearance.surface);
-  record.bestRank = minNumber(record.bestRank, appearance.rank);
+  if (isTrueDataTrace(appearance.trace?.rank)) {
+    record.bestRank = minNumber(record.bestRank, appearance.rank);
+  }
   record.averageHold = averageAppearanceMetric(record.appearances, "hold");
   record.averageAce = averageAppearanceMetric(record.appearances, "ace");
   record.averageForm = averageAppearanceMetric(record.appearances, "form");
@@ -862,8 +1012,8 @@ function filterAndSortPlayers(players) {
 
 function comparePlayers(a, b, sortBy) {
   if (sortBy === "name") return a.name.localeCompare(b.name);
-  if (sortBy === "form") return b.averageForm - a.averageForm || a.name.localeCompare(b.name);
-  if (sortBy === "hold") return b.averageHold - a.averageHold || a.name.localeCompare(b.name);
+  if (sortBy === "form") return sortableNumber(b.averageForm) - sortableNumber(a.averageForm) || a.name.localeCompare(b.name);
+  if (sortBy === "hold") return sortableNumber(b.averageHold) - sortableNumber(a.averageHold) || a.name.localeCompare(b.name);
   if (sortBy === "next") {
     return new Date(a.nextAppearance?.startTime ?? 0) - new Date(b.nextAppearance?.startTime ?? 0);
   }
@@ -878,14 +1028,14 @@ function renderSelectedPlayerCard(record, appearance) {
           <div class="player-name">${escapeHtml(record.name)}</div>
           <div class="model-meta">vs ${escapeHtml(appearance.opponent)} - ${escapeHtml(appearance.round)}</div>
         </div>
-        <span class="pill">Rank ${formatMissing(appearance.rank)}</span>
+        <span class="pill">Rank ${traceAwareStat(appearance.rank, appearance.trace?.rank, 0)}</span>
       </div>
       <div class="player-stat-grid">
-        ${playerStat("Hold", `${round(appearance.hold, 1)}%`)}
-        ${playerStat("Ace", `${round(appearance.ace, 1)}%`)}
-        ${playerStat("Form", round(appearance.form, 0))}
-        ${playerStat("Fatigue", round(appearance.fatigue, 0))}
-        ${playerStat("Injury", round(appearance.injury, 0))}
+        ${playerStat("Hold", traceAwareStat(appearance.hold, appearance.trace?.hold, 1, "%"), appearance.trace?.hold)}
+        ${playerStat("Ace", traceAwareStat(appearance.ace, appearance.trace?.ace, 1, "%"), appearance.trace?.ace)}
+        ${playerStat("Form", traceAwareStat(appearance.form, appearance.trace?.form, 0), appearance.trace?.form)}
+        ${playerStat("Fatigue", traceAwareStat(appearance.fatigue, appearance.trace?.fatigue, 0), appearance.trace?.fatigue)}
+        ${playerStat("Injury", traceAwareStat(appearance.injury, appearance.trace?.injury, 0), appearance.trace?.injury)}
         ${playerStat("Surface", appearance.surface)}
         ${playerStat("Level", appearance.level)}
         ${playerStat("Tour", appearance.tour)}
@@ -909,9 +1059,9 @@ function renderPlayerRow(record) {
       </span>
       <span class="player-row-stats">
         <span>Rank ${formatMissing(record.bestRank)}</span>
-        <span>Hold ${round(record.averageHold, 1)}%</span>
-        <span>Ace ${round(record.averageAce, 1)}%</span>
-        <span>Form ${round(record.averageForm, 0)}</span>
+        <span>Hold ${formatOptionalNumber(record.averageHold, 1, "%")}</span>
+        <span>Ace ${formatOptionalNumber(record.averageAce, 1, "%")}</span>
+        <span>Form ${formatOptionalNumber(record.averageForm, 0)}</span>
       </span>
       <span class="player-next">
         ${next ? `${formatMatchTime(next.startTime)} vs ${escapeHtml(next.opponent)}` : "No match"}
@@ -920,18 +1070,21 @@ function renderPlayerRow(record) {
   `;
 }
 
-function playerStat(label, value) {
+function playerStat(label, value, trace = null) {
+  const traceLabel = trace ? traceStatusLabel(trace.status) : "";
   return `
-    <span>
+    <span class="${trace ? `trace-${traceStatusClass(trace.status)}` : ""}" ${trace?.note ? `title="${escapeHtml(trace.note)}"` : ""}>
       <small>${escapeHtml(label)}</small>
       <strong>${escapeHtml(value)}</strong>
+      ${traceLabel ? `<em>${escapeHtml(traceLabel)}</em>` : ""}
     </span>
   `;
 }
 
 function averageAppearanceMetric(appearances, key) {
-  if (!appearances.length) return 0;
-  return appearances.reduce((sum, appearance) => sum + Number(appearance[key] ?? 0), 0) / appearances.length;
+  const verified = appearances.filter((appearance) => isTrueDataTrace(appearance.trace?.[key]));
+  if (!verified.length) return null;
+  return verified.reduce((sum, appearance) => sum + Number(appearance[key] ?? 0), 0) / verified.length;
 }
 
 function nextAppearance(appearances) {
@@ -946,6 +1099,19 @@ function minNumber(current, next) {
 
 function formatMissing(value) {
   return Number.isFinite(Number(value)) ? String(value) : "-";
+}
+
+function formatOptionalNumber(value, decimals = 0, suffix = "") {
+  return Number.isFinite(Number(value)) ? `${round(value, decimals)}${suffix}` : "-";
+}
+
+function traceAwareStat(value, trace, decimals = 0, suffix = "") {
+  if (trace && !isTrueDataTrace(trace)) return "Missing";
+  return formatOptionalNumber(value, decimals, suffix);
+}
+
+function sortableNumber(value, fallback = -Infinity) {
+  return Number.isFinite(Number(value)) ? Number(value) : fallback;
 }
 
 function getSortedMatches() {
@@ -1014,6 +1180,7 @@ function renderMatchRow(match) {
   const statusTag = match.completed
     ? `<span>Final${match.scoreline ? ` ${escapeHtml(match.scoreline)}` : ""}</span>`
     : "";
+  const quality = match.dataQuality || buildDataQuality(match.dataTrace);
   return `
     <button class="match-row ${selected ? "selected" : ""}" type="button" data-match-id="${escapeHtml(match.id)}">
       <span class="match-time">${formatMatchTime(match.startTime)}</span>
@@ -1023,10 +1190,17 @@ function renderMatchRow(match) {
         <span>${escapeHtml(match.level)}</span>
         <span>${escapeHtml(match.surface)}</span>
         <span>${match.format === "5" ? "BO5" : "BO3"}</span>
+        <span class="${quality.fallback ? "data-badge-warning" : "data-badge-good"}">${escapeHtml(dataQualityLabel(quality))}</span>
         ${statusTag}
       </span>
     </button>
   `;
+}
+
+function dataQualityLabel(quality) {
+  if (!quality) return "Data ?";
+  if (quality.fallback) return `Data ${quality.verified}/${quality.total}`;
+  return "Data OK";
 }
 
 function loadState() {
@@ -1068,7 +1242,7 @@ function persistState() {
 }
 
 function readMatchForm() {
-  return {
+  const match = {
     playerA: textValue("player-a", "Player A"),
     playerB: textValue("player-b", "Player B"),
     surface: document.getElementById("surface").value,
@@ -1087,11 +1261,38 @@ function readMatchForm() {
     injuryA: numberValue("injury-a", 0),
     injuryB: numberValue("injury-b", 0)
   };
+
+  match.dataTrace = traceMatchFromForm(match);
+  match.dataQuality = buildDataQuality(match.dataTrace);
+  return match;
+}
+
+function snapshotMatchFormValues(match) {
+  return Object.fromEntries(PREDICTION_DATA_FIELDS.map((field) => [
+    field.key,
+    String(match[field.key] ?? "")
+  ]));
+}
+
+function traceMatchFromForm(match) {
+  return Object.fromEntries(PREDICTION_DATA_FIELDS.map((field) => {
+    const value = match[field.key];
+    const originalValue = activeFormSnapshot[field.key];
+    const currentValue = String(value ?? "");
+    const existingTrace = activeFormTrace[field.key] || inferTraceEntry(match, field, value);
+
+    if (originalValue !== undefined && currentValue !== originalValue) {
+      return [field.key, traceEntry(field, value, "manual", "Manual form entry", "You changed this value in the app.")];
+    }
+
+    return [field.key, normalizeTraceEntry(field, value, existingTrace)];
+  }));
 }
 
 async function runEnsemble() {
   const requestId = ++runRequestId;
   const match = readMatchForm();
+  renderDataTrace(match);
   syncActualWinnerOptions(match);
   const runs = currentSimulationRuns();
 
@@ -1135,6 +1336,7 @@ function queueHighRun(runs) {
   cancelActiveRun();
   latestRun = null;
   clearPredictionCards();
+  renderDataTrace(readMatchForm());
   renderModels();
   renderGraphs();
   renderParlays();
@@ -1276,7 +1478,7 @@ function buildEnsembleRun(match, runs) {
 }
 
 function modelReadyMatch(match) {
-  return {
+  const modelMatch = {
     ...match,
     format: Number(match.format) === 5 ? 5 : 3,
     rankA: Number(match.rankA ?? 50),
@@ -1293,6 +1495,9 @@ function modelReadyMatch(match) {
     injuryA: Number(match.injuryA ?? 0),
     injuryB: Number(match.injuryB ?? 0)
   };
+  modelMatch.dataTrace = completePredictionDataTrace(modelMatch);
+  modelMatch.dataQuality = buildDataQuality(modelMatch.dataTrace);
+  return modelMatch;
 }
 
 function runModel(model, match, runs) {
@@ -1480,6 +1685,83 @@ function renderPrediction() {
   setText("breaks-range", `${Math.round(ensemble.breaks)} projected`);
   setText("aces-pick", round(ensemble.aces, 1));
   setText("aces-range", `${Math.round(ensemble.aces)} projected`);
+  renderDataTrace(match);
+}
+
+function renderDataTrace(match = null) {
+  const container = document.getElementById("data-trace");
+  if (!container) return;
+
+  const traceMatch = match || readMatchForm();
+  const trace = completePredictionDataTrace(traceMatch);
+  const quality = buildDataQuality(trace);
+  const fallbackCount = quality.fallback || 0;
+  const qualityClass = fallbackCount ? "warning" : "good";
+  const qualityText = fallbackCount
+    ? `${quality.verified}/${quality.total} verified, ${fallbackCount} need real data`
+    : `${quality.verified}/${quality.total} verified`;
+
+  container.innerHTML = `
+    <details class="trace-panel" open>
+      <summary>
+        <span>Prediction Data Trace</span>
+        <span class="trace-score ${qualityClass}">${escapeHtml(qualityText)}</span>
+      </summary>
+      <div class="trace-grid">
+        ${PREDICTION_DATA_FIELDS.map((field) => renderTraceItem(field, trace[field.key])).join("")}
+      </div>
+    </details>
+  `;
+}
+
+function renderTraceItem(field, trace) {
+  const entry = trace || traceEntry(field, "", "missing", "No trace", "No source was attached to this value.");
+  return `
+    <div class="trace-item ${traceStatusClass(entry.status)}">
+      <span class="trace-label">${escapeHtml(field.label)}</span>
+      <strong>${escapeHtml(formatTraceDataValue(field, entry))}</strong>
+      <span class="trace-source">${escapeHtml(traceStatusLabel(entry.status))} - ${escapeHtml(entry.source || "Unknown source")}</span>
+      ${entry.note ? `<small>${escapeHtml(entry.note)}</small>` : ""}
+    </div>
+  `;
+}
+
+function formatTraceDataValue(field, trace) {
+  const value = trace?.value;
+  const missing = isFallbackTrace(trace);
+  const displayValue = formatDataValue(field, value);
+  if (String(trace?.status || "").toLowerCase() === "example") return `${displayValue} sample`;
+  if (missing) return `Missing, model fallback ${displayValue}`;
+  return displayValue;
+}
+
+function formatDataValue(field, value) {
+  if (value === undefined || value === null || value === "") return "-";
+  if (field.key === "format") return Number(value) === 5 ? "Best of 5" : "Best of 3";
+  if (["holdA", "holdB", "aceA", "aceB"].includes(field.key)) return `${round(value, 1)}%`;
+  if (field.type === "number") return Number.isFinite(Number(value)) ? round(value, 1).replace(/\.0$/, "") : "-";
+  return value || "-";
+}
+
+function traceStatusLabel(status) {
+  const key = String(status || "").toLowerCase();
+  const labels = {
+    verified: "Verified",
+    inferred: "Inferred",
+    derived: "Derived",
+    manual: "Manual",
+    fallback: "Fallback",
+    missing: "Missing",
+    example: "Sample"
+  };
+  return labels[key] || "Unverified";
+}
+
+function traceStatusClass(status) {
+  const key = String(status || "").toLowerCase();
+  if (isTrueDataTrace({ status: key })) return "verified";
+  if (key === "example") return "example";
+  return "fallback";
 }
 
 function renderModels() {

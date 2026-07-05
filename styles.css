@@ -155,12 +155,17 @@ h2 {
   justify-content: space-between;
   gap: 10px;
   width: 100%;
-  border: 0;
   padding: 12px;
   color: var(--text);
   text-align: left;
   background: rgba(255, 255, 255, 0.045);
   cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.tournament-head::-webkit-details-marker {
+  display: none;
 }
 
 .tournament-head:hover {
@@ -168,7 +173,17 @@ h2 {
 }
 
 .tournament-title {
+  display: block;
   font-weight: 900;
+}
+
+.tournament-head-main {
+  display: block;
+  min-width: 0;
+}
+
+.tournament-head-main .model-meta {
+  display: block;
 }
 
 .tournament-head-actions {
@@ -189,8 +204,20 @@ h2 {
   background: rgba(255, 255, 255, 0.06);
 }
 
+.tournament-toggle-icon::before {
+  content: "+";
+}
+
+.tournament-group[open] .tournament-toggle-icon::before {
+  content: "-";
+}
+
 .tournament-matches {
   display: grid;
+}
+
+.tournament-group:not([open]) > .tournament-matches {
+  display: none;
 }
 
 .match-row {
@@ -257,6 +284,15 @@ h2 {
   background: rgba(120, 214, 111, 0.08);
   font-size: 0.7rem;
   font-weight: 850;
+}
+
+.match-tags span.data-badge-warning {
+  border-color: rgba(244, 201, 93, 0.38);
+  background: rgba(244, 201, 93, 0.1);
+}
+
+.match-tags span.data-badge-good {
+  border-color: rgba(120, 214, 111, 0.34);
 }
 
 .simulation-control {
@@ -744,6 +780,26 @@ select:focus {
   font-size: 0.92rem;
 }
 
+.player-stat-grid em {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.64rem;
+  font-style: normal;
+  font-weight: 820;
+}
+
+.player-stat-grid span.trace-fallback,
+.player-stat-grid span.trace-example {
+  border-color: rgba(244, 201, 93, 0.28);
+  background: rgba(244, 201, 93, 0.07);
+}
+
+.player-stat-grid span.trace-verified {
+  border-color: rgba(120, 214, 111, 0.28);
+  background: rgba(120, 214, 111, 0.07);
+}
+
 .player-raw {
   display: grid;
   gap: 4px;
@@ -883,6 +939,102 @@ select:focus {
   padding: 10px 12px;
   color: var(--muted);
   background: rgba(244, 201, 93, 0.08);
+}
+
+.data-trace {
+  margin-top: 12px;
+}
+
+.trace-panel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.trace-panel summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 11px 12px;
+  cursor: pointer;
+  list-style: none;
+  font-weight: 880;
+}
+
+.trace-panel summary::-webkit-details-marker {
+  display: none;
+}
+
+.trace-score {
+  border-radius: 999px;
+  padding: 4px 9px;
+  font-size: 0.74rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.trace-score.good {
+  color: var(--green);
+  background: rgba(120, 214, 111, 0.1);
+}
+
+.trace-score.warning {
+  color: var(--gold);
+  background: rgba(244, 201, 93, 0.1);
+}
+
+.trace-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  border-top: 1px solid var(--line);
+  padding: 10px;
+}
+
+.trace-item {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 9px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.trace-item.verified {
+  border-color: rgba(120, 214, 111, 0.28);
+  background: rgba(120, 214, 111, 0.07);
+}
+
+.trace-item.fallback,
+.trace-item.example {
+  border-color: rgba(244, 201, 93, 0.28);
+  background: rgba(244, 201, 93, 0.07);
+}
+
+.trace-label,
+.trace-source,
+.trace-item small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 780;
+}
+
+.trace-item strong {
+  display: block;
+  margin-top: 3px;
+  overflow-wrap: anywhere;
+  font-size: 0.9rem;
+}
+
+.trace-source {
+  margin-top: 4px;
+}
+
+.trace-item small {
+  margin-top: 3px;
+  line-height: 1.35;
 }
 
 .weight-card {
@@ -1042,6 +1194,10 @@ select:focus {
   }
 
   .parlay-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .trace-grid {
     grid-template-columns: 1fr;
   }
 

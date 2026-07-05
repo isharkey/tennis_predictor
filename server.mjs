@@ -219,6 +219,14 @@ function firstValue(item, keys) {
   return undefined;
 }
 
+function firstValueWithKey(item, keys) {
+  for (const key of keys) {
+    const value = valueAt(item, key);
+    if (value !== undefined && value !== null && value !== "") return { key, value };
+  }
+  return { key: "", value: undefined };
+}
+
 function nameOf(value, fallback = "") {
   if (value === undefined || value === null || value === "") return fallback;
   if (typeof value === "object") {
@@ -437,6 +445,39 @@ function buildLiveState(event, status) {
   };
 }
 
+function tracedNumber(event, keys, fallback, label) {
+  const found = firstValueWithKey(event, keys);
+  const number = Number(found.value);
+  if (Number.isFinite(number)) {
+    return {
+      value: number,
+      trace: traceEntry(label, number, "verified", `API field: ${found.key}`, "Value was present in the live match payload.")
+    };
+  }
+
+  return {
+    value: fallback,
+    trace: traceEntry(label, fallback, "fallback", "Neutral model fallback", "The live slate did not include this player stat.")
+  };
+}
+
+function traceEntry(label, value, status, source, note = "") {
+  return { label, value, status, source, note };
+}
+
+function buildDataQuality(trace) {
+  const entries = Object.values(trace || {});
+  const verified = entries.filter((entry) => ["verified", "manual", "inferred", "derived"].includes(entry.status)).length;
+  const fallback = entries.filter((entry) => ["fallback", "missing", "example"].includes(entry.status)).length;
+  const total = entries.length;
+  return {
+    verified,
+    fallback,
+    total,
+    score: total ? verified / total : 0
+  };
+}
+
 function normalizeEvent(event, index) {
   const playerA = playerName(event, "A");
   const playerB = playerName(event, "B");
@@ -462,6 +503,46 @@ function normalizeEvent(event, index) {
   const resultWinnerSide = winnerSide(event);
   const result = buildMatchResult(event, resultWinnerSide);
   const live = buildLiveState(event, status);
+  const rankA = tracedNumber(event, ["rankA", "playerARank", "homeRank", "homeTeam.ranking"], 50, "A rank");
+  const rankB = tracedNumber(event, ["rankB", "playerBRank", "awayRank", "awayTeam.ranking"], 50, "B rank");
+  const holdA = tracedNumber(event, ["holdA", "playerAHold", "homeHoldPct"], 80, "A hold %");
+  const holdB = tracedNumber(event, ["holdB", "playerBHold", "awayHoldPct"], 80, "B hold %");
+  const aceA = tracedNumber(event, ["aceA", "playerAAces", "homeAcesAvg"], 6, "A ace %");
+  const aceB = tracedNumber(event, ["aceB", "playerBAces", "awayAcesAvg"], 6, "B ace %");
+  const formA = tracedNumber(event, ["formA", "playerAForm", "homeForm"], 70, "A form");
+  const formB = tracedNumber(event, ["formB", "playerBForm", "awayForm"], 70, "B form");
+  const weatherFactor = tracedNumber(event, ["weatherFactor", "weather"], 0, "Weather");
+  const fatigueA = tracedNumber(event, ["fatigueA", "playerAFatigue", "homeFatigue"], 0, "A fatigue");
+  const fatigueB = tracedNumber(event, ["fatigueB", "playerBFatigue", "awayFatigue"], 0, "B fatigue");
+  const injuryA = tracedNumber(event, ["injuryA", "playerAInjury", "homeInjury"], 0, "A injury");
+  const injuryB = tracedNumber(event, ["injuryB", "playerBInjury", "awayInjury"], 0, "B injury");
+  const surfaceFound = firstValueWithKey(event, ["surface", "courtSurface", "groundType", "ground", "tournament.uniqueTournament.groundType"]);
+  const surface = normalizeSurface(surfaceFound.value);
+  const dataTrace = {
+    playerA: traceEntry("Player A", playerA, "verified", "API participant", "Player name came from the live match payload."),
+    playerB: traceEntry("Player B", playerB, "verified", "API participant", "Player name came from the live match payload."),
+    surface: traceEntry(
+      "Surface",
+      surface,
+      surfaceFound.key ? "verified" : "fallback",
+      surfaceFound.key ? `API field: ${surfaceFound.key}` : "Neutral model fallback",
+      surfaceFound.key ? "Surface was normalized from the event or tournament payload." : "The live slate did not include a surface, so Hard is used only as a model fallback."
+    ),
+    format: traceEntry("Format", inferredFormat, rawFormat ? "verified" : "inferred", rawFormat ? "API match format" : "Tournament rules", rawFormat ? "Best-of format came from the event payload." : "Best-of format was inferred from tour and tournament level."),
+    rankA: rankA.trace,
+    rankB: rankB.trace,
+    holdA: holdA.trace,
+    holdB: holdB.trace,
+    aceA: aceA.trace,
+    aceB: aceB.trace,
+    formA: formA.trace,
+    formB: formB.trace,
+    weatherFactor: weatherFactor.trace,
+    fatigueA: fatigueA.trace,
+    fatigueB: fatigueB.trace,
+    injuryA: injuryA.trace,
+    injuryB: injuryB.trace
+  };
 
   return {
     id: String(firstValue(event, ["id", "eventId", "matchId", "fixtureId"]) || slugify(`${tournament}-${playerA}-${playerB}-${index}`)),
@@ -482,21 +563,23 @@ function normalizeEvent(event, index) {
     actual: status.completed ? result : null,
     playerA,
     playerB,
-    surface: normalizeSurface(firstValue(event, ["surface", "courtSurface", "groundType", "ground", "tournament.uniqueTournament.groundType"])),
+    surface,
     format: String(inferredFormat),
-    rankA: numeric(firstValue(event, ["rankA", "playerARank", "homeRank", "homeTeam.ranking"]), 50),
-    rankB: numeric(firstValue(event, ["rankB", "playerBRank", "awayRank", "awayTeam.ranking"]), 50),
-    holdA: numeric(firstValue(event, ["holdA", "playerAHold", "homeHoldPct"]), 80),
-    holdB: numeric(firstValue(event, ["holdB", "playerBHold", "awayHoldPct"]), 80),
-    aceA: numeric(firstValue(event, ["aceA", "playerAAces", "homeAcesAvg"]), 6),
-    aceB: numeric(firstValue(event, ["aceB", "playerBAces", "awayAcesAvg"]), 6),
-    formA: numeric(firstValue(event, ["formA", "playerAForm", "homeForm"]), 70),
-    formB: numeric(firstValue(event, ["formB", "playerBForm", "awayForm"]), 70),
-    weatherFactor: numeric(firstValue(event, ["weatherFactor", "weather"]), 0),
-    fatigueA: numeric(firstValue(event, ["fatigueA", "playerAFatigue", "homeFatigue"]), 0),
-    fatigueB: numeric(firstValue(event, ["fatigueB", "playerBFatigue", "awayFatigue"]), 0),
-    injuryA: numeric(firstValue(event, ["injuryA", "playerAInjury", "homeInjury"]), 0),
-    injuryB: numeric(firstValue(event, ["injuryB", "playerBInjury", "awayInjury"]), 0)
+    rankA: rankA.value,
+    rankB: rankB.value,
+    holdA: holdA.value,
+    holdB: holdB.value,
+    aceA: aceA.value,
+    aceB: aceB.value,
+    formA: formA.value,
+    formB: formB.value,
+    weatherFactor: weatherFactor.value,
+    fatigueA: fatigueA.value,
+    fatigueB: fatigueB.value,
+    injuryA: injuryA.value,
+    injuryB: injuryB.value,
+    dataTrace,
+    dataQuality: buildDataQuality(dataTrace)
   };
 }
 
