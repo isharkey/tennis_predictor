@@ -6,8 +6,6 @@ import { extname, join, normalize } from "node:path";
 const root = process.cwd();
 const port = Number(process.env.PORT || 5177);
 const host = process.env.HOST || "0.0.0.0";
-const basicAuthUser = process.env.APP_BASIC_AUTH_USER || "";
-const basicAuthPassword = process.env.APP_BASIC_AUTH_PASSWORD || "";
 const defaultAllSportsHost = "tennisapi1.p.rapidapi.com";
 const defaultAllSportsBaseUrl = "https://tennisapi1.p.rapidapi.com";
 const allSportsBundleHost = "allsportsapi2.p.rapidapi.com";
@@ -87,11 +85,16 @@ function sendJson(response, statusCode, payload) {
 }
 
 function basicAuthEnabled() {
-  return Boolean(basicAuthUser && basicAuthPassword);
+  const env = readEnvFile();
+  return Boolean(env.APP_BASIC_AUTH_USER && env.APP_BASIC_AUTH_PASSWORD);
 }
 
 function authorized(request) {
   if (!basicAuthEnabled()) return true;
+
+  const env = readEnvFile();
+  const basicAuthUser = env.APP_BASIC_AUTH_USER || "";
+  const basicAuthPassword = env.APP_BASIC_AUTH_PASSWORD || "";
 
   const header = request.headers.authorization || "";
   if (!header.startsWith("Basic ")) return false;
