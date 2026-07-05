@@ -258,6 +258,7 @@ document.addEventListener("DOMContentLoaded", () => {
   bindControls();
   setDefaultSlateDate();
   preloadedMatches = normalizePreloadedMatches(SAMPLE_MATCHES);
+  applyLearnedProfilesToPreloadedMatches();
   selectFirstLoadedMatch(false);
   renderMatchBoard();
   runEnsemble();
@@ -436,6 +437,7 @@ async function loadPreloadedMatches(forceReload = false) {
     if (!loaded.length) return;
 
     preloadedMatches = loaded;
+    applyLearnedProfilesToPreloadedMatches();
     oddsRunCache = new Map();
     matchSlateMeta = extractMetaFromPayload(payload, loaded.length);
     if (!selectedMatchId || !preloadedMatches.some((match) => match.id === selectedMatchId)) {
@@ -535,7 +537,7 @@ function normalizePreloadedMatches(matches) {
     const actual = normalizeActualResult(match.actual || match.result || {}, winnerSide);
     const liveState = normalizeLiveState(match.liveState || match.live || {}, live, completed);
 
-    return {
+    const normalized = {
       id: match.id || `${slugify(playerA)}-${slugify(playerB)}-${index}`,
       tournament: match.tournament || "Loaded Matches",
       level: match.level || "ATP 250",
@@ -573,7 +575,236 @@ function normalizePreloadedMatches(matches) {
       fallbackInputCount: Number(match.fallbackInputCount ?? 0),
       predictionEligible: match.predictionEligible !== false
     };
+    normalized.baseStats = {
+      rankA: normalized.rankA,
+      rankB: normalized.rankB,
+      holdA: normalized.holdA,
+      holdB: normalized.holdB,
+      aceA: normalized.aceA,
+      aceB: normalized.aceB,
+      formA: normalized.formA,
+      formB: normalized.formB,
+      fatigueA: normalized.fatigueA,
+      fatigueB: normalized.fatigueB,
+      injuryA: normalized.injuryA,
+      injuryB: normalized.injuryB
+    };
+    return normalized;
   });
+}
+
+function playerProfileKey(name) {
+  return String(name || "").trim().toLowerCase();
+}
+
+function usableHistoryMetric(match, key, fallbackValue) {
+  const value = Number(match?.[key]);
+  if (!Number.isFinite(value)) return false;
+
+  const quality = match?.inputQuality?.[key]?.quality;
+  if (quality === "fallback") return false;
+  if (quality === "direct" || quality === "derived") return true;
+  return value !== fallbackValue;
+}
+
+function needsLearnedMetric(match, key, fallbackValue) {
+  const value = Number(match?.[key]);
+  const quality = match?.inputQuality?.[key]?.quality;
+  if (!Number.isFinite(value)) return true;
+  if (quality === "fallback") return true;
+  if (quality === "direct" || quality === "derived") return false;
+  return value === fallbackValue;
+}
+
+function averagePair(total, count, fallback) {
+  return count ? total / count : fallback;
+}
+
+function playerLearningProfileFromHistory(history) {
+  const profiles = new Map();
+  const metricFallbacks = {
+    rank: 50,
+    hold: 80,
+    ace: 6,
+    form: 70,
+    fatigue: 0,
+    injury: 0
+  };
+
+  function ensureProfile(name) {
+    const key = playerProfileKey(name);
+    if (!key) return null;
+    if (!profiles.has(key)) {
+      profiles.set(key, {
+        name,
+        rankTotal: 0,
+        rankCount: 0,
+        holdTotal: 0,
+        holdCount: 0,
+        aceTotal: 0,
+        aceCount: 0,
+        formTotal: 0,
+        formCount: 0,
+        fatigueTotal: 0,
+        fatigueCount: 0,
+        injuryTotal: 0,
+        injuryCount: 0,
+        wins: 0,
+        played: 0
+      });
+    }
+    return profiles.get(key);
+  }
+
+  (Array.isArray(history) ? history : []).forEach((entry) => {
+    const match = entry?.match;
+    if (!match?.playerA || !match?.playerB) return;
+
+    const players = [
+      {
+        profile: ensureProfile(match.playerA),
+        winnerCode: "A",
+        rankKey: "rankA",
+        holdKey: "holdA",
+        aceKey: "aceA",
+        formKey: "formA",
+        fatigueKey: "fatigueA",
+        injuryKey: "injuryA"
+      },
+      {
+        profile: ensureProfile(match.playerB),
+        winnerCode: "B",
+        rankKey: "rankB",
+        holdKey: "holdB",
+        aceKey: "aceB",
+        formKey: "formB",
+        fatigueKey: "fatigueB",
+        injuryKey: "injuryB"
+      }
+    ];
+
+    players.forEach((player) => {
+      const profile = player.profile;
+      if (!profile) return;
+
+      if (usableHistoryMetric(match, player.rankKey, metricFallbacks.rank)) {
+        profile.rankTotal += Number(match[player.rankKey]);
+        profile.rankCount += 1;
+      }
+      if (usableHistoryMetric(match, player.holdKey, metricFallbacks.hold)) {
+        profile.holdTotal += Number(match[player.holdKey]);
+        profile.holdCount += 1;
+      }
+      if (usableHistoryMetric(match, player.aceKey, metricFallbacks.ace)) {
+        profile.aceTotal += Number(match[player.aceKey]);
+        profile.aceCount += 1;
+      }
+      if (usableHistoryMetric(match, player.formKey, metricFallbacks.form)) {
+        profile.formTotal += Number(match[player.formKey]);
+        profile.formCount += 1;
+      }
+      if (usableHistoryMetric(match, player.fatigueKey, metricFallbacks.fatigue)) {
+        profile.fatigueTotal += Number(match[player.fatigueKey]);
+        profile.fatigueCount += 1;
+      }
+      if (usableHistoryMetric(match, player.injuryKey, metricFallbacks.injury)) {
+        profile.injuryTotal += Number(match[player.injuryKey]);
+        profile.injuryCount += 1;
+      }
+
+      const winner = entry?.actual?.winner;
+      if (winner === "A" || winner === "B") {
+        profile.played += 1;
+        if (winner === player.winnerCode) profile.wins += 1;
+      }
+    });
+  });
+
+  const learned = new Map();
+  profiles.forEach((profile, key) => {
+    const winRateForm = profile.played ? (profile.wins / profile.played) * 100 : null;
+    const historicalForm = averagePair(profile.formTotal, profile.formCount, null);
+    const blendedForm = Number.isFinite(historicalForm) && Number.isFinite(winRateForm)
+      ? historicalForm * 0.6 + winRateForm * 0.4
+      : (Number.isFinite(historicalForm) ? historicalForm : winRateForm);
+
+    learned.set(key, {
+      rank: averagePair(profile.rankTotal, profile.rankCount, null),
+      hold: averagePair(profile.holdTotal, profile.holdCount, null),
+      ace: averagePair(profile.aceTotal, profile.aceCount, null),
+      form: Number.isFinite(blendedForm) ? blendedForm : null,
+      fatigue: averagePair(profile.fatigueTotal, profile.fatigueCount, null),
+      injury: averagePair(profile.injuryTotal, profile.injuryCount, null)
+    });
+  });
+
+  return learned;
+}
+
+function applyLearnedProfilesToPreloadedMatches() {
+  const learnedProfiles = playerLearningProfileFromHistory(state.history || []);
+  let changed = false;
+
+  preloadedMatches = preloadedMatches.map((match) => {
+    const baseStats = match.baseStats || {
+      rankA: Number(match.rankA ?? 50),
+      rankB: Number(match.rankB ?? 50),
+      holdA: Number(match.holdA ?? 80),
+      holdB: Number(match.holdB ?? 80),
+      aceA: Number(match.aceA ?? 6),
+      aceB: Number(match.aceB ?? 6),
+      formA: Number(match.formA ?? 70),
+      formB: Number(match.formB ?? 70),
+      fatigueA: Number(match.fatigueA ?? 0),
+      fatigueB: Number(match.fatigueB ?? 0),
+      injuryA: Number(match.injuryA ?? 0),
+      injuryB: Number(match.injuryB ?? 0)
+    };
+    const next = { ...match, ...baseStats, baseStats };
+
+    const sideConfigs = [
+      {
+        profile: learnedProfiles.get(playerProfileKey(match.playerA)),
+        rankKey: "rankA",
+        holdKey: "holdA",
+        aceKey: "aceA",
+        formKey: "formA",
+        fatigueKey: "fatigueA",
+        injuryKey: "injuryA"
+      },
+      {
+        profile: learnedProfiles.get(playerProfileKey(match.playerB)),
+        rankKey: "rankB",
+        holdKey: "holdB",
+        aceKey: "aceB",
+        formKey: "formB",
+        fatigueKey: "fatigueB",
+        injuryKey: "injuryB"
+      }
+    ];
+
+    sideConfigs.forEach((side) => {
+      if (!side.profile || match.completed) return;
+
+      if (needsLearnedMetric(next, side.rankKey, 50) && Number.isFinite(side.profile.rank)) next[side.rankKey] = side.profile.rank;
+      if (needsLearnedMetric(next, side.holdKey, 80) && Number.isFinite(side.profile.hold)) next[side.holdKey] = side.profile.hold;
+      if (needsLearnedMetric(next, side.aceKey, 6) && Number.isFinite(side.profile.ace)) next[side.aceKey] = side.profile.ace;
+      if (needsLearnedMetric(next, side.formKey, 70) && Number.isFinite(side.profile.form)) next[side.formKey] = side.profile.form;
+      if (needsLearnedMetric(next, side.fatigueKey, 0) && Number.isFinite(side.profile.fatigue)) next[side.fatigueKey] = side.profile.fatigue;
+      if (needsLearnedMetric(next, side.injuryKey, 0) && Number.isFinite(side.profile.injury)) next[side.injuryKey] = side.profile.injury;
+    });
+
+    const changedForMatch = [
+      "rankA", "rankB", "holdA", "holdB", "aceA", "aceB",
+      "formA", "formB", "fatigueA", "fatigueB", "injuryA", "injuryB"
+    ].some((key) => Number(next[key]) !== Number(match[key]));
+    if (changedForMatch) changed = true;
+    return next;
+  });
+
+  const selected = preloadedMatches.find((match) => match.id === selectedMatchId);
+  if (selected) loadMatchIntoForm(selected);
+  if (changed) oddsRunCache = new Map();
 }
 
 function normalizeWinnerSide(value) {
@@ -2756,6 +2987,7 @@ async function saveActualResult() {
   });
   state.history = state.history.slice(0, HISTORY_LIMIT);
   persistState();
+  applyLearnedProfilesToPreloadedMatches();
 
   runOrQueueEnsemble();
   renderHistory();
@@ -2943,6 +3175,7 @@ function processAutoLearningChunk() {
   state.autoScoredMatchIds = Array.from(new Set(state.autoScoredMatchIds)).slice(0, AUTO_SCORED_LIMIT);
   state.history = state.history.slice(0, HISTORY_LIMIT);
   persistState();
+  applyLearnedProfilesToPreloadedMatches();
 
   const remaining = unlearnedFinishedMatches().length;
   autoLearningMessage = remaining
@@ -3032,6 +3265,10 @@ function clearHistory() {
   state.learningEvents = [];
   autoLearningMessage = "";
   persistState();
+  applyLearnedProfilesToPreloadedMatches();
+  runOrQueueEnsemble();
+  renderMatchBoard();
+  renderPlayerData();
   renderHistory();
   renderLearning();
 }
@@ -3040,7 +3277,10 @@ function resetLearning() {
   state = { performance: cloneDefaultPerformance(), history: [], autoScoredMatchIds: [], learningEvents: [] };
   autoLearningMessage = "";
   persistState();
+  applyLearnedProfilesToPreloadedMatches();
   runOrQueueEnsemble();
+  renderMatchBoard();
+  renderPlayerData();
   renderLearning();
   renderHistory();
 }
