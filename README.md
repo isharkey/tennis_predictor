@@ -419,6 +419,7 @@ The browser app loads matches from `matches_preload.json` on startup. Each match
 The app sorts and groups the slate by tournament, time, and level. Tap any match row to load it into the prediction form and rebuild the ensemble/parlay output.
 
 Use the date picker and `Refresh Live` button in the app to pull the full daily tennis slate through the local server. The browser calls `/api/refresh-slate`, the server requests the AllSportsAPI Tennis daily slate, and `matches_preload.json` is replaced with the API slate. The RapidAPI key stays in `.env` on the computer and is never sent to the phone/browser.
+The refresh response now also returns player-profile pull diagnostics (requested, loaded, provider-level errors) plus input-quality summary counts so you can quickly confirm if your stat templates are filling or falling back.
 
 The app also builds a `Players` tab from the loaded slate. It shows:
 
@@ -631,6 +632,12 @@ ALLSPORTS_TENNIS_RAPIDAPI_BASE_URL=https://tennisapi1.p.rapidapi.com
 ALLSPORTS_TENNIS_PLAYER_STATS_PATH_TEMPLATE=
 # Optional quota guard for historical pulls per refresh.
 ALLSPORTS_TENNIS_PLAYER_STATS_MAX_PULLS=40
+# Optional SofaScore season stats template for per-player enrichment.
+# Example: /player/statistics/seasons?player_id={playerId}
+SOFASCORE_PLAYER_STATS_PATH_TEMPLATE=
+# Optional JJRM365 player stats template for secondary enrichment.
+# Example: /tennis/v2/extend/api/player/{playerId}/stats
+JJRM365_TENNIS_PLAYER_STATS_PATH_TEMPLATE=
 ```
 
 Then refresh the app slate:
@@ -640,7 +647,15 @@ python tennis_match_slate_loader.py --allsports-date 2026-07-03 --raw-output raw
 ```
 
 The loader follows the documented daily tennis recipe: find the categories with play that day, then fetch each category's events and merge/dedupe them into `matches_preload.json`.
-If `ALLSPORTS_TENNIS_PLAYER_STATS_PATH_TEMPLATE` is configured, `/api/refresh-slate` also requests each player's historical profile and uses those values before falling back to the three-year baseline averages.
+For player enrichment, `/api/refresh-slate` uses this stack:
+
+1. AllSports daily schedule + event metadata
+2. SofaScore per-player season stats (if `SOFASCORE_PLAYER_STATS_PATH_TEMPLATE` is configured)
+3. JJRM365 per-player stats (if `JJRM365_TENNIS_PLAYER_STATS_PATH_TEMPLATE` is configured)
+4. AllSports per-player stats (if `ALLSPORTS_TENNIS_PLAYER_STATS_PATH_TEMPLATE` is configured)
+5. Three-year surface/tour baseline fallback
+
+Within each match, every modeled input is tagged as direct event data, derived profile data, or baseline fallback. Matches are marked `predictionEligible=false` when both players are fallback for any key stat family (`hold`, `ace`, or `form`), so low-quality inputs can be gated out.
 The live mapper now also checks broader nested aliases (for example `statistics.home.*`, `homeTeam.statistics.*`, `statistics.away.*`) for hold, aces, form, weather, and fatigue so fewer matches stay on generic defaults.
 
 ### LiveScore6

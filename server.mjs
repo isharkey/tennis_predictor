@@ -10,6 +10,10 @@ const defaultAllSportsHost = "tennisapi1.p.rapidapi.com";
 const defaultAllSportsBaseUrl = "https://tennisapi1.p.rapidapi.com";
 const allSportsBundleHost = "allsportsapi2.p.rapidapi.com";
 const allSportsBundleBaseUrl = "https://allsportsapi2.p.rapidapi.com";
+const defaultSofaScoreHost = "sofascore6.p.rapidapi.com";
+const defaultSofaScoreBaseUrl = "https://sofascore6.p.rapidapi.com/api/sofascore/v1";
+const defaultJjrmHost = "tennis-api-atp-wta-itf.p.rapidapi.com";
+const defaultJjrmBaseUrl = "https://tennis-api-atp-wta-itf.p.rapidapi.com";
 const defaultSlateTimeZone = process.env.SLATE_TIME_ZONE || "America/New_York";
 const levelPriority = {
   "Grand Slam": 1,
@@ -192,7 +196,8 @@ function allSportsSourceCandidates(env) {
 }
 
 async function fetchAllSportsJson(path, source) {
-  const apiResponse = await fetch(`${source.baseUrl}${path}`, {
+  const targetUrl = /^https?:\/\//i.test(path) ? path : `${source.baseUrl}${path}`;
+  const apiResponse = await fetch(targetUrl, {
     headers: {
       "Content-Type": "application/json",
       "X-RapidAPI-Key": source.apiKey,
@@ -208,6 +213,52 @@ async function fetchAllSportsJson(path, source) {
   }
 
   return body ? JSON.parse(body) : {};
+}
+
+function configuredPlayerProfileSources(env, allSportsSource) {
+  const profileSources = [];
+  const allSportsTemplate = (
+    env.ALLSPORTS_TENNIS_PLAYER_STATS_PATH_TEMPLATE
+    || env.ALLSPORTS_TENNIS_PLAYER_STATS_PATH
+    || ""
+  ).trim();
+  if (allSportsTemplate) {
+    profileSources.push({
+      provider: "allsports",
+      pathTemplate: allSportsTemplate,
+      source: allSportsSource
+    });
+  }
+
+  const sofascoreTemplate = (env.SOFASCORE_PLAYER_STATS_PATH_TEMPLATE || "").trim();
+  const sofascoreKey = env.SOFASCORE_RAPIDAPI_KEY || env.RAPIDAPI_KEY || env.ALLSPORTS_TENNIS_RAPIDAPI_KEY;
+  if (sofascoreTemplate && sofascoreKey) {
+    profileSources.push({
+      provider: "sofascore",
+      pathTemplate: sofascoreTemplate,
+      source: {
+        apiKey: sofascoreKey,
+        rapidHost: env.SOFASCORE_RAPIDAPI_HOST || defaultSofaScoreHost,
+        baseUrl: (env.SOFASCORE_RAPIDAPI_BASE_URL || defaultSofaScoreBaseUrl).replace(/\/$/, "")
+      }
+    });
+  }
+
+  const jjrmTemplate = (env.JJRM365_TENNIS_PLAYER_STATS_PATH_TEMPLATE || "").trim();
+  const jjrmKey = env.JJRM365_TENNIS_RAPIDAPI_KEY || env.RAPIDAPI_KEY || env.ALLSPORTS_TENNIS_RAPIDAPI_KEY;
+  if (jjrmTemplate && jjrmKey) {
+    profileSources.push({
+      provider: "jjrm365",
+      pathTemplate: jjrmTemplate,
+      source: {
+        apiKey: jjrmKey,
+        rapidHost: env.JJRM365_TENNIS_RAPIDAPI_HOST || defaultJjrmHost,
+        baseUrl: (env.JJRM365_TENNIS_RAPIDAPI_BASE_URL || defaultJjrmBaseUrl).replace(/\/$/, "")
+      }
+    });
+  }
+
+  return profileSources;
 }
 
 async function fetchAllSportsJsonWithFallback(path, env) {
@@ -345,6 +396,26 @@ function playerId(event, side) {
   return "";
 }
 
+function playerProviderId(event, side, provider) {
+  if (provider === "sofascore") {
+    const keys = side === "A"
+      ? ["playerASofaScoreId", "homePlayerSofaScoreId", "homeTeam.sofascoreId", "home.sofascoreId", "participant1.sofascoreId", "competitor1.sofascoreId"]
+      : ["playerBSofaScoreId", "awayPlayerSofaScoreId", "awayTeam.sofascoreId", "away.sofascoreId", "participant2.sofascoreId", "competitor2.sofascoreId"];
+    const value = firstValue(event, keys);
+    if (value !== undefined && value !== null && value !== "") return String(value);
+  }
+
+  if (provider === "jjrm365") {
+    const keys = side === "A"
+      ? ["playerAJjrmId", "homePlayerJjrmId", "homeTeam.jjrmId", "home.jjrmId", "participant1.jjrmId", "competitor1.jjrmId"]
+      : ["playerBJjrmId", "awayPlayerJjrmId", "awayTeam.jjrmId", "away.jjrmId", "participant2.jjrmId", "competitor2.jjrmId"];
+    const value = firstValue(event, keys);
+    if (value !== undefined && value !== null && value !== "") return String(value);
+  }
+
+  return playerId(event, side);
+}
+
 function flattenNumericStats(value, prefix = "", output = {}) {
   if (Array.isArray(value)) {
     value.forEach((item, index) => flattenNumericStats(item, `${prefix}[${index}]`, output));
@@ -431,8 +502,29 @@ function extractLivePlayerProfile(payload) {
     hold: Number.isFinite(holdRate) ? holdRate * 100 : null,
     ace: Number.isFinite(ace) ? ace : null,
     form: Number.isFinite(formRate) ? formRate * 100 : null,
-    fatigue: Number.isFinite(fatigue) ? fatigue : null
+    fatigue: Number.isFinite(fatigue) ? fatigue : null,
+    sourceByField: {}
   };
+}
+
+function emptyLiveProfile() {
+  return {
+    rank: null,
+    hold: null,
+    ace: null,
+    form: null,
+    fatigue: null,
+    sourceByField: {}
+  };
+}
+
+function mergeLiveProfile(target, incoming, provider) {
+  ["rank", "hold", "ace", "form", "fatigue"].forEach((fieldName) => {
+    if (Number.isFinite(incoming[fieldName]) && !Number.isFinite(target[fieldName])) {
+      target[fieldName] = incoming[fieldName];
+      target.sourceByField[fieldName] = provider;
+    }
+  });
 }
 
 function formatPlayerStatsPath(pathTemplate, currentPlayerId) {
@@ -446,57 +538,97 @@ function formatPlayerStatsPath(pathTemplate, currentPlayerId) {
 }
 
 async function fetchPlayerStatProfiles(events, env, apiSource) {
-  const pathTemplate = (
-    env.ALLSPORTS_TENNIS_PLAYER_STATS_PATH_TEMPLATE
-    || env.ALLSPORTS_TENNIS_PLAYER_STATS_PATH
-    || defaultPlayerStatsPathTemplate
-  ).trim();
-  if (!pathTemplate) {
-    return { profiles: new Map(), configured: false, errors: [], requestedCount: 0, loadedCount: 0 };
+  const profileSources = configuredPlayerProfileSources(env, apiSource);
+  if (!profileSources.length) {
+    return {
+      profiles: new Map(),
+      configured: false,
+      errors: [],
+      requestedCount: 0,
+      loadedCount: 0,
+      providers: []
+    };
   }
-
   const maxPullsRaw = Number.parseInt(env.ALLSPORTS_TENNIS_PLAYER_STATS_MAX_PULLS || "", 10);
   const maxPulls = Number.isFinite(maxPullsRaw) && maxPullsRaw > 0 ? maxPullsRaw : defaultPlayerStatsMaxPulls;
-  const ids = [];
-  const seenIds = new Set();
-
-  events.forEach((event) => {
-    [playerId(event, "A"), playerId(event, "B")].forEach((id) => {
-      if (!id || seenIds.has(id)) return;
-      seenIds.add(id);
-      ids.push(id);
-    });
-  });
 
   const errors = [];
   const profiles = new Map();
-  const idsToLoad = ids.slice(0, maxPulls);
-  for (const id of idsToLoad) {
-    try {
-      const payload = await fetchAllSportsJson(formatPlayerStatsPath(pathTemplate, id), apiSource);
-      const profile = extractLivePlayerProfile(payload);
-      if ([profile.rank, profile.hold, profile.ace, profile.form, profile.fatigue].some((value) => Number.isFinite(value))) {
-        profiles.set(id, profile);
+  const providers = [];
+  const providerPriority = ["sofascore", "jjrm365", "allsports"];
+
+  for (const providerName of providerPriority) {
+    const profileSource = profileSources.find((candidate) => candidate.provider === providerName);
+    if (!profileSource) continue;
+
+    const providerSeenIds = new Set();
+    const requests = [];
+    events.forEach((event) => {
+      ["A", "B"].forEach((side) => {
+        const canonicalId = playerId(event, side) || slugify(`${playerName(event, side)}-${side}`);
+        const providerId = playerProviderId(event, side, providerName);
+        if (!providerId) return;
+        const dedupeKey = `${canonicalId}|${providerId}`;
+        if (providerSeenIds.has(dedupeKey)) return;
+        providerSeenIds.add(dedupeKey);
+        requests.push({ canonicalId, providerId });
+      });
+    });
+
+    const requestsToLoad = requests.slice(0, maxPulls);
+    const providerErrors = [];
+    let loadedCount = 0;
+
+    for (const request of requestsToLoad) {
+      try {
+        const payload = await fetchAllSportsJson(
+          formatPlayerStatsPath(profileSource.pathTemplate, request.providerId),
+          profileSource.source
+        );
+        const profile = extractLivePlayerProfile(payload);
+        if ([profile.rank, profile.hold, profile.ace, profile.form, profile.fatigue].some((value) => Number.isFinite(value))) {
+          const existing = profiles.get(request.canonicalId) || emptyLiveProfile();
+          const before = JSON.stringify(existing);
+          mergeLiveProfile(existing, profile, providerName);
+          profiles.set(request.canonicalId, existing);
+          if (JSON.stringify(existing) !== before) loadedCount += 1;
+        }
+      } catch (error) {
+        const errorRecord = { provider: providerName, playerId: request.providerId, canonicalId: request.canonicalId, error: error.message };
+        providerErrors.push(errorRecord);
+        errors.push(errorRecord);
       }
-    } catch (error) {
-      errors.push({ playerId: id, error: error.message });
     }
+
+    providers.push({
+      provider: providerName,
+      host: profileSource.source.rapidHost,
+      configured: true,
+      requestedCount: requestsToLoad.length,
+      loadedCount,
+      errorCount: providerErrors.length
+    });
   }
 
   return {
     profiles,
     configured: true,
     errors,
-    requestedCount: idsToLoad.length,
-    loadedCount: profiles.size
+    requestedCount: providers.reduce((sum, provider) => sum + provider.requestedCount, 0),
+    loadedCount: profiles.size,
+    providers
   };
 }
 
-function resolveStatValue(event, keys, liveValue, fallback) {
+function resolveStatValue(event, keys, liveValue, fallback, sourceHint = "") {
   const rawValue = firstValue(event, keys);
-  if (rawValue !== undefined && rawValue !== null && rawValue !== "") return numeric(rawValue, fallback);
-  if (Number.isFinite(liveValue)) return liveValue;
-  return fallback;
+  if (rawValue !== undefined && rawValue !== null && rawValue !== "") {
+    return { value: numeric(rawValue, fallback), quality: "direct", detail: "event" };
+  }
+  if (Number.isFinite(liveValue)) {
+    return { value: liveValue, quality: "derived", detail: sourceHint || "player_profile" };
+  }
+  return { value: fallback, quality: "fallback", detail: "historical_baseline" };
 }
 
 function playerName(event, side) {
@@ -686,8 +818,109 @@ function normalizeEvent(event, index, liveProfiles) {
   const live = buildLiveState(event, status);
   const surface = normalizeSurface(firstValue(event, ["surface", "courtSurface", "groundType", "ground", "tournament.uniqueTournament.groundType"]));
   const statProfile = historicalStatProfile(level, tour, surface);
-  const liveProfileA = liveProfiles.get(playerId(event, "A")) || {};
-  const liveProfileB = liveProfiles.get(playerId(event, "B")) || {};
+  const liveProfileA = liveProfiles.get(playerId(event, "A")) || emptyLiveProfile();
+  const liveProfileB = liveProfiles.get(playerId(event, "B")) || emptyLiveProfile();
+  const rankAInfo = resolveStatValue(event, ["rankA", "playerARank", "homeRank", "homeTeam.ranking"], liveProfileA.rank, statProfile.rank, liveProfileA.sourceByField.rank);
+  const rankBInfo = resolveStatValue(event, ["rankB", "playerBRank", "awayRank", "awayTeam.ranking"], liveProfileB.rank, statProfile.rank, liveProfileB.sourceByField.rank);
+  const holdAInfo = resolveStatValue(event, [
+    "holdA",
+    "playerAHold",
+    "homeHoldPct",
+    "homeTeam.holdPct",
+    "homeTeam.statistics.holdPct",
+    "homeTeam.statistics.serviceGamesWonPercentage",
+    "home.stats.serviceGamesWonPercentage",
+    "statistics.home.serviceGamesWonPercentage"
+  ], liveProfileA.hold, statProfile.hold, liveProfileA.sourceByField.hold);
+  const holdBInfo = resolveStatValue(event, [
+    "holdB",
+    "playerBHold",
+    "awayHoldPct",
+    "awayTeam.holdPct",
+    "awayTeam.statistics.holdPct",
+    "awayTeam.statistics.serviceGamesWonPercentage",
+    "away.stats.serviceGamesWonPercentage",
+    "statistics.away.serviceGamesWonPercentage"
+  ], liveProfileB.hold, statProfile.hold, liveProfileB.sourceByField.hold);
+  const aceAInfo = resolveStatValue(event, [
+    "aceA",
+    "playerAAces",
+    "homeAcesAvg",
+    "homeAces",
+    "homeTeam.statistics.acesPerMatch",
+    "home.stats.acesPerMatch",
+    "statistics.home.acesPerMatch"
+  ], liveProfileA.ace, statProfile.ace, liveProfileA.sourceByField.ace);
+  const aceBInfo = resolveStatValue(event, [
+    "aceB",
+    "playerBAces",
+    "awayAcesAvg",
+    "awayAces",
+    "awayTeam.statistics.acesPerMatch",
+    "away.stats.acesPerMatch",
+    "statistics.away.acesPerMatch"
+  ], liveProfileB.ace, statProfile.ace, liveProfileB.sourceByField.ace);
+  const formAInfo = resolveStatValue(event, [
+    "formA",
+    "playerAForm",
+    "homeForm",
+    "homeTeam.form",
+    "homeTeam.statistics.form",
+    "homeTeam.statistics.recentWinPercentage",
+    "home.stats.recentWinPercentage",
+    "statistics.home.recentWinPercentage"
+  ], liveProfileA.form, statProfile.form, liveProfileA.sourceByField.form);
+  const formBInfo = resolveStatValue(event, [
+    "formB",
+    "playerBForm",
+    "awayForm",
+    "awayTeam.form",
+    "awayTeam.statistics.form",
+    "awayTeam.statistics.recentWinPercentage",
+    "away.stats.recentWinPercentage",
+    "statistics.away.recentWinPercentage"
+  ], liveProfileB.form, statProfile.form, liveProfileB.sourceByField.form);
+  const fatigueAInfo = resolveStatValue(event, [
+    "fatigueA",
+    "playerAFatigue",
+    "homeFatigue",
+    "homeTeam.fatigue",
+    "homeTeam.statistics.fatigue",
+    "home.stats.fatigue",
+    "statistics.home.fatigue"
+  ], liveProfileA.fatigue, 0, liveProfileA.sourceByField.fatigue);
+  const fatigueBInfo = resolveStatValue(event, [
+    "fatigueB",
+    "playerBFatigue",
+    "awayFatigue",
+    "awayTeam.fatigue",
+    "awayTeam.statistics.fatigue",
+    "away.stats.fatigue",
+    "statistics.away.fatigue"
+  ], liveProfileB.fatigue, 0, liveProfileB.sourceByField.fatigue);
+  const injuryAInfo = resolveStatValue(event, ["injuryA", "playerAInjury", "homeInjury"], null, 0);
+  const injuryBInfo = resolveStatValue(event, ["injuryB", "playerBInjury", "awayInjury"], null, 0);
+  const keyStatsMissingBothPlayers = ["hold", "ace", "form"].filter((key) => (
+    key === "hold" ? holdAInfo.quality === "fallback" && holdBInfo.quality === "fallback"
+      : key === "ace" ? aceAInfo.quality === "fallback" && aceBInfo.quality === "fallback"
+        : formAInfo.quality === "fallback" && formBInfo.quality === "fallback"
+  ));
+  const inputQuality = {
+    rankA: rankAInfo,
+    rankB: rankBInfo,
+    holdA: holdAInfo,
+    holdB: holdBInfo,
+    aceA: aceAInfo,
+    aceB: aceBInfo,
+    formA: formAInfo,
+    formB: formBInfo,
+    fatigueA: fatigueAInfo,
+    fatigueB: fatigueBInfo,
+    injuryA: injuryAInfo,
+    injuryB: injuryBInfo
+  };
+  const fallbackInputCount = Object.values(inputQuality).filter((entry) => entry.quality === "fallback").length;
+  const predictionEligible = keyStatsMissingBothPlayers.length === 0;
 
   return {
     id: String(firstValue(event, ["id", "eventId", "matchId", "fixtureId"]) || slugify(`${tournament}-${playerA}-${playerB}-${index}`)),
@@ -710,66 +943,14 @@ function normalizeEvent(event, index, liveProfiles) {
     playerB,
     surface,
     format: String(inferredFormat),
-    rankA: resolveStatValue(event, ["rankA", "playerARank", "homeRank", "homeTeam.ranking"], liveProfileA.rank, statProfile.rank),
-    rankB: resolveStatValue(event, ["rankB", "playerBRank", "awayRank", "awayTeam.ranking"], liveProfileB.rank, statProfile.rank),
-    holdA: resolveStatValue(event, [
-      "holdA",
-      "playerAHold",
-      "homeHoldPct",
-      "homeTeam.holdPct",
-      "homeTeam.statistics.holdPct",
-      "homeTeam.statistics.serviceGamesWonPercentage",
-      "home.stats.serviceGamesWonPercentage",
-      "statistics.home.serviceGamesWonPercentage"
-    ], liveProfileA.hold, statProfile.hold),
-    holdB: resolveStatValue(event, [
-      "holdB",
-      "playerBHold",
-      "awayHoldPct",
-      "awayTeam.holdPct",
-      "awayTeam.statistics.holdPct",
-      "awayTeam.statistics.serviceGamesWonPercentage",
-      "away.stats.serviceGamesWonPercentage",
-      "statistics.away.serviceGamesWonPercentage"
-    ], liveProfileB.hold, statProfile.hold),
-    aceA: resolveStatValue(event, [
-      "aceA",
-      "playerAAces",
-      "homeAcesAvg",
-      "homeAces",
-      "homeTeam.statistics.acesPerMatch",
-      "home.stats.acesPerMatch",
-      "statistics.home.acesPerMatch"
-    ], liveProfileA.ace, statProfile.ace),
-    aceB: resolveStatValue(event, [
-      "aceB",
-      "playerBAces",
-      "awayAcesAvg",
-      "awayAces",
-      "awayTeam.statistics.acesPerMatch",
-      "away.stats.acesPerMatch",
-      "statistics.away.acesPerMatch"
-    ], liveProfileB.ace, statProfile.ace),
-    formA: resolveStatValue(event, [
-      "formA",
-      "playerAForm",
-      "homeForm",
-      "homeTeam.form",
-      "homeTeam.statistics.form",
-      "homeTeam.statistics.recentWinPercentage",
-      "home.stats.recentWinPercentage",
-      "statistics.home.recentWinPercentage"
-    ], liveProfileA.form, statProfile.form),
-    formB: resolveStatValue(event, [
-      "formB",
-      "playerBForm",
-      "awayForm",
-      "awayTeam.form",
-      "awayTeam.statistics.form",
-      "awayTeam.statistics.recentWinPercentage",
-      "away.stats.recentWinPercentage",
-      "statistics.away.recentWinPercentage"
-    ], liveProfileB.form, statProfile.form),
+    rankA: rankAInfo.value,
+    rankB: rankBInfo.value,
+    holdA: holdAInfo.value,
+    holdB: holdBInfo.value,
+    aceA: aceAInfo.value,
+    aceB: aceBInfo.value,
+    formA: formAInfo.value,
+    formB: formBInfo.value,
     weatherFactor: numeric(firstValue(event, [
       "weatherFactor",
       "weather",
@@ -778,26 +959,35 @@ function normalizeEvent(event, index, liveProfiles) {
       "venue.weatherFactor",
       "environment.weatherFactor"
     ]), 0),
-    fatigueA: resolveStatValue(event, [
-      "fatigueA",
-      "playerAFatigue",
-      "homeFatigue",
-      "homeTeam.fatigue",
-      "homeTeam.statistics.fatigue",
-      "home.stats.fatigue",
-      "statistics.home.fatigue"
-    ], liveProfileA.fatigue, 0),
-    fatigueB: resolveStatValue(event, [
-      "fatigueB",
-      "playerBFatigue",
-      "awayFatigue",
-      "awayTeam.fatigue",
-      "awayTeam.statistics.fatigue",
-      "away.stats.fatigue",
-      "statistics.away.fatigue"
-    ], liveProfileB.fatigue, 0),
-    injuryA: numeric(firstValue(event, ["injuryA", "playerAInjury", "homeInjury"]), 0),
-    injuryB: numeric(firstValue(event, ["injuryB", "playerBInjury", "awayInjury"]), 0)
+    fatigueA: fatigueAInfo.value,
+    fatigueB: fatigueBInfo.value,
+    injuryA: injuryAInfo.value,
+    injuryB: injuryBInfo.value,
+    inputQuality,
+    missingKeyStats: keyStatsMissingBothPlayers,
+    fallbackInputCount,
+    predictionEligible
+  };
+}
+
+function summarizeInputQuality(matches) {
+  const missingBothPlayersByStat = { hold: 0, ace: 0, form: 0 };
+  let predictionEligibleCount = 0;
+  let fallbackInputTotal = 0;
+
+  matches.forEach((match) => {
+    if (match.predictionEligible) predictionEligibleCount += 1;
+    fallbackInputTotal += Number(match.fallbackInputCount || 0);
+    (match.missingKeyStats || []).forEach((stat) => {
+      if (stat in missingBothPlayersByStat) missingBothPlayersByStat[stat] += 1;
+    });
+  });
+
+  return {
+    predictionEligibleCount,
+    predictionGatedCount: matches.length - predictionEligibleCount,
+    averageFallbackInputsPerMatch: matches.length ? Number((fallbackInputTotal / matches.length).toFixed(2)) : 0,
+    missingBothPlayersByStat
   };
 }
 
@@ -849,6 +1039,7 @@ async function fetchDailyTennisSlate(date, options = {}) {
       || new Date(a.startTime) - new Date(b.startTime)
       || a.tournament.localeCompare(b.tournament)
     ));
+  const inputQualitySummary = summarizeInputQuality(matches);
 
   const payload = {
     source: `AllSportsAPI Tennis live slate (${apiSource.rapidHost})`,
@@ -866,6 +1057,8 @@ async function fetchDailyTennisSlate(date, options = {}) {
     playerStatPullsConfigured: playerStatProfiles.configured,
     playerStatPullsRequested: playerStatProfiles.requestedCount,
     playerStatProfilesLoaded: playerStatProfiles.loadedCount,
+    playerStatProviders: playerStatProfiles.providers,
+    inputQualitySummary,
     partialErrors,
     matches
   };
@@ -914,7 +1107,13 @@ async function handleRefreshSlate(url, response) {
       filteredOutCount: payload.filteredOutCount ?? null,
       timeZone: payload.timeZone ?? null,
       source: payload.source ?? "Live slate",
-      generatedAt: payload.generatedAt ?? new Date().toISOString()
+      generatedAt: payload.generatedAt ?? new Date().toISOString(),
+      playerStatPullsConfigured: payload.playerStatPullsConfigured ?? false,
+      playerStatPullsRequested: payload.playerStatPullsRequested ?? 0,
+      playerStatProfilesLoaded: payload.playerStatProfilesLoaded ?? 0,
+      playerStatProviders: payload.playerStatProviders ?? [],
+      partialErrorCount: Array.isArray(payload.partialErrors) ? payload.partialErrors.length : 0,
+      inputQualitySummary: payload.inputQualitySummary ?? null
     });
   } catch (error) {
     sendJson(response, 500, {

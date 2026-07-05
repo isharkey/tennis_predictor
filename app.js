@@ -406,7 +406,15 @@ async function refreshLiveSlate(options = {}) {
 
     await loadPreloadedMatches(true);
     if (isAuto) rememberAutoRefreshedSlate(date);
-    if (meta) meta.textContent = `${result.source} - ${result.count} total - updated ${formatSlateDate(result.generatedAt)}`;
+    if (meta) {
+      const profileStatus = result.playerStatPullsConfigured
+        ? ` - profiles ${result.playerStatProfilesLoaded}/${result.playerStatPullsRequested}`
+        : " - profiles disabled";
+      const errorStatus = Number(result.partialErrorCount) > 0 ? ` - ${result.partialErrorCount} pull errors` : "";
+      const gated = Number(result.inputQualitySummary?.predictionGatedCount ?? 0);
+      const qualityStatus = result.inputQualitySummary ? ` - gated ${gated}` : "";
+      meta.textContent = `${result.source} - ${result.count} total${profileStatus}${qualityStatus}${errorStatus} - updated ${formatSlateDate(result.generatedAt)}`;
+    }
   } catch (error) {
     await loadPreloadedMatches(true);
     if (meta) meta.textContent = `Live refresh failed: ${error.message}`;
@@ -559,7 +567,11 @@ function normalizePreloadedMatches(matches) {
       fatigueA: Number(match.fatigueA ?? 0),
       fatigueB: Number(match.fatigueB ?? 0),
       injuryA: Number(match.injuryA ?? 0),
-      injuryB: Number(match.injuryB ?? 0)
+      injuryB: Number(match.injuryB ?? 0),
+      inputQuality: match.inputQuality || null,
+      missingKeyStats: Array.isArray(match.missingKeyStats) ? match.missingKeyStats : [],
+      fallbackInputCount: Number(match.fallbackInputCount ?? 0),
+      predictionEligible: match.predictionEligible !== false
     };
   });
 }
