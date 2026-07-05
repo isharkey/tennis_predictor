@@ -532,7 +532,7 @@ GET /api/tennis/calendar/{day}/{month}/{year}/categories
 GET /api/tennis/category/{category_id}/events/{day}/{month}/{year}
 ```
 
-The loader accepts flexible field names like `playerA`, `playerB`, `homeTeam`, `awayTeam`, `tournament`, `level`, `surface`, `startTime`, and common API alternatives. Missing model stats fall back to safe defaults until we map exact player-stat fields from the live API.
+The loader accepts flexible field names like `playerA`, `playerB`, `homeTeam`, `awayTeam`, `tournament`, `level`, `surface`, `startTime`, and common API alternatives. Missing model stats now use this order: direct event stats, optional per-player live historical pulls (when configured), then surface/tour-specific three-year historical averages (rank, hold, ace, and form) as the final fallback.
 
 ## Live Data API
 
@@ -626,6 +626,11 @@ The app also supports the AllSportsAPI Tennis RapidAPI source. Add this to `.env
 ALLSPORTS_TENNIS_RAPIDAPI_KEY=your_key_here
 ALLSPORTS_TENNIS_RAPIDAPI_HOST=tennisapi1.p.rapidapi.com
 ALLSPORTS_TENNIS_RAPIDAPI_BASE_URL=https://tennisapi1.p.rapidapi.com
+# Optional per-player history endpoint path template.
+# Example endpoint shape: /api/tennis/player/{playerId}/statistics
+ALLSPORTS_TENNIS_PLAYER_STATS_PATH_TEMPLATE=
+# Optional quota guard for historical pulls per refresh.
+ALLSPORTS_TENNIS_PLAYER_STATS_MAX_PULLS=40
 ```
 
 Then refresh the app slate:
@@ -635,6 +640,8 @@ python tennis_match_slate_loader.py --allsports-date 2026-07-03 --raw-output raw
 ```
 
 The loader follows the documented daily tennis recipe: find the categories with play that day, then fetch each category's events and merge/dedupe them into `matches_preload.json`.
+If `ALLSPORTS_TENNIS_PLAYER_STATS_PATH_TEMPLATE` is configured, `/api/refresh-slate` also requests each player's historical profile and uses those values before falling back to the three-year baseline averages.
+The live mapper now also checks broader nested aliases (for example `statistics.home.*`, `homeTeam.statistics.*`, `statistics.away.*`) for hold, aces, form, weather, and fatigue so fewer matches stay on generic defaults.
 
 ### LiveScore6
 
