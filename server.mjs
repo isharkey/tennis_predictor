@@ -12,6 +12,8 @@ const defaultAllSportsHost = "tennisapi1.p.rapidapi.com";
 const defaultAllSportsBaseUrl = "https://tennisapi1.p.rapidapi.com";
 const allSportsBundleHost = "allsportsapi2.p.rapidapi.com";
 const allSportsBundleBaseUrl = "https://allsportsapi2.p.rapidapi.com";
+const defaultSofaScoreHost = "sofascore6.p.rapidapi.com";
+const defaultSofaScoreBaseUrl = "https://sofascore6.p.rapidapi.com/api/sofascore/v1";
 const defaultSlateTimeZone = process.env.SLATE_TIME_ZONE || "America/New_York";
 const levelPriority = {
   "Grand Slam": 1,
@@ -50,12 +52,100 @@ function localNetworkUrls() {
     .map((network) => `http://${network.address}:${port}`);
 }
 
+function applySofaDerivedStat(current, derivedValue, label, playerIdValue, note) {
+  if (!current || current.trace?.status !== "fallback" || !Number.isFinite(derivedValue)) return current;
+  return {
+    value: derivedValue,
+    trace: traceEntry(
+      label,
+      derivedValue,
+      "derived",
+      `SofaScore /player/statistics/seasons player_id=${playerIdValue}`,
+      note
+    )
+  };
+}
+
+async function runWithConcurrency(items, limit, worker) {
+  const queue = [...items];
+  const workers = [];
+  const size = Math.max(1, limit);
+
+  for (let index = 0; index < size; index += 1) {
+    workers.push((async () => {
+      while (queue.length) {
+        const item = queue.shift();
+        if (item === undefined) continue;
+        await worker(item);
+      }
+    })());
+  }
+
+  await Promise.all(workers);
+}
+
+async function buildSofaScorePlayerStatsMap(events, env) {
+  const source = sofaScoreSourceCandidate(env);
+  if (!source) {
+    return {
+      playerStatsById: new Map(),
+      metadata: {
+        enabled: false,
+        reason: "Missing SOFASCORE_RAPIDAPI_KEY (or RAPIDAPI_KEY) in .env."
+      }
+    };
+  }
+
+  const allPlayerIds = [...new Set(
+    events.flatMap((event) => [playerId(event, "A"), playerId(event, "B")].filter((id) => id !== null))
+  )];
+  const configuredLimit = Number(env.SOFASCORE_SLATE_MAX_PLAYERS);
+  const maxPlayers = Number.isFinite(configuredLimit) && configuredLimit > 0
+    ? Math.floor(configuredLimit)
+    : 80;
+  const idsToFetch = allPlayerIds.slice(0, maxPlayers);
+  const playerStatsById = new Map();
+  const errors = [];
+
+  await runWithConcurrency(idsToFetch, 4, async (currentPlayerId) => {
+    try {
+      const payload = await fetchSofaScoreJson("/player/statistics/seasons", { player_id: currentPlayerId }, source);
+      playerStatsById.set(currentPlayerId, extractSofaScorePlayerStats(payload));
+    } catch (error) {
+      errors.push({
+        playerId: currentPlayerId,
+        error: error.message
+      });
+    }
+  });
+
+  return {
+    playerStatsById,
+    metadata: {
+      enabled: true,
+      source: `SofaScore (${source.rapidHost})`,
+      totalPlayerIdsSeen: allPlayerIds.length,
+      playerIdsRequested: idsToFetch.length,
+      playerIdsFetched: playerStatsById.size,
+      playerIdsFailed: errors.length,
+      requestLimited: idsToFetch.length < allPlayerIds.length,
+      requestLimit: maxPlayers,
+      errors: errors.slice(0, 25)
+    }
+  };
+}
+
 function sendJson(response, statusCode, payload) {
   response.writeHead(statusCode, {
     "content-type": "application/json; charset=utf-8",
     "cache-control": "no-store"
   });
   response.end(JSON.stringify(payload, null, 2));
+}
+
+function round(value, digits = 2) {
+  const factor = 10 ** digits;
+  return Math.round(value * factor) / factor;
 }
 
 function basicAuthEnabled() {
@@ -154,6 +244,17 @@ function allSportsSourceCandidates(env) {
   });
 }
 
+function sofaScoreSourceCandidate(env) {
+  const apiKey = env.SOFASCORE_RAPIDAPI_KEY || env.RAPIDAPI_KEY || env.ALLSPORTS_TENNIS_RAPIDAPI_KEY;
+  if (!apiKey) return null;
+
+  return {
+    apiKey,
+    rapidHost: env.SOFASCORE_RAPIDAPI_HOST || defaultSofaScoreHost,
+    baseUrl: (env.SOFASCORE_RAPIDAPI_BASE_URL || defaultSofaScoreBaseUrl).replace(/\/$/, "")
+  };
+}
+
 async function fetchAllSportsJson(path, source) {
   const apiResponse = await fetch(`${source.baseUrl}${path}`, {
     headers: {
@@ -173,6 +274,26 @@ async function fetchAllSportsJson(path, source) {
   return body ? JSON.parse(body) : {};
 }
 
+async function fetchSofaScoreJson(path, params, source) {
+  const query = params ? `?${new URLSearchParams(params).toString()}` : "";
+  const apiResponse = await fetch(`${source.baseUrl}${path}${query}`, {
+    headers: {
+      "Content-Type": "application/json",
+      "X-RapidAPI-Key": source.apiKey,
+      "X-RapidAPI-Host": source.rapidHost
+    }
+  });
+
+  if (apiResponse.status === 204) return {};
+
+  const body = await apiResponse.text();
+  if (!apiResponse.ok) {
+    throw new Error(`SofaScore ${apiResponse.status}: ${body.slice(0, 300)}`);
+  }
+
+  return body ? JSON.parse(body) : {};
+}
+
 async function fetchAllSportsJsonWithFallback(path, env) {
   const errors = [];
 
@@ -186,6 +307,87 @@ async function fetchAllSportsJsonWithFallback(path, env) {
   }
 
   throw new Error(errors.join(" | "));
+}
+
+function flattenNumericStats(value, path = "", output = {}) {
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => {
+      flattenNumericStats(item, `${path}[${index}]`, output);
+    });
+    return output;
+  }
+
+  if (value && typeof value === "object") {
+    Object.entries(value).forEach(([key, child]) => {
+      flattenNumericStats(child, path ? `${path}.${key}` : key, output);
+    });
+    return output;
+  }
+
+  if (typeof value === "number" && Number.isFinite(value)) {
+    output[path] = value;
+  }
+  return output;
+}
+
+function normalizeStatToken(value) {
+  return String(value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function findFirstNumeric(flatStats, candidateNames) {
+  const candidates = candidateNames.map(normalizeStatToken);
+  for (const [key, value] of Object.entries(flatStats)) {
+    if (!Number.isFinite(value)) continue;
+    const normalizedKey = normalizeStatToken(key);
+    if (candidates.some((candidate) => normalizedKey.includes(candidate))) {
+      return value;
+    }
+  }
+  return null;
+}
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function normalizePercentStat(value) {
+  if (!Number.isFinite(value)) return null;
+  const raw = Number(value);
+  const percent = raw <= 1 ? raw * 100 : raw;
+  return clamp(percent, 0, 100);
+}
+
+function deriveFormPercent(flatStats) {
+  const direct = normalizePercentStat(findFirstNumeric(flatStats, [
+    "formPercentage",
+    "recentWinPercentage",
+    "winRate",
+    "matchWinPercentage",
+    "recentForm"
+  ]));
+  if (Number.isFinite(direct)) return direct;
+
+  const wins = findFirstNumeric(flatStats, ["matchesWon", "wonMatches", "wins", "victories"]);
+  const losses = findFirstNumeric(flatStats, ["matchesLost", "lostMatches", "losses", "defeats"]);
+  if (Number.isFinite(wins) && Number.isFinite(losses) && wins + losses > 0) {
+    return clamp((wins / (wins + losses)) * 100, 0, 100);
+  }
+
+  return null;
+}
+
+function extractSofaScorePlayerStats(payload) {
+  const flatStats = flattenNumericStats(payload);
+  return {
+    rank: findFirstNumeric(flatStats, ["worldRanking", "atpRanking", "wtaRanking", "ranking", "rank"]),
+    holdPct: normalizePercentStat(findFirstNumeric(flatStats, [
+      "serviceGamesWonPercentage",
+      "holdPercentage",
+      "holdPct"
+    ])),
+    acesAvg: findFirstNumeric(flatStats, ["acesPerMatch", "averageAces", "acesAvg"]),
+    formPct: deriveFormPercent(flatStats)
+  };
 }
 
 function extractList(payload, keys) {
@@ -295,6 +497,55 @@ function playerName(event, side) {
   const participants = firstValue(event, ["participants", "competitors", "players"]);
   if (Array.isArray(participants)) return nameOf(participants[side === "A" ? 0 : 1]);
   return "";
+}
+
+function playerId(event, side) {
+  const index = side === "A" ? 0 : 1;
+  const keys = side === "A"
+    ? [
+      "playerAId",
+      "homePlayerId",
+      "homeTeamId",
+      "participant1Id",
+      "competitor1Id",
+      "team1Id",
+      "playerA.id",
+      "homePlayer.id",
+      "homePlayer.player.id",
+      "homePlayer.playerId",
+      "homeTeam.id",
+      "homeTeam.player.id",
+      "homeTeam.playerId"
+    ]
+    : [
+      "playerBId",
+      "awayPlayerId",
+      "awayTeamId",
+      "participant2Id",
+      "competitor2Id",
+      "team2Id",
+      "playerB.id",
+      "awayPlayer.id",
+      "awayPlayer.player.id",
+      "awayPlayer.playerId",
+      "awayTeam.id",
+      "awayTeam.player.id",
+      "awayTeam.playerId"
+    ];
+  const indexedKeys = [
+    `participants.${index}.id`,
+    `participants.${index}.player.id`,
+    `participants.${index}.playerId`,
+    `players.${index}.id`,
+    `players.${index}.player.id`,
+    `players.${index}.playerId`,
+    `competitors.${index}.id`,
+    `competitors.${index}.player.id`,
+    `competitors.${index}.playerId`
+  ];
+  const found = firstValue(event, [...keys, ...indexedKeys]);
+  const number = Number(found);
+  return Number.isFinite(number) && number > 0 ? Math.trunc(number) : null;
 }
 
 function startTime(value) {
@@ -478,10 +729,14 @@ function buildDataQuality(trace) {
   };
 }
 
-function normalizeEvent(event, index) {
+function normalizeEvent(event, index, context = {}) {
   const playerA = playerName(event, "A");
   const playerB = playerName(event, "B");
   if (!playerA || !playerB) return null;
+  const playerAId = playerId(event, "A");
+  const playerBId = playerId(event, "B");
+  const sofaStatsA = playerAId ? context.playerStatsById?.get(playerAId) : null;
+  const sofaStatsB = playerBId ? context.playerStatsById?.get(playerBId) : null;
 
   const tournament = nameOf(firstValue(event, [
     "tournament",
@@ -503,19 +758,76 @@ function normalizeEvent(event, index) {
   const resultWinnerSide = winnerSide(event);
   const result = buildMatchResult(event, resultWinnerSide);
   const live = buildLiveState(event, status);
-  const rankA = tracedNumber(event, ["rankA", "playerARank", "homeRank", "homeTeam.ranking"], 50, "A rank");
-  const rankB = tracedNumber(event, ["rankB", "playerBRank", "awayRank", "awayTeam.ranking"], 50, "B rank");
-  const holdA = tracedNumber(event, ["holdA", "playerAHold", "homeHoldPct"], 80, "A hold %");
-  const holdB = tracedNumber(event, ["holdB", "playerBHold", "awayHoldPct"], 80, "B hold %");
-  const aceA = tracedNumber(event, ["aceA", "playerAAces", "homeAcesAvg"], 6, "A ace %");
-  const aceB = tracedNumber(event, ["aceB", "playerBAces", "awayAcesAvg"], 6, "B ace %");
-  const formA = tracedNumber(event, ["formA", "playerAForm", "homeForm"], 70, "A form");
-  const formB = tracedNumber(event, ["formB", "playerBForm", "awayForm"], 70, "B form");
+  let rankA = tracedNumber(event, ["rankA", "playerARank", "homeRank", "homeTeam.ranking"], 50, "A rank");
+  let rankB = tracedNumber(event, ["rankB", "playerBRank", "awayRank", "awayTeam.ranking"], 50, "B rank");
+  let holdA = tracedNumber(event, ["holdA", "playerAHold", "homeHoldPct"], 80, "A hold %");
+  let holdB = tracedNumber(event, ["holdB", "playerBHold", "awayHoldPct"], 80, "B hold %");
+  let aceA = tracedNumber(event, ["aceA", "playerAAces", "homeAcesAvg"], 6, "A ace %");
+  let aceB = tracedNumber(event, ["aceB", "playerBAces", "awayAcesAvg"], 6, "B ace %");
+  let formA = tracedNumber(event, ["formA", "playerAForm", "homeForm"], 70, "A form");
+  let formB = tracedNumber(event, ["formB", "playerBForm", "awayForm"], 70, "B form");
   const weatherFactor = tracedNumber(event, ["weatherFactor", "weather"], 0, "Weather");
   const fatigueA = tracedNumber(event, ["fatigueA", "playerAFatigue", "homeFatigue"], 0, "A fatigue");
   const fatigueB = tracedNumber(event, ["fatigueB", "playerBFatigue", "awayFatigue"], 0, "B fatigue");
   const injuryA = tracedNumber(event, ["injuryA", "playerAInjury", "homeInjury"], 0, "A injury");
   const injuryB = tracedNumber(event, ["injuryB", "playerBInjury", "awayInjury"], 0, "B injury");
+
+  rankA = applySofaDerivedStat(
+    rankA,
+    Number.isFinite(sofaStatsA?.rank) ? Math.max(1, Math.round(sofaStatsA.rank)) : null,
+    "A rank",
+    playerAId,
+    "Ranking was derived from SofaScore player season statistics."
+  );
+  rankB = applySofaDerivedStat(
+    rankB,
+    Number.isFinite(sofaStatsB?.rank) ? Math.max(1, Math.round(sofaStatsB.rank)) : null,
+    "B rank",
+    playerBId,
+    "Ranking was derived from SofaScore player season statistics."
+  );
+  holdA = applySofaDerivedStat(
+    holdA,
+    Number.isFinite(sofaStatsA?.holdPct) ? round(sofaStatsA.holdPct, 2) : null,
+    "A hold %",
+    playerAId,
+    "Hold percentage was derived from SofaScore player season statistics."
+  );
+  holdB = applySofaDerivedStat(
+    holdB,
+    Number.isFinite(sofaStatsB?.holdPct) ? round(sofaStatsB.holdPct, 2) : null,
+    "B hold %",
+    playerBId,
+    "Hold percentage was derived from SofaScore player season statistics."
+  );
+  aceA = applySofaDerivedStat(
+    aceA,
+    Number.isFinite(sofaStatsA?.acesAvg) ? round(clamp(sofaStatsA.acesAvg, 0, 25), 2) : null,
+    "A ace %",
+    playerAId,
+    "Aces average was derived from SofaScore player season statistics."
+  );
+  aceB = applySofaDerivedStat(
+    aceB,
+    Number.isFinite(sofaStatsB?.acesAvg) ? round(clamp(sofaStatsB.acesAvg, 0, 25), 2) : null,
+    "B ace %",
+    playerBId,
+    "Aces average was derived from SofaScore player season statistics."
+  );
+  formA = applySofaDerivedStat(
+    formA,
+    Number.isFinite(sofaStatsA?.formPct) ? Math.round(sofaStatsA.formPct) : null,
+    "A form",
+    playerAId,
+    "Form was derived from SofaScore player season statistics."
+  );
+  formB = applySofaDerivedStat(
+    formB,
+    Number.isFinite(sofaStatsB?.formPct) ? Math.round(sofaStatsB.formPct) : null,
+    "B form",
+    playerBId,
+    "Form was derived from SofaScore player season statistics."
+  );
   const surfaceFound = firstValueWithKey(event, ["surface", "courtSurface", "groundType", "ground", "tournament.uniqueTournament.groundType"]);
   const surface = normalizeSurface(surfaceFound.value);
   const dataTrace = {
@@ -621,8 +933,9 @@ async function fetchDailyTennisSlate(date, options = {}) {
   const dateMatchedEvents = events.filter((event) => eventLocalDate(event, timeZone) === date);
   const usedDateEndpointFallback = !dateMatchedEvents.length && events.length > 0;
   const eventsForDate = usedDateEndpointFallback ? events : dateMatchedEvents;
+  const sofaScoreEnrichment = await buildSofaScorePlayerStatsMap(eventsForDate, env);
   const matches = eventsForDate
-    .map((event, index) => normalizeEvent(event, index))
+    .map((event, index) => normalizeEvent(event, index, sofaScoreEnrichment))
     .filter(Boolean)
     .sort((a, b) => (
       (levelPriority[a.level] ?? 99) - (levelPriority[b.level] ?? 99)
@@ -643,11 +956,16 @@ async function fetchDailyTennisSlate(date, options = {}) {
     filteredOutCount: events.length - eventsForDate.length,
     count: matches.length,
     partialErrors: categoryErrors,
+    sofaScore: sofaScoreEnrichment.metadata,
     matches
   };
 
   mkdirSync(join(root, "api_cache"), { recursive: true });
-  writeFileSync(join(root, "api_cache", `raw_allsports_tennis_${date}.json`), JSON.stringify({ categories, events, eventsForDate, categoryErrors }, null, 2), "utf-8");
+  writeFileSync(
+    join(root, "api_cache", `raw_allsports_tennis_${date}.json`),
+    JSON.stringify({ categories, events, eventsForDate, categoryErrors, sofaScore: sofaScoreEnrichment.metadata }, null, 2),
+    "utf-8"
+  );
   writeFileSync(join(root, "matches_preload.json"), JSON.stringify(payload, null, 2), "utf-8");
   return payload;
 }
@@ -686,6 +1004,7 @@ async function handleRefreshSlate(url, response) {
       filteredOutCount: payload.filteredOutCount ?? null,
       timeZone: payload.timeZone ?? null,
       source: payload.source ?? "Live slate",
+      sofaScore: payload.sofaScore ?? null,
       generatedAt: payload.generatedAt ?? new Date().toISOString()
     });
   } catch (error) {

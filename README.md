@@ -418,7 +418,7 @@ The browser app loads matches from `matches_preload.json` on startup. Each match
 
 The app sorts and groups the slate by tournament, time, and level. Tap any match row to load it into the prediction form and rebuild the ensemble/parlay output.
 
-Use the date picker and `Refresh Live` button in the app to pull the full daily tennis slate through the local server. The browser calls `/api/refresh-slate`, the server requests the AllSportsAPI Tennis daily slate, and `matches_preload.json` is replaced with the API slate. The RapidAPI key stays in `.env` on the computer and is never sent to the phone/browser.
+Use the date picker and `Refresh Live` button in the app to pull the full daily tennis slate through the local server. The browser calls `/api/refresh-slate`, the server requests the AllSportsAPI Tennis daily slate, then enriches missing player stats with SofaScore season stats (`/player/statistics/seasons`) when a player ID and SofaScore API key are available. `matches_preload.json` is then replaced with the merged slate. The RapidAPI key stays in `.env` on the computer and is never sent to the phone/browser.
 
 The app also builds a `Players` tab from the loaded slate. It shows:
 
@@ -553,7 +553,10 @@ Then add your RapidAPI key:
 ```env
 SOFASCORE_RAPIDAPI_KEY=your_key_here
 SOFASCORE_RAPIDAPI_HOST=sofascore6.p.rapidapi.com
+SOFASCORE_SLATE_MAX_PLAYERS=80
 ```
+
+`SOFASCORE_SLATE_MAX_PLAYERS` controls how many unique player IDs each live refresh asks SofaScore for before writing `matches_preload.json`.
 
 Run the API example:
 
