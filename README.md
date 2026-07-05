@@ -421,6 +421,15 @@ The app sorts and groups the slate by tournament, time, and level. Tap any match
 Use the date picker and `Refresh Live` button in the app to pull the full daily tennis slate through the local server. The browser calls `/api/refresh-slate`, the server requests the AllSportsAPI Tennis daily slate, and `matches_preload.json` is replaced with the API slate. The RapidAPI key stays in `.env` on the computer and is never sent to the phone/browser.
 The refresh response now also returns player-profile pull diagnostics (requested, loaded, provider-level errors) plus input-quality summary counts so you can quickly confirm if your stat templates are filling or falling back.
 
+To extract simulation inputs from Tennis API5 matchstats, call:
+
+```bash
+curl --request GET \
+  --url http://localhost:5177/api/prediction-inputs/1bzfuxixo2zag1dtamgosppkug/f4j7peetmjtvpq0rn5lnem0ic
+```
+
+Set `TENNIS_API5_RAPIDAPI_KEY` (or `RAPIDAPI_KEY`) in `.env`. The response includes both `extracted` raw stat values and `simulationInputs` with model-safe defaults when the source is missing any field.
+
 The app also builds a `Players` tab from the loaded slate. It shows:
 
 - selected-match player cards

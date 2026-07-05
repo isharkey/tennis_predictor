@@ -14,6 +14,8 @@ const defaultSofaScoreHost = "sofascore6.p.rapidapi.com";
 const defaultSofaScoreBaseUrl = "https://sofascore6.p.rapidapi.com/api/sofascore/v1";
 const defaultJjrmHost = "tennis-api-atp-wta-itf.p.rapidapi.com";
 const defaultJjrmBaseUrl = "https://tennis-api-atp-wta-itf.p.rapidapi.com";
+const defaultTennisApi5Host = "tennis-api5.p.rapidapi.com";
+const defaultTennisApi5BaseUrl = "https://tennis-api5.p.rapidapi.com";
 const defaultSlateTimeZone = process.env.SLATE_TIME_ZONE || "America/New_York";
 const levelPriority = {
   "Grand Slam": 1,
@@ -214,6 +216,42 @@ async function fetchAllSportsJson(path, source) {
   return body ? JSON.parse(body) : {};
 }
 
+function tennisApi5Source(env) {
+  const apiKey = env.TENNIS_API5_RAPIDAPI_KEY
+    || env.RAPIDAPI_KEY
+    || env.ALLSPORTS_TENNIS_RAPIDAPI_KEY
+    || env.SOFASCORE_RAPIDAPI_KEY;
+  if (!apiKey) {
+    throw new Error("Missing TENNIS_API5_RAPIDAPI_KEY or RAPIDAPI_KEY in .env.");
+  }
+
+  return {
+    apiKey,
+    rapidHost: env.TENNIS_API5_RAPIDAPI_HOST || defaultTennisApi5Host,
+    baseUrl: (env.TENNIS_API5_RAPIDAPI_BASE_URL || defaultTennisApi5BaseUrl).replace(/\/$/, "")
+  };
+}
+
+async function fetchTennisApi5Json(path, source) {
+  const targetUrl = resolveApiUrl(path, source.baseUrl);
+  const apiResponse = await fetch(targetUrl, {
+    headers: {
+      "Content-Type": "application/json",
+      "X-RapidAPI-Key": source.apiKey,
+      "X-RapidAPI-Host": source.rapidHost
+    }
+  });
+
+  if (apiResponse.status === 204) return {};
+
+  const body = await apiResponse.text();
+  if (!apiResponse.ok) {
+    throw new Error(`Tennis API5 ${apiResponse.status}: ${body.slice(0, 300)}`);
+  }
+
+  return body ? JSON.parse(body) : {};
+}
+
 function resolveApiUrl(path, baseUrl) {
   return /^https?:\/\//i.test(path) ? path : `${baseUrl}${path}`;
 }
@@ -335,6 +373,173 @@ function slugify(value) {
 function numeric(value, fallback) {
   const number = Number(value);
   return Number.isFinite(number) ? number : fallback;
+}
+
+function numericLoose(value) {
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+    if (trimmed.includes("/") || trimmed.includes(":")) return null;
+    const match = trimmed.replace(/,/g, "").match(/-?\d+(\.\d+)?/);
+    if (!match) return null;
+    const number = Number(match[0]);
+    return Number.isFinite(number) ? number : null;
+  }
+  return null;
+}
+
+function firstNumericValue(item, keys) {
+  for (const key of keys) {
+    const parsed = numericLoose(valueAt(item, key));
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return null;
+}
+
+function statPairFromContainer(container) {
+  const sideAKeys = ["home", "playerA", "player1", "competitor1", "participant1", "team1", "first", "left", "a", "value1", "p1"];
+  const sideBKeys = ["away", "playerB", "player2", "competitor2", "participant2", "team2", "second", "right", "b", "value2", "p2"];
+  let a = firstNumericValue(container, sideAKeys);
+  let b = firstNumericValue(container, sideBKeys);
+
+  const values = valueAt(container, "values");
+  if ((!Number.isFinite(a) || !Number.isFinite(b)) && Array.isArray(values) && values.length >= 2) {
+    if (!Number.isFinite(a)) a = numericLoose(values[0]);
+    if (!Number.isFinite(b)) b = numericLoose(values[1]);
+  }
+
+  return { a, b };
+}
+
+function findStatPairByLabel(payload, labels) {
+  const queue = [payload];
+
+  while (queue.length) {
+    const current = queue.shift();
+    if (!current || typeof current !== "object") continue;
+
+    if (Array.isArray(current)) {
+      current.forEach((entry) => queue.push(entry));
+      continue;
+    }
+
+    const label = nameOf(firstValue(current, ["name", "label", "title", "key", "type", "slug"]), "").toLowerCase();
+    if (label && labels.some((target) => label.includes(target))) {
+      const pair = statPairFromContainer(current);
+      if (Number.isFinite(pair.a) || Number.isFinite(pair.b)) return pair;
+    }
+
+    Object.values(current).forEach((value) => {
+      if (value && typeof value === "object") queue.push(value);
+    });
+  }
+
+  return { a: null, b: null };
+}
+
+function mergeStatPairs(primary, secondary) {
+  return {
+    a: Number.isFinite(primary.a) ? primary.a : secondary.a,
+    b: Number.isFinite(primary.b) ? primary.b : secondary.b
+  };
+}
+
+function extractPredictionSimulationInputs(payload) {
+  const playerA = nameOf(firstValue(payload, [
+    "homeTeam.name",
+    "home.name",
+    "playerA",
+    "player1.name",
+    "competitor1.name",
+    "participants.0.name"
+  ]), "Player A");
+  const playerB = nameOf(firstValue(payload, [
+    "awayTeam.name",
+    "away.name",
+    "playerB",
+    "player2.name",
+    "competitor2.name",
+    "participants.1.name"
+  ]), "Player B");
+
+  const rankPair = mergeStatPairs(
+    {
+      a: firstNumericValue(payload, ["homeRank", "rankA", "home.rank", "homeTeam.rank", "homeTeam.ranking", "statistics.home.rank"]),
+      b: firstNumericValue(payload, ["awayRank", "rankB", "away.rank", "awayTeam.rank", "awayTeam.ranking", "statistics.away.rank"])
+    },
+    findStatPairByLabel(payload, ["rank", "ranking"])
+  );
+  const holdPair = mergeStatPairs(
+    {
+      a: firstNumericValue(payload, ["holdA", "homeHoldPct", "home.holdPct", "statistics.home.serviceGamesWonPercentage", "homeTeam.statistics.serviceGamesWonPercentage"]),
+      b: firstNumericValue(payload, ["holdB", "awayHoldPct", "away.holdPct", "statistics.away.serviceGamesWonPercentage", "awayTeam.statistics.serviceGamesWonPercentage"])
+    },
+    findStatPairByLabel(payload, ["hold", "service games won", "service won"])
+  );
+  const acePair = mergeStatPairs(
+    {
+      a: firstNumericValue(payload, ["aceA", "homeAces", "home.aces", "statistics.home.acesPerMatch", "homeTeam.statistics.acesPerMatch"]),
+      b: firstNumericValue(payload, ["aceB", "awayAces", "away.aces", "statistics.away.acesPerMatch", "awayTeam.statistics.acesPerMatch"])
+    },
+    findStatPairByLabel(payload, ["aces", "ace"])
+  );
+  const formPair = mergeStatPairs(
+    {
+      a: firstNumericValue(payload, ["formA", "homeForm", "home.form", "statistics.home.form", "homeTeam.statistics.form"]),
+      b: firstNumericValue(payload, ["formB", "awayForm", "away.form", "statistics.away.form", "awayTeam.statistics.form"])
+    },
+    findStatPairByLabel(payload, ["form", "win %", "win percentage", "wins"])
+  );
+  const fatiguePair = mergeStatPairs(
+    {
+      a: firstNumericValue(payload, ["fatigueA", "homeFatigue", "home.fatigue", "statistics.home.fatigue"]),
+      b: firstNumericValue(payload, ["fatigueB", "awayFatigue", "away.fatigue", "statistics.away.fatigue"])
+    },
+    findStatPairByLabel(payload, ["fatigue", "rest"])
+  );
+  const injuryPair = mergeStatPairs(
+    {
+      a: firstNumericValue(payload, ["injuryA", "homeInjury", "home.injury", "statistics.home.injury"]),
+      b: firstNumericValue(payload, ["injuryB", "awayInjury", "away.injury", "statistics.away.injury"])
+    },
+    findStatPairByLabel(payload, ["injury"])
+  );
+
+  return {
+    playerA,
+    playerB,
+    extracted: {
+      rankA: rankPair.a,
+      rankB: rankPair.b,
+      holdA: holdPair.a,
+      holdB: holdPair.b,
+      aceA: acePair.a,
+      aceB: acePair.b,
+      formA: formPair.a,
+      formB: formPair.b,
+      fatigueA: fatiguePair.a,
+      fatigueB: fatiguePair.b,
+      injuryA: injuryPair.a,
+      injuryB: injuryPair.b
+    },
+    simulationInputs: {
+      playerA,
+      playerB,
+      rankA: Number.isFinite(rankPair.a) ? rankPair.a : 50,
+      rankB: Number.isFinite(rankPair.b) ? rankPair.b : 50,
+      holdA: Number.isFinite(holdPair.a) ? holdPair.a : 80,
+      holdB: Number.isFinite(holdPair.b) ? holdPair.b : 80,
+      aceA: Number.isFinite(acePair.a) ? acePair.a : 6,
+      aceB: Number.isFinite(acePair.b) ? acePair.b : 6,
+      formA: Number.isFinite(formPair.a) ? formPair.a : 70,
+      formB: Number.isFinite(formPair.b) ? formPair.b : 70,
+      fatigueA: Number.isFinite(fatiguePair.a) ? fatiguePair.a : 0,
+      fatigueB: Number.isFinite(fatiguePair.b) ? fatiguePair.b : 0,
+      injuryA: Number.isFinite(injuryPair.a) ? injuryPair.a : 0,
+      injuryB: Number.isFinite(injuryPair.b) ? injuryPair.b : 0
+    }
+  };
 }
 
 function normalizeSurface(value) {
@@ -1091,6 +1296,36 @@ async function handleRefreshSlate(url, response) {
     });
     return;
   }
+
+  async function handlePredictionInputs(primaryId, secondaryId, response) {
+    if (!primaryId || !secondaryId) {
+      sendJson(response, 400, {
+        ok: false,
+        error: "Both path IDs are required."
+      });
+      return;
+    }
+
+    try {
+      const env = readEnvFile();
+      const source = tennisApi5Source(env);
+      const path = `/matchstats/${encodeURIComponent(primaryId)}/${encodeURIComponent(secondaryId)}`;
+      const payload = await fetchTennisApi5Json(path, source);
+      const extracted = extractPredictionSimulationInputs(payload);
+
+      sendJson(response, 200, {
+        ok: true,
+        source: `Tennis API5 (${source.rapidHost})`,
+        path,
+        ...extracted
+      });
+    } catch (error) {
+      sendJson(response, 500, {
+        ok: false,
+        error: error.message
+      });
+    }
+  }
   if (maxCategoriesParam !== null && (!Number.isFinite(maxCategories) || maxCategories < 0)) {
     sendJson(response, 400, {
       ok: false,
@@ -1149,6 +1384,16 @@ createServer(async (request, response) => {
 
   if (url.pathname === "/api/refresh-slate") {
     await handleRefreshSlate(url, response);
+    return;
+  }
+
+  const predictionInputPath = url.pathname.match(/^\/api\/prediction-inputs\/([^/]+)\/([^/]+)$/);
+  if (predictionInputPath) {
+    await handlePredictionInputs(
+      decodeURIComponent(predictionInputPath[1]),
+      decodeURIComponent(predictionInputPath[2]),
+      response
+    );
     return;
   }
 
