@@ -52,7 +52,6 @@ const historicalThreeYearStatAverages = {
     Grass: { rank: 430, hold: 76.0, ace: 4.7, form: 55 }
   }
 };
-const defaultPlayerStatsPathTemplate = "";
 const defaultPlayerStatsMaxPulls = 40;
 
 const types = {
@@ -196,7 +195,7 @@ function allSportsSourceCandidates(env) {
 }
 
 async function fetchAllSportsJson(path, source) {
-  const targetUrl = /^https?:\/\//i.test(path) ? path : `${source.baseUrl}${path}`;
+  const targetUrl = resolveApiUrl(path, source.baseUrl);
   const apiResponse = await fetch(targetUrl, {
     headers: {
       "Content-Type": "application/json",
@@ -213,6 +212,10 @@ async function fetchAllSportsJson(path, source) {
   }
 
   return body ? JSON.parse(body) : {};
+}
+
+function resolveApiUrl(path, baseUrl) {
+  return /^https?:\/\//i.test(path) ? path : `${baseUrl}${path}`;
 }
 
 function configuredPlayerProfileSources(env, allSportsSource) {
@@ -519,12 +522,15 @@ function emptyLiveProfile() {
 }
 
 function mergeLiveProfile(target, incoming, provider) {
+  let changed = false;
   ["rank", "hold", "ace", "form", "fatigue"].forEach((fieldName) => {
     if (Number.isFinite(incoming[fieldName]) && !Number.isFinite(target[fieldName])) {
       target[fieldName] = incoming[fieldName];
       target.sourceByField[fieldName] = provider;
+      changed = true;
     }
   });
+  return changed;
 }
 
 function formatPlayerStatsPath(pathTemplate, currentPlayerId) {
@@ -565,7 +571,8 @@ async function fetchPlayerStatProfiles(events, env, apiSource) {
     const requests = [];
     events.forEach((event) => {
       ["A", "B"].forEach((side) => {
-        const canonicalId = playerId(event, side) || slugify(`${playerName(event, side)}-${side}`);
+        const eventKey = firstValue(event, ["id", "eventId", "matchId", "fixtureId"]) || slugify(`${nameOf(firstValue(event, ["tournament", "competition", "league", "uniqueTournament"]), "match")}-${startTime(firstValue(event, ["startTimestamp", "startTime", "start_time", "date"]))}`);
+        const canonicalId = playerId(event, side) || slugify(`${playerName(event, side)}-${eventKey}-${side}`);
         const providerId = playerProviderId(event, side, providerName);
         if (!providerId) return;
         const dedupeKey = `${canonicalId}|${providerId}`;
@@ -588,10 +595,9 @@ async function fetchPlayerStatProfiles(events, env, apiSource) {
         const profile = extractLivePlayerProfile(payload);
         if ([profile.rank, profile.hold, profile.ace, profile.form, profile.fatigue].some((value) => Number.isFinite(value))) {
           const existing = profiles.get(request.canonicalId) || emptyLiveProfile();
-          const before = JSON.stringify(existing);
-          mergeLiveProfile(existing, profile, providerName);
+          const changed = mergeLiveProfile(existing, profile, providerName);
           profiles.set(request.canonicalId, existing);
-          if (JSON.stringify(existing) !== before) loadedCount += 1;
+          if (changed) loadedCount += 1;
         }
       } catch (error) {
         const errorRecord = { provider: providerName, playerId: request.providerId, canonicalId: request.canonicalId, error: error.message };
