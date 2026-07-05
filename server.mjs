@@ -85,16 +85,22 @@ function sendJson(response, statusCode, payload) {
 }
 
 function basicAuthEnabled() {
+  const { username, password } = basicAuthCredentials();
+  return Boolean(username && password);
+}
+
+function basicAuthCredentials() {
   const env = readEnvFile();
-  return Boolean(env.APP_BASIC_AUTH_USER && env.APP_BASIC_AUTH_PASSWORD);
+  return {
+    username: String(env.APP_BASIC_AUTH_USER ?? "").trim(),
+    password: String(env.APP_BASIC_AUTH_PASSWORD ?? "").trim()
+  };
 }
 
 function authorized(request) {
   if (!basicAuthEnabled()) return true;
 
-  const env = readEnvFile();
-  const basicAuthUser = env.APP_BASIC_AUTH_USER || "";
-  const basicAuthPassword = env.APP_BASIC_AUTH_PASSWORD || "";
+  const { username: basicAuthUser, password: basicAuthPassword } = basicAuthCredentials();
 
   const header = request.headers.authorization || "";
   if (!header.startsWith("Basic ")) return false;
