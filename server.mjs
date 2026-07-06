@@ -103,14 +103,39 @@ async function buildSofaScorePlayerStatsMap(events, env) {
   const maxPlayers = Number.isFinite(configuredLimit) && configuredLimit > 0
     ? Math.floor(configuredLimit)
     : 80;
+  const playerReferenceStartTime = new Map();
+  events.forEach((event) => {
+    const eventStart = eventStartIso(event);
+    if (!eventStart) return;
+    [playerId(event, "A"), playerId(event, "B")].forEach((id) => {
+      if (!id) return;
+      const current = playerReferenceStartTime.get(id);
+      if (!current || new Date(eventStart) < new Date(current)) {
+        playerReferenceStartTime.set(id, eventStart);
+      }
+    });
+  });
   const idsToFetch = allPlayerIds.slice(0, maxPlayers);
   const playerStatsById = new Map();
   const errors = [];
+  let fatigueDerivedCount = 0;
+  let injuryDerivedCount = 0;
 
   await runWithConcurrency(idsToFetch, 4, async (currentPlayerId) => {
     try {
       const payload = await fetchSofaScoreJson("/player/statistics/seasons", { player_id: currentPlayerId }, source);
-      playerStatsById.set(currentPlayerId, extractSofaScorePlayerStats(payload));
+      const baseStats = extractSofaScorePlayerStats(payload);
+      const recent = await fetchSofaScoreRecentEvents(currentPlayerId, source);
+      const fatigue = deriveSofaFatigueAndInjury(recent.events, currentPlayerId, playerReferenceStartTime.get(currentPlayerId));
+      if (Number.isFinite(fatigue.fatigueScore)) fatigueDerivedCount += 1;
+      if (Number.isFinite(fatigue.injuryScore) && fatigue.injuryScore > 0) injuryDerivedCount += 1;
+      playerStatsById.set(currentPlayerId, {
+        ...baseStats,
+        fatigueScore: fatigue.fatigueScore,
+        injuryScore: fatigue.injuryScore,
+        fatigueDetails: fatigue.fatigueDetails,
+        recentEventsPath: recent.sourcePath
+      });
     } catch (error) {
       errors.push({
         playerId: currentPlayerId,
@@ -128,6 +153,8 @@ async function buildSofaScorePlayerStatsMap(events, env) {
       playerIdsRequested: idsToFetch.length,
       playerIdsFetched: playerStatsById.size,
       playerIdsFailed: errors.length,
+      fatiguePlayersDerived: fatigueDerivedCount,
+      injuryPlayersDerived: injuryDerivedCount,
       requestLimited: idsToFetch.length < allPlayerIds.length,
       requestLimit: maxPlayers,
       errors: errors.slice(0, 25)
@@ -309,6 +336,116 @@ async function fetchAllSportsJsonWithFallback(path, env) {
   throw new Error(errors.join(" | "));
 }
 
+function dedupeEvents(events) {
+  const seen = new Set();
+  const output = [];
+  events.forEach((event, index) => {
+    if (!event || typeof event !== "object") return;
+    const eventId = firstValue(event, ["id", "eventId", "matchId", "fixtureId"]) || `event-${index}`;
+    if (seen.has(eventId)) return;
+    seen.add(eventId);
+    output.push(event);
+  });
+  return output;
+}
+
+async function fetchSofaScoreDailyEvents(date, env) {
+  const source = sofaScoreSourceCandidate(env);
+  if (!source) {
+    return {
+      events: [],
+      metadata: {
+        enabled: false,
+        reason: "Missing SOFASCORE_RAPIDAPI_KEY (or RAPIDAPI_KEY) in .env."
+      }
+    };
+  }
+
+  const endpointAttempts = [
+    { path: `/sport/tennis/scheduled-events/${date}`, params: null },
+    { path: "/sport/tennis/scheduled-events", params: { date } },
+    { path: `/sport/tennis/events/${date}`, params: null },
+    { path: "/sport/tennis/events", params: { date } },
+    { path: "/sport/tennis/events/date", params: { date } }
+  ];
+  const errors = [];
+
+  for (const attempt of endpointAttempts) {
+    try {
+      const payload = await fetchSofaScoreJson(attempt.path, attempt.params, source);
+      const events = dedupeEvents(extractList(payload, ["events", "matches", "data"]));
+      if (events.length) {
+        return {
+          events,
+          metadata: {
+            enabled: true,
+            source: `SofaScore (${source.rapidHost})`,
+            endpoint: `${attempt.path}${attempt.params ? `?${new URLSearchParams(attempt.params).toString()}` : ""}`,
+            eventCount: events.length,
+            errors
+          }
+        };
+      }
+      errors.push(`${attempt.path}: returned no events`);
+    } catch (error) {
+      errors.push(`${attempt.path}: ${error.message}`);
+    }
+  }
+
+  return {
+    events: [],
+    metadata: {
+      enabled: true,
+      source: `SofaScore (${source.rapidHost})`,
+      endpoint: null,
+      eventCount: 0,
+      errors
+    }
+  };
+}
+
+async function fetchAllSportsDailyEvents(date, options = {}, env) {
+  const [year, month, day] = date.split("-").map(Number);
+  const categoryResult = await fetchAllSportsJsonWithFallback(`/api/tennis/calendar/${day}/${month}/${year}/categories`, env);
+  const categoriesPayload = categoryResult.payload;
+  const apiSource = categoryResult.source;
+  const categories = extractList(categoriesPayload, ["categories", "data"]);
+  const maxCategories = Number.isFinite(options.maxCategories) ? Math.max(0, options.maxCategories) : null;
+  const categoriesToLoad = maxCategories === null ? categories : categories.slice(0, maxCategories);
+  const events = [];
+  const categoryErrors = [];
+  const seen = new Set();
+
+  for (const category of categoriesToLoad) {
+    const categoryId = category.id || category.categoryId || category.category_id || category.category?.id;
+    if (!categoryId) continue;
+
+    try {
+      const eventPayload = await fetchAllSportsJson(`/api/tennis/category/${categoryId}/events/${day}/${month}/${year}`, apiSource);
+      extractList(eventPayload, ["events", "matches", "data"]).forEach((event) => {
+        const eventId = event.id || event.eventId || event.matchId || `${categoryId}-${events.length}`;
+        if (seen.has(eventId)) return;
+        seen.add(eventId);
+        events.push({ ...event, category: event.category || category });
+      });
+    } catch (error) {
+      categoryErrors.push({
+        categoryId,
+        category: nameOf(category, String(categoryId)),
+        error: error.message
+      });
+    }
+  }
+
+  return {
+    source: apiSource,
+    categories,
+    categoriesToLoad,
+    events,
+    categoryErrors
+  };
+}
+
 function flattenNumericStats(value, path = "", output = {}) {
   if (Array.isArray(value)) {
     value.forEach((item, index) => {
@@ -388,6 +525,175 @@ function extractSofaScorePlayerStats(payload) {
     acesAvg: findFirstNumeric(flatStats, ["acesPerMatch", "averageAces", "acesAvg"]),
     formPct: deriveFormPercent(flatStats)
   };
+}
+
+function numericField(item, keys, fallback = null) {
+  const value = firstValue(item, keys);
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+}
+
+function parseEventDurationMinutes(event) {
+  const directMinutes = numericField(event, [
+    "time.duration",
+    "time.durationMinutes",
+    "duration",
+    "durationMinutes",
+    "matchDuration",
+    "matchDurationMinutes",
+    "statistics.matchDuration",
+    "status.matchTime",
+    "status.time"
+  ]);
+  if (Number.isFinite(directMinutes) && directMinutes > 0) return directMinutes;
+
+  const seconds = numericField(event, [
+    "time.durationSeconds",
+    "durationSeconds",
+    "matchDurationSeconds",
+    "statistics.matchDurationSeconds"
+  ]);
+  if (Number.isFinite(seconds) && seconds > 0) return seconds / 60;
+
+  return null;
+}
+
+function setsPlayedForEvent(event) {
+  const winner = winnerSide(event);
+  const result = buildMatchResult(event, winner);
+  if (Number.isFinite(result.setsPlayed) && result.setsPlayed > 0) return result.setsPlayed;
+
+  const periods = firstValue(event, ["periods", "score.periods"]);
+  if (Array.isArray(periods)) {
+    const completed = periods.filter((period) => {
+      const home = Number(period?.home ?? period?.homeScore ?? period?.team1 ?? period?.a);
+      const away = Number(period?.away ?? period?.awayScore ?? period?.team2 ?? period?.b);
+      return Number.isFinite(home) && Number.isFinite(away) && (home > 0 || away > 0);
+    });
+    if (completed.length) return completed.length;
+  }
+
+  return 0;
+}
+
+function eventHasInjurySignal(event) {
+  const values = [
+    nameOf(firstValue(event, ["status.description", "statusDescription", "status.type", "statusType"]), ""),
+    nameOf(firstValue(event, ["reason", "note", "commentary", "incidentType"]), "")
+  ].join(" ").toLowerCase();
+
+  return ["injury", "retired", "retirement", "walkover", "medical", "withdraw"].some((term) => values.includes(term));
+}
+
+function dayDiff(laterIso, earlierIso) {
+  const later = new Date(laterIso);
+  const earlier = new Date(earlierIso);
+  if (Number.isNaN(later.getTime()) || Number.isNaN(earlier.getTime())) return null;
+  return (later.getTime() - earlier.getTime()) / 86_400_000;
+}
+
+function eventStartIso(event) {
+  const rawStart = firstValue(event, ["startTimestamp", "startTime", "start_time", "date", "time.currentPeriodStartTimestamp"]);
+  if (rawStart === undefined || rawStart === null || rawStart === "") return null;
+  return startTime(rawStart);
+}
+
+function deriveSofaFatigueAndInjury(recentEvents, playerIdValue, referenceStartTime) {
+  if (!Array.isArray(recentEvents) || !recentEvents.length) {
+    return { fatigueScore: null, injuryScore: null, fatigueDetails: null };
+  }
+
+  const reference = referenceStartTime || new Date().toISOString();
+  const involved = recentEvents
+    .filter((event) => playerId(event, "A") === playerIdValue || playerId(event, "B") === playerIdValue)
+    .map((event) => ({ event, start: eventStartIso(event) }))
+    .filter((entry) => entry.start)
+    .sort((a, b) => new Date(b.start) - new Date(a.start));
+
+  if (!involved.length) {
+    return { fatigueScore: null, injuryScore: null, fatigueDetails: null };
+  }
+
+  let latestEvent = null;
+  let setsPlayedLast7Days = 0;
+  let matchesPlayedLast7Days = 0;
+  let injuryFlag = false;
+
+  involved.forEach(({ event, start }) => {
+    const diffDays = dayDiff(reference, start);
+    if (!Number.isFinite(diffDays) || diffDays < 0) return;
+    if (!latestEvent || new Date(start) > new Date(latestEvent.start)) latestEvent = { event, start };
+    if (diffDays <= 7) {
+      matchesPlayedLast7Days += 1;
+      setsPlayedLast7Days += setsPlayedForEvent(event);
+    }
+    if (!injuryFlag && eventHasInjurySignal(event)) injuryFlag = true;
+  });
+
+  const restDays = latestEvent ? dayDiff(reference, latestEvent.start) : null;
+  const lastMatchMinutes = latestEvent ? parseEventDurationMinutes(latestEvent.event) : null;
+
+  let fatiguePenalty = 0;
+  if (Number.isFinite(restDays)) {
+    if (restDays < 1) fatiguePenalty += 0.020;
+    else if (restDays < 2) fatiguePenalty += 0.010;
+  }
+  if (Number.isFinite(lastMatchMinutes)) {
+    if (lastMatchMinutes >= 180) fatiguePenalty += 0.020;
+    else if (lastMatchMinutes >= 150) fatiguePenalty += 0.012;
+    else if (lastMatchMinutes >= 120) fatiguePenalty += 0.006;
+  }
+  if (setsPlayedLast7Days >= 12) fatiguePenalty += 0.020;
+  else if (setsPlayedLast7Days >= 9) fatiguePenalty += 0.012;
+  else if (setsPlayedLast7Days >= 6) fatiguePenalty += 0.006;
+
+  if (matchesPlayedLast7Days >= 5) fatiguePenalty += 0.015;
+  else if (matchesPlayedLast7Days >= 4) fatiguePenalty += 0.008;
+
+  const injuryPenalty = injuryFlag ? 0.030 : 0;
+  const fatigueScore = round(clamp(fatiguePenalty * 400, 0, 100), 2);
+  const injuryScore = round(clamp(injuryPenalty * 200, 0, 100), 2);
+
+  const hasSignals = Number.isFinite(restDays)
+    || Number.isFinite(lastMatchMinutes)
+    || setsPlayedLast7Days > 0
+    || matchesPlayedLast7Days > 0
+    || injuryFlag;
+
+  return {
+    fatigueScore: hasSignals ? fatigueScore : null,
+    injuryScore: hasSignals ? injuryScore : null,
+    fatigueDetails: hasSignals ? {
+      restDays: Number.isFinite(restDays) ? round(restDays, 2) : null,
+      lastMatchMinutes: Number.isFinite(lastMatchMinutes) ? round(lastMatchMinutes, 1) : null,
+      setsPlayedLast7Days,
+      matchesPlayedLast7Days,
+      injuryFlag
+    } : null
+  };
+}
+
+async function fetchSofaScoreRecentEvents(playerIdValue, source) {
+  const paths = [
+    `/player/${playerIdValue}/events/last/0`,
+    `/player/${playerIdValue}/matches/last/0`,
+    `/player/${playerIdValue}/events/last`
+  ];
+  const errors = [];
+
+  for (const path of paths) {
+    try {
+      const payload = await fetchSofaScoreJson(path, null, source);
+      const events = extractList(payload, ["events", "matches", "data"]);
+      if (events.length) {
+        return { events, sourcePath: path };
+      }
+    } catch (error) {
+      errors.push(`${path}: ${error.message}`);
+    }
+  }
+
+  return { events: [], sourcePath: "", errors };
 }
 
 function extractList(payload, keys) {
@@ -821,6 +1127,34 @@ function normalizeEvent(event, index, context = {}) {
     playerAId,
     "Form was derived from SofaScore player season statistics."
   );
+  const fatigueANormalized = applySofaDerivedStat(
+    fatigueA,
+    Number.isFinite(sofaStatsA?.fatigueScore) ? sofaStatsA.fatigueScore : null,
+    "A fatigue",
+    playerAId,
+    "Fatigue was derived from recent SofaScore match schedule and workload signals."
+  );
+  const fatigueBNormalized = applySofaDerivedStat(
+    fatigueB,
+    Number.isFinite(sofaStatsB?.fatigueScore) ? sofaStatsB.fatigueScore : null,
+    "B fatigue",
+    playerBId,
+    "Fatigue was derived from recent SofaScore match schedule and workload signals."
+  );
+  const injuryANormalized = applySofaDerivedStat(
+    injuryA,
+    Number.isFinite(sofaStatsA?.injuryScore) ? sofaStatsA.injuryScore : null,
+    "A injury",
+    playerAId,
+    "Injury risk was derived from recent SofaScore status/retirement signals."
+  );
+  const injuryBNormalized = applySofaDerivedStat(
+    injuryB,
+    Number.isFinite(sofaStatsB?.injuryScore) ? sofaStatsB.injuryScore : null,
+    "B injury",
+    playerBId,
+    "Injury risk was derived from recent SofaScore status/retirement signals."
+  );
   formB = applySofaDerivedStat(
     formB,
     Number.isFinite(sofaStatsB?.formPct) ? Math.round(sofaStatsB.formPct) : null,
@@ -850,10 +1184,10 @@ function normalizeEvent(event, index, context = {}) {
     formA: formA.trace,
     formB: formB.trace,
     weatherFactor: weatherFactor.trace,
-    fatigueA: fatigueA.trace,
-    fatigueB: fatigueB.trace,
-    injuryA: injuryA.trace,
-    injuryB: injuryB.trace
+    fatigueA: fatigueANormalized.trace,
+    fatigueB: fatigueBNormalized.trace,
+    injuryA: injuryANormalized.trace,
+    injuryB: injuryBNormalized.trace
   };
 
   return {
@@ -886,48 +1220,47 @@ function normalizeEvent(event, index, context = {}) {
     formA: formA.value,
     formB: formB.value,
     weatherFactor: weatherFactor.value,
-    fatigueA: fatigueA.value,
-    fatigueB: fatigueB.value,
-    injuryA: injuryA.value,
-    injuryB: injuryB.value,
+    fatigueA: fatigueANormalized.value,
+    fatigueB: fatigueBNormalized.value,
+    injuryA: injuryANormalized.value,
+    injuryB: injuryBNormalized.value,
     dataTrace,
     dataQuality: buildDataQuality(dataTrace)
   };
 }
 
 async function fetchDailyTennisSlate(date, options = {}) {
-  const [year, month, day] = date.split("-").map(Number);
   const env = readEnvFile();
   const timeZone = env.SLATE_TIME_ZONE || defaultSlateTimeZone;
-  const categoryResult = await fetchAllSportsJsonWithFallback(`/api/tennis/calendar/${day}/${month}/${year}/categories`, env);
-  const categoriesPayload = categoryResult.payload;
-  const apiSource = categoryResult.source;
-  const categories = extractList(categoriesPayload, ["categories", "data"]);
-  const maxCategories = Number.isFinite(options.maxCategories) ? Math.max(0, options.maxCategories) : null;
-  const categoriesToLoad = maxCategories === null ? categories : categories.slice(0, maxCategories);
-  const events = [];
-  const categoryErrors = [];
-  const seen = new Set();
+  const sofaPrimary = await fetchSofaScoreDailyEvents(date, env);
+  let sourceLabel = "Live slate";
+  let sourceDetails = {};
+  let categories = [];
+  let categoriesToLoad = [];
+  let events = [];
+  let categoryErrors = [];
 
-  for (const category of categoriesToLoad) {
-    const categoryId = category.id || category.categoryId || category.category_id || category.category?.id;
-    if (!categoryId) continue;
-
-    try {
-      const eventPayload = await fetchAllSportsJson(`/api/tennis/category/${categoryId}/events/${day}/${month}/${year}`, apiSource);
-      extractList(eventPayload, ["events", "matches", "data"]).forEach((event) => {
-        const eventId = event.id || event.eventId || event.matchId || `${categoryId}-${events.length}`;
-        if (seen.has(eventId)) return;
-        seen.add(eventId);
-        events.push({ ...event, category: event.category || category });
-      });
-    } catch (error) {
-      categoryErrors.push({
-        categoryId,
-        category: nameOf(category, String(categoryId)),
-        error: error.message
-      });
-    }
+  if (sofaPrimary.events.length) {
+    sourceLabel = `SofaScore Tennis live slate (${env.SOFASCORE_RAPIDAPI_HOST || defaultSofaScoreHost})`;
+    sourceDetails = {
+      primary: "sofascore",
+      fallbackUsed: false,
+      sofaScoreSlate: sofaPrimary.metadata
+    };
+    events = sofaPrimary.events;
+  } else {
+    const allSports = await fetchAllSportsDailyEvents(date, options, env);
+    sourceLabel = `AllSportsAPI Tennis live slate (${allSports.source.rapidHost})`;
+    sourceDetails = {
+      primary: "sofascore",
+      fallbackUsed: true,
+      fallbackSource: "allsports",
+      sofaScoreSlate: sofaPrimary.metadata
+    };
+    categories = allSports.categories;
+    categoriesToLoad = allSports.categoriesToLoad;
+    events = allSports.events;
+    categoryErrors = allSports.categoryErrors;
   }
 
   const dateMatchedEvents = events.filter((event) => eventLocalDate(event, timeZone) === date);
@@ -944,7 +1277,7 @@ async function fetchDailyTennisSlate(date, options = {}) {
     ));
 
   const payload = {
-    source: `AllSportsAPI Tennis live slate (${apiSource.rapidHost})`,
+    source: sourceLabel,
     date,
     generatedAt: new Date().toISOString(),
     timeZone,
@@ -956,14 +1289,23 @@ async function fetchDailyTennisSlate(date, options = {}) {
     filteredOutCount: events.length - eventsForDate.length,
     count: matches.length,
     partialErrors: categoryErrors,
+    sourceDetails,
     sofaScore: sofaScoreEnrichment.metadata,
     matches
   };
 
   mkdirSync(join(root, "api_cache"), { recursive: true });
   writeFileSync(
-    join(root, "api_cache", `raw_allsports_tennis_${date}.json`),
-    JSON.stringify({ categories, events, eventsForDate, categoryErrors, sofaScore: sofaScoreEnrichment.metadata }, null, 2),
+    join(root, "api_cache", `raw_live_tennis_${date}.json`),
+    JSON.stringify({
+      source: sourceLabel,
+      sourceDetails,
+      categories,
+      events,
+      eventsForDate,
+      categoryErrors,
+      sofaScore: sofaScoreEnrichment.metadata
+    }, null, 2),
     "utf-8"
   );
   writeFileSync(join(root, "matches_preload.json"), JSON.stringify(payload, null, 2), "utf-8");
@@ -1004,6 +1346,7 @@ async function handleRefreshSlate(url, response) {
       filteredOutCount: payload.filteredOutCount ?? null,
       timeZone: payload.timeZone ?? null,
       source: payload.source ?? "Live slate",
+      sourceDetails: payload.sourceDetails ?? null,
       sofaScore: payload.sofaScore ?? null,
       generatedAt: payload.generatedAt ?? new Date().toISOString()
     });

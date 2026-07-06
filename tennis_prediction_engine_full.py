@@ -162,6 +162,7 @@ class PlayerSnapshot:
     matches_played_last_7_days: float = 1.0
     injury_flag: bool = False
     weather_sensitivity: float = 0.0
+    travel_score: float = 0.0
 
     # Props/counts.
     aces_avg: float = 5.0
@@ -360,12 +361,18 @@ class MonteCarloTennisModel:
         p_b_serve: float,
         best_of: int = 3,
         simulations: int = 100000,
+        fatigue_differential: float = 0.0,
     ) -> Dict[str, Any]:
+        # Keep the fatigue shift modest because serve-point inputs already
+        # include context adjustments before reaching Monte Carlo.
+        mc_fatigue_shift = clamp(fatigue_differential * 0.20, -0.02, 0.02)
+        mc_p_a_serve = clamp(p_a_serve + mc_fatigue_shift, 0.45, 0.75)
+        mc_p_b_serve = clamp(p_b_serve - mc_fatigue_shift, 0.45, 0.75)
         winners = []
         scores = Counter()
 
         for _ in range(simulations):
-            winner, match_score, set_scores = self.simulate_match(p_a_serve, p_b_serve, best_of)
+            winner, match_score, set_scores = self.simulate_match(mc_p_a_serve, mc_p_b_serve, best_of)
             winners.append(winner)
             scores[f"{winner} {match_score} ({', '.join(set_scores)})"] += 1
 
@@ -381,6 +388,7 @@ class MonteCarloTennisModel:
             "fair_american_odds_b": probability_to_american_odds(p_b),
             "most_common_scores": scores.most_common(8),
             "simulations": simulations,
+            "fatigue_differential": fatigue_differential,
         }
 
 
@@ -932,6 +940,12 @@ DEFAULT_FEATURE_COLUMNS = [
     "surface_hold_pct_diff",
     "surface_break_pct_diff",
     "rest_days_diff",
+    "rest_hours_diff",
+    "minutes_48h_diff",
+    "decayed_load_diff",
+    "travel_score_diff",
+    "performance_decay_score_diff",
+    "fatigue_differential",
     "sets_played_last_7_days_diff",
     "last_match_minutes_diff",
     "injury_diff",
@@ -955,6 +969,12 @@ def add_difference_features(row: Dict[str, Any]) -> Dict[str, Any]:
         "surface_hold_pct_diff": ("a_surface_hold_pct", "b_surface_hold_pct"),
         "surface_break_pct_diff": ("a_surface_break_pct", "b_surface_break_pct"),
         "rest_days_diff": ("a_rest_days", "b_rest_days"),
+        "rest_hours_diff": ("a_rest_hours", "b_rest_hours"),
+        "minutes_48h_diff": ("b_minutes_48h", "a_minutes_48h"),
+        "decayed_load_diff": ("b_decayed_load", "a_decayed_load"),
+        "travel_score_diff": ("b_travel_score", "a_travel_score"),
+        "performance_decay_score_diff": ("b_performance_decay_score", "a_performance_decay_score"),
+        "fatigue_differential": ("b_performance_decay_score", "a_performance_decay_score"),
         "sets_played_last_7_days_diff": ("b_sets_played_last_7_days", "a_sets_played_last_7_days"),
         "last_match_minutes_diff": ("b_last_match_minutes", "a_last_match_minutes"),
         "injury_diff": ("b_injury_flag", "a_injury_flag"),
@@ -974,10 +994,15 @@ def build_match_row(
     surface: str,
     market_no_vig_prob_a: Optional[float] = None,
     weather_context: Optional[WeatherContext] = None,
+    fatigue_components: Optional[Dict[str, Dict[str, float]]] = None,
 ) -> Dict[str, Any]:
     a_surface_elo = player_a.get_surface_elo(surface)
     b_surface_elo = player_b.get_surface_elo(surface)
     weather_context = weather_context or WeatherContext()
+
+    fatigue_components = fatigue_components or {}
+    a_fatigue = fatigue_components.get("a", {})
+    b_fatigue = fatigue_components.get("b", {})
 
     row = {
         "a_elo": player_a.overall_elo,
@@ -1008,6 +1033,16 @@ def build_match_row(
         "b_surface_break_pct": player_b.surface_break_pct,
         "a_rest_days": player_a.rest_days,
         "b_rest_days": player_b.rest_days,
+        "a_rest_hours": a_fatigue.get("rest_hours", player_a.rest_days * 24),
+        "b_rest_hours": b_fatigue.get("rest_hours", player_b.rest_days * 24),
+        "a_minutes_48h": a_fatigue.get("minutes_48h", player_a.last_match_minutes),
+        "b_minutes_48h": b_fatigue.get("minutes_48h", player_b.last_match_minutes),
+        "a_decayed_load": a_fatigue.get("decayed_load", player_a.sets_played_last_7_days),
+        "b_decayed_load": b_fatigue.get("decayed_load", player_b.sets_played_last_7_days),
+        "a_travel_score": a_fatigue.get("travel_score", player_a.travel_score),
+        "b_travel_score": b_fatigue.get("travel_score", player_b.travel_score),
+        "a_performance_decay_score": a_fatigue.get("performance_decay_score", 0.0),
+        "b_performance_decay_score": b_fatigue.get("performance_decay_score", 0.0),
         "a_sets_played_last_7_days": player_a.sets_played_last_7_days,
         "b_sets_played_last_7_days": player_b.sets_played_last_7_days,
         "a_last_match_minutes": player_a.last_match_minutes,
@@ -1050,6 +1085,12 @@ def ensure_difference_columns(dataframe: Any) -> Any:
                 "surface_hold_pct_diff": ("a_surface_hold_pct", "b_surface_hold_pct"),
                 "surface_break_pct_diff": ("a_surface_break_pct", "b_surface_break_pct"),
                 "rest_days_diff": ("a_rest_days", "b_rest_days"),
+                "rest_hours_diff": ("a_rest_hours", "b_rest_hours"),
+                "minutes_48h_diff": ("b_minutes_48h", "a_minutes_48h"),
+                "decayed_load_diff": ("b_decayed_load", "a_decayed_load"),
+                "travel_score_diff": ("b_travel_score", "a_travel_score"),
+                "performance_decay_score_diff": ("b_performance_decay_score", "a_performance_decay_score"),
+                "fatigue_differential": ("b_performance_decay_score", "a_performance_decay_score"),
                 "sets_played_last_7_days_diff": ("b_sets_played_last_7_days", "a_sets_played_last_7_days"),
                 "last_match_minutes_diff": ("b_last_match_minutes", "a_last_match_minutes"),
                 "injury_diff": ("b_injury_flag", "a_injury_flag"),
@@ -1561,37 +1602,61 @@ class WeatherModel:
 class FatigueModel:
     """Positive adjustment means Player A benefits. Negative means Player B benefits."""
 
-    def fatigue_penalty(self, player: PlayerSnapshot) -> float:
-        penalty = 0.0
+    def component_features(self, player: PlayerSnapshot) -> Dict[str, float]:
+        rest_hours = max(0.0, player.rest_days * 24.0)
+        minutes_48h = 0.0
+        if rest_hours < 24:
+            minutes_48h = player.last_match_minutes
+        elif rest_hours < 48:
+            minutes_48h = player.last_match_minutes * 0.5
 
-        if player.rest_days < 1:
-            penalty += 0.020
-        elif player.rest_days < 2:
-            penalty += 0.010
+        decayed_load = (
+            max(0.0, player.sets_played_last_7_days) * 0.55
+            + max(0.0, player.matches_played_last_7_days) * 0.35
+            + minutes_48h / 60.0 * 0.10
+        )
 
-        if player.last_match_minutes >= 180:
-            penalty += 0.020
-        elif player.last_match_minutes >= 150:
-            penalty += 0.012
-        elif player.last_match_minutes >= 120:
-            penalty += 0.006
+        performance_decay_score = 0.0
+        if rest_hours < 24:
+            performance_decay_score += 0.020
+        elif rest_hours < 48:
+            performance_decay_score += 0.010
 
-        if player.sets_played_last_7_days >= 12:
-            penalty += 0.020
-        elif player.sets_played_last_7_days >= 9:
-            penalty += 0.012
-        elif player.sets_played_last_7_days >= 6:
-            penalty += 0.006
+        if minutes_48h >= 180:
+            performance_decay_score += 0.020
+        elif minutes_48h >= 150:
+            performance_decay_score += 0.012
+        elif minutes_48h >= 120:
+            performance_decay_score += 0.006
+
+        if decayed_load >= 12:
+            performance_decay_score += 0.020
+        elif decayed_load >= 9:
+            performance_decay_score += 0.012
+        elif decayed_load >= 6:
+            performance_decay_score += 0.006
 
         if player.matches_played_last_7_days >= 5:
-            penalty += 0.015
+            performance_decay_score += 0.015
         elif player.matches_played_last_7_days >= 4:
-            penalty += 0.008
+            performance_decay_score += 0.008
+
+        travel_score = clamp(player.travel_score, 0.0, 1.0)
+        performance_decay_score += travel_score * 0.010
 
         if player.injury_flag:
-            penalty += 0.030
+            performance_decay_score += 0.030
 
-        return penalty
+        return {
+            "rest_hours": rest_hours,
+            "minutes_48h": minutes_48h,
+            "decayed_load": decayed_load,
+            "travel_score": travel_score,
+            "performance_decay_score": performance_decay_score,
+        }
+
+    def fatigue_penalty(self, player: PlayerSnapshot) -> float:
+        return self.component_features(player)["performance_decay_score"]
 
     def probability_adjustment_for_a(self, player_a: PlayerSnapshot, player_b: PlayerSnapshot) -> float:
         a_penalty = self.fatigue_penalty(player_a)
@@ -1739,7 +1804,13 @@ class TennisPredictionEngine:
         weather_context: Optional[WeatherContext] = None,
         apply_market_blend: bool = True,
     ) -> PredictionResult:
-        fatigue_adj = self.fatigue.probability_adjustment_for_a(player_a, player_b)
+        fatigue_components_a = self.fatigue.component_features(player_a)
+        fatigue_components_b = self.fatigue.component_features(player_b)
+        fatigue_adj = clamp(
+            fatigue_components_b["performance_decay_score"] - fatigue_components_a["performance_decay_score"],
+            -0.05,
+            0.05,
+        )
         matchup_adj = self.matchup.probability_adjustment_for_a(player_a, player_b)
         weather_adj = self.weather.probability_adjustment_for_a(player_a, player_b, weather_context)
 
@@ -1773,7 +1844,13 @@ class TennisPredictionEngine:
             weather_adjustment=b_point_weather_adj,
         )
 
-        monte_carlo_result = self.monte_carlo.predict(p_a_serve, p_b_serve, best_of, simulations)
+        monte_carlo_result = self.monte_carlo.predict(
+            p_a_serve,
+            p_b_serve,
+            best_of,
+            simulations,
+            fatigue_differential=fatigue_adj,
+        )
         analytical_result = self.analytical.predict(p_a_serve, p_b_serve, best_of)
         surface_elo_prob = self.surface_elo_probability_from_snapshots(player_a, player_b, surface)
         glicko_prob = self.glicko_probability_from_snapshots(player_a, player_b)
@@ -1785,7 +1862,14 @@ class TennisPredictionEngine:
             market_data = self.market.no_vig_probability(sportsbook_odds_a, sportsbook_odds_b)
             market_probability = market_data["a_no_vig_probability"]
 
-        row = build_match_row(player_a, player_b, surface, market_probability, weather_context)
+        row = build_match_row(
+            player_a,
+            player_b,
+            surface,
+            market_probability,
+            weather_context,
+            fatigue_components={"a": fatigue_components_a, "b": fatigue_components_b},
+        )
         regression_prob = self.regression.predict_from_row(row)
         boosting_prob = self.boosting.predict_from_row(row)
 
