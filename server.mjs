@@ -1240,28 +1240,14 @@ async function fetchDailyTennisSlate(date, options = {}) {
   let events = [];
   let categoryErrors = [];
 
-  if (sofaPrimary.events.length) {
-    sourceLabel = `SofaScore Tennis live slate (${env.SOFASCORE_RAPIDAPI_HOST || defaultSofaScoreHost})`;
-    sourceDetails = {
-      primary: "sofascore",
-      fallbackUsed: false,
-      sofaScoreSlate: sofaPrimary.metadata
-    };
-    events = sofaPrimary.events;
-  } else {
-    const allSports = await fetchAllSportsDailyEvents(date, options, env);
-    sourceLabel = `AllSportsAPI Tennis live slate (${allSports.source.rapidHost})`;
-    sourceDetails = {
-      primary: "sofascore",
-      fallbackUsed: true,
-      fallbackSource: "allsports",
-      sofaScoreSlate: sofaPrimary.metadata
-    };
-    categories = allSports.categories;
-    categoriesToLoad = allSports.categoriesToLoad;
-    events = allSports.events;
-    categoryErrors = allSports.categoryErrors;
-  }
+  // SofaScore only—no AllSports fallback to avoid quota issues
+  sourceLabel = `SofaScore Tennis live slate (${env.SOFASCORE_RAPIDAPI_HOST || defaultSofaScoreHost})`;
+  sourceDetails = {
+    primary: "sofascore",
+    fallbackUsed: false,
+    sofaScoreSlate: sofaPrimary.metadata
+  };
+  events = sofaPrimary.events;
 
   const dateMatchedEvents = events.filter((event) => eventLocalDate(event, timeZone) === date);
   const usedDateEndpointFallback = !dateMatchedEvents.length && events.length > 0;
